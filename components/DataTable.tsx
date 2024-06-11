@@ -20,7 +20,7 @@ const DataTable: React.FC<{ data: any[] }> = ({ data }) => {
         </thead>
         <tbody>
           {data.map((row, index) => (
-            <tr key={index} className="bg-white">
+            <tr key={index} className={`${index % 2 === 0 ? 'bg-custom-gray' : 'bg-white'} rounded-32px`}>
               <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
                 <div className="flex items-center">
                   <img src={row.marketIcon} alt={row.market} className="h-6 w-6 rounded-full mr-2" />

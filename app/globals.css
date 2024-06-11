@@ -31,4 +31,10 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .bg-custom-gray {
+    background-color: #D9D9D9;
+  }
+  .rounded-32px {
+    border-radius: 32px;
+  }
 }
