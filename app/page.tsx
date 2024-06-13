@@ -4,7 +4,7 @@ import DataTable from '../components/DataTable';
 
 const data = [
   {
-    marketIcon: '/icons/native-aqua.png',
+    marketIcon: '/icons/native-AQUA.png',
     market: 'XLM - AQUA',
     totalValueLocked: '$119.90k',
     volume24hr: '$13.1k',
