@@ -23,7 +23,7 @@ const DataTable: React.FC<{ data: any[] }> = ({ data }) => {
             <tr key={index} className={`${index % 2 === 0 ? 'bg-custom-gray' : 'bg-white'} rounded-32px`}>
               <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
                 <div className="flex items-center">
-                  <img src={row.marketIcon} alt={row.market} className="h-8 w-8 object-contain mr-2" />
+                  <img src={row.marketIcon} alt={row.market} className="h-16 w-16 object-contain mr-2" />
                   <span className="text-sm font-medium text-gray-900">{row.market}</span>
                 </div>
               </td>
