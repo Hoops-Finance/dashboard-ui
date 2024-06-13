@@ -14,8 +14,8 @@ const data = [
     riskScore: '42%',
   },
   {
-    marketIcon: '/icons/usdc-pho.png',
-    market: 'USDC - PHO',
+    marketIcon: '/icons/USDC-EURC.png',
+    market: 'USDC - EURC',
     totalValueLocked: '$95.68k',
     volume24hr: '$21.4k',
     fees24hr: '$550',
@@ -24,8 +24,8 @@ const data = [
     riskScore: '56%',
   },
   {
-    marketIcon: '/icons/xlm-eurc.png',
-    market: 'XLM - EURC',
+    marketIcon: '/icons/AQUA-XTAR.png',
+    market: 'AQUA - XTAR',
     totalValueLocked: '$4.15k',
     volume24hr: '$126',
     fees24hr: '$11',
@@ -34,8 +34,8 @@ const data = [
     riskScore: '32%',
   },
   {
-    marketIcon: '/icons/usdc-ars.png',
-    market: 'USDC - ARS',
+    marketIcon: '/icons/native-AQUA.png',
+    market: 'XLM - AQUA',
     totalValueLocked: '$82.12k',
     volume24hr: '$1.3k',
     fees24hr: '$241',
@@ -44,8 +44,8 @@ const data = [
     riskScore: '38%',
   },
   {
-    marketIcon: '/icons/xlm-pho.png',
-    market: 'XLM - PHO',
+    marketIcon: '/icons/native-NGNC.png',
+    market: 'XLM - NGNC',
     totalValueLocked: '$147.21k',
     volume24hr: '$32.4k',
     fees24hr: '$647',
