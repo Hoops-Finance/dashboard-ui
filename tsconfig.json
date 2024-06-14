@@ -23,6 +23,6 @@
       "@images/*": ["images/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/dashboard.tsx", "app/governance.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/dashboard/page.tsx", "app/gapp/governance/governance.tsx"],
   "exclude": ["node_modules"]
 }

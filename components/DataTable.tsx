@@ -54,3 +54,4 @@ const DataTable: React.FC<{ data: any[] }> = ({ data }) => {
 };
 
 export default DataTable;
+

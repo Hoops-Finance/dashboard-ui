@@ -2,7 +2,7 @@ import React from 'react';
 
 const TopWidget: React.FC = () => {
   return (
-    <div className="relative bg-cover bg-center h-48 w-full max-w-screen-2xl mx-auto rounded-2xl" style={{ backgroundImage: "url('/images/background1.png')" }}>
+    <div className="relative bg-cover bg-center h-48 w-full max-w-screen-2xl mx-auto rounded-2xl" style={{ backgroundImage: "url('/images/background2.png')" }}>
       <div className="absolute inset-0 bg-black opacity-50 rounded-2xl"></div>
       <div className="relative z-10 flex items-center justify-between h-full px-8 text-white">
         <h1 className="text-4xl font-bold font-lora">Pool Members</h1>
