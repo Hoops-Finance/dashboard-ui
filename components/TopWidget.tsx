@@ -7,15 +7,27 @@ const TopWidget: React.FC = () => {
       <div className="relative z-10 flex items-center justify-between h-full px-8 text-white">
         <h1 className="text-4xl font-bold font-lora">Pool Members</h1>
         <div className="flex space-x-4">
-          <div className="bg-white text-black p-4 rounded-lg shadow-md font-inter">
-            <h2 className="text-lg font-semibold">Total Supply</h2>
-            <p className="text-2xl font-bold">$38.36M</p>
-            <p className="text-sm"># of Lenders: 648</p>
+          <div className="relative bg-white text-black py-4 px-8 w-80 rounded-lg shadow-md font-inter flex flex-col items-start space-y-2">
+            <div className="absolute top-2 right-2">
+              <img src="/icons/info.png" alt="Info" className="h-4 w-4" />
+            </div>
+            <div className="flex items-center">
+              <span className="circle-icon mr-2"></span>
+              <h2 className="text-lg font-semibold text-left">Total Supply</h2>
+            </div>
+            <p className="text-2xl font-bold text-left">$38.36M</p>
+            <p className="text-sm bg-gray-300 rounded-32px px-2 py-1 text-left"># Pools Indexed: 5</p>
           </div>
-          <div className="bg-white text-black p-4 rounded-lg shadow-md font-inter">
-            <h2 className="text-lg font-semibold">Total Borrowed</h2>
-            <p className="text-2xl font-bold">$10.33M</p>
-            <p className="text-sm"># of Borrowers: 149</p>
+          <div className="relative bg-white text-black py-4 px-8 w-80 rounded-lg shadow-md font-inter flex flex-col items-start space-y-2">
+            <div className="absolute top-2 right-2">
+              <img src="/icons/info.png" alt="Info" className="h-4 w-4" />
+            </div>
+            <div className="flex items-center">
+              <span className="circle-icon mr-2"></span>
+              <h2 className="text-lg font-semibold text-left">Total Volume</h2>
+            </div>
+            <p className="text-2xl font-bold text-left">$10.33M</p>
+            <p className="text-sm bg-gray-300 rounded-32px px-2 py-1 text-left"># of Swaps: 149</p>
           </div>
         </div>
       </div>
