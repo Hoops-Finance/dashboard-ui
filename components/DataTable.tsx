@@ -1,9 +1,25 @@
 import React from 'react';
+import DataCard from './DataCard';
 
 const DataTable: React.FC<{ data: any[] }> = ({ data }) => {
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white">
+      <div className="block lg:hidden space-y-4 bg-gray-200 p-4">
+        {data.map((row, index) => (
+          <DataCard
+            key={index}
+            marketIcon={row.marketIcon}
+            market={row.market}
+            totalValueLocked={row.totalValueLocked}
+            volume24hr={row.volume24hr}
+            fees24hr={row.fees24hr}
+            apr={row.apr}
+            utilization={row.utilization}
+            riskScore={row.riskScore}
+          />
+        ))}
+      </div>
+      <table className="hidden lg:table min-w-full bg-white">
         <thead>
           <tr>
             {['Markets', 'Total Value Locked', 'Volume (24hr)', 'Fees (24hr)', 'APR%', 'Utilization', 'Risk Score'].map((header) => (
@@ -54,4 +70,5 @@ const DataTable: React.FC<{ data: any[] }> = ({ data }) => {
 };
 
 export default DataTable;
+
 

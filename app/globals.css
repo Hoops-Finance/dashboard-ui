@@ -46,3 +46,17 @@ body {
     margin-right: 8px;
   }
 }
+
+/* Custom shadow for DataCard */
+.shadow-custom {
+  box-shadow: 0px 71px 20px 0px rgba(0, 0, 0, 0.00), 
+              0px 45.5px 18px 0px rgba(0, 0, 0, 0.01), 
+              0px 25.5px 15.5px 0px rgba(0, 0, 0, 0.05), 
+              0px 11.5px 11.5px 0px rgba(0, 0, 0, 0.09), 
+              0px 3px 6.5px 0px rgba(0, 0, 0, 0.10);
+}
+
+/* Custom border radius for DataCard */
+.rounded-32px {
+  border-radius: 32px;
+}
