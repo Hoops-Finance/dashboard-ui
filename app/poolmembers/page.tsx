@@ -59,7 +59,7 @@ export default function Home() {
   return (
     <div className="bg-white min-h-screen">
       <Navbar />
-      <main className="flex flex-col items-center justify-start p-6">
+      <main className="flex flex-col items-center justify-start p-6 mobile-landscape:p-0">
         <TopWidget />
         <div className="w-full max-w-screen-2xl mt-6">
           <DataTable data={data} />

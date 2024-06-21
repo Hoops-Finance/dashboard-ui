@@ -11,7 +11,7 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
     <html lang="en">
       <body className="bg-white">
         <Navbar />
-        <main className="pt-20"> {/* Adjust padding to ensure content is not hidden behind the navbar */}
+        <main className="pt-16 lg:pt-20"> {/* Adjust padding to ensure content is not hidden behind the navbar */}
           {children}
         </main>
       </body>
