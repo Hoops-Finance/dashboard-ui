@@ -10,12 +10,12 @@ const Dashboard: React.FC = () => {
       className="bg-white min-h-screen p-6"
       style={{ backgroundImage: "url('/images/dash-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}
     >
-      <div className="max-w-screen-2xl mx-auto flex">
-        <div className="w-3/5 pr-4"> {/* 60% width for Balances and MapWidget */}
+      <div className="max-w-screen-2xl mx-auto flex flex-col tablet:flex-col lg:flex-row">
+        <div className="w-full lg:w-3/5 pr-4 flex flex-col items-center tablet:items-center lg:items-start"> {/* Centered on mobile, side by side on larger screens */}
           <Balances />
           <MapWidget />
         </div>
-        <div className="w-2/5 pl-4"> {/* 40% width for SavingsWidget and InfoWidget */}
+        <div className="w-full lg:w-2/5 pl-4 flex flex-col items-center tablet:items-center lg:items-start"> {/* Centered on mobile, side by side on larger screens */}
           <SavingsWidget />
           <InfoWidget />
         </div>
@@ -25,4 +25,3 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
-
