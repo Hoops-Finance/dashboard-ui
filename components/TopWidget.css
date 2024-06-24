@@ -1,0 +1,11 @@
+/* Custom media query for wrapping text between 769px and 843px */
+@media (min-width: 769px) and (max-width: 843px) {
+  .custom-wrap {
+    white-space: normal;
+  }
+}
+
+/* Ensure text does not wrap outside the specified range */
+.custom-wrap {
+  white-space: nowrap;
+}
