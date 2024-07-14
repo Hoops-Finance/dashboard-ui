@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const period = searchParams.get('period');
-  const apiUrl = `${process.env.API_URL}?period=${period}`;
+  const apiUrl = `${process.env.API_URL}/getstatistics?period=${period}`;
   console.log(apiUrl)
   try {
     const response = await fetch(apiUrl, {
