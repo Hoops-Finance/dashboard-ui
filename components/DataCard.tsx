@@ -4,9 +4,10 @@ interface DataCardProps {
   marketIcon: string;
   market: string;
   totalValueLocked: string;
-  volume24hr: string;
-  fees24hr: string;
+  volume: string;
+  fees: string;
   apr: string;
+  trendingapr: string;
   utilization: string;
   riskScore: string;
 }
@@ -15,12 +16,15 @@ const DataCard: React.FC<DataCardProps> = ({
   marketIcon,
   market,
   totalValueLocked,
-  volume24hr,
-  fees24hr,
+  volume,
+  fees,
   apr,
+  trendingapr,
   utilization,
   riskScore,
 }) => {
+  const isTrendingUp = parseFloat(trendingapr) > parseFloat(apr);
+
   return (
     <div className="relative bg-white p-4 rounded-32px shadow-custom mb-16 mx-auto min-w-[320px] max-w-xs sm:max-w-full sm:w-[calc(100%-32px)]" style={{ paddingBottom: '16px' }}>
       <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 flex justify-center w-full">
@@ -38,16 +42,20 @@ const DataCard: React.FC<DataCardProps> = ({
           <span id="totalValueLocked">{totalValueLocked}</span>
         </div>
         <div className="flex justify-between">
-          <span className="font-medium">Volume (24hr):</span>
-          <span id="volume24hr">{volume24hr}</span>
+          <span className="font-medium">Volume:</span>
+          <span id="volume">{volume}</span>
         </div>
         <div className="flex justify-between">
-          <span className="font-medium">Fees (24 hr):</span>
-          <span id="fees24hr">{fees24hr}</span>
+          <span className="font-medium">Fees:</span>
+          <span id="fees">{fees}</span>
         </div>
         <div className="flex justify-between">
           <span className="font-medium">APR:</span>
           <span id="apr" className="text-green-500">{apr}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="font-medium">Trending APR:</span>
+          <span id="trendingapr" className={isTrendingUp ? 'text-green-500' : 'text-red-500'}>{trendingapr}</span>
         </div>
         <div className="flex justify-between">
           <span className="font-medium">Utilization:</span>

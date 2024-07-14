@@ -1,68 +1,73 @@
 import Navbar from '../../components/Navbar';
 import TopWidget from '../../components/TopWidget';
 import DataTable from '../../components/DataTable';
+import { useEffect, useState } from 'react';
 
-const data = [
-  {
-    marketIcon: '/icons/native-AQUA.png',
-    market: 'XLM - AQUA',
-    totalValueLocked: '$119.90k',
-    volume24hr: '$13.1k',
-    fees24hr: '$423',
-    apr: '342.1%',
-    utilization: '67.3%',
-    riskScore: '42%',
-  },
-  {
-    marketIcon: '/icons/USDC-EURC.png',
-    market: 'USDC - EURC',
-    totalValueLocked: '$95.68k',
-    volume24hr: '$21.4k',
-    fees24hr: '$550',
-    apr: '646.1%',
-    utilization: '52.1%',
-    riskScore: '56%',
-  },
-  {
-    marketIcon: '/icons/AQUA-XTAR.png',
-    market: 'AQUA - XTAR',
-    totalValueLocked: '$4.15k',
-    volume24hr: '$126',
-    fees24hr: '$11',
-    apr: '20.1%',
-    utilization: '34.2%',
-    riskScore: '32%',
-  },
-  {
-    marketIcon: '/icons/native-AQUA.png',
-    market: 'XLM - AQUA',
-    totalValueLocked: '$82.12k',
-    volume24hr: '$1.3k',
-    fees24hr: '$241',
-    apr: '12.4%',
-    utilization: '58.9%',
-    riskScore: '38%',
-  },
-  {
-    marketIcon: '/icons/native-NGNC.png',
-    market: 'XLM - NGNC',
-    totalValueLocked: '$147.21k',
-    volume24hr: '$32.4k',
-    fees24hr: '$647',
-    apr: '548.8%',
-    utilization: '71.4%',
-    riskScore: '62%',
-  },
-];
+interface Data {
+  pairId: string;
+  marketIcon: string;
+  market: string;
+  totalValueLocked: string;
+  volume: string;
+  fees: string;
+  trendingapr: string;
+  apr: string;
+  utilization: string;
+  riskScore: string;
+  rankingScore: string;
+}
+
+interface DataTableProps {
+  data: Data[];
+}
+
+const apiUrl = process.env.API_URL ;
 
 export default function Home() {
+  const [data, setData] = useState<Data[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState('7d');
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch(`${apiUrl}?period=${period}`, {
+          headers: { 'Authorization': process.env.API_KEY || '' }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        setData(result);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data from API:", error);
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [period]);
+
   return (
     <div className="bg-white min-h-screen">
       <Navbar />
       <main className="flex flex-col items-center justify-start p-6 mobile-landscape:p-0">
         <TopWidget />
         <div className="w-full max-w-screen-2xl mt-6">
-          <DataTable data={data} />
+          <div className="flex justify-end mb-4">
+            <label htmlFor="period" className="mr-2 font-medium">Select Period:</label>
+            <select
+              id="period"
+              value={period}
+              onChange={(e) => setPeriod(e.target.value)}
+              className="border border-gray-300 rounded p-2"
+            >
+              <option value="24h">24 Hours</option>
+              <option value="7d">7 Days</option>
+              <option value="30d">30 Days</option>
+            </select>
+          </div>
+          {loading ? <p>Loading...</p> : <DataTable data={data} />}
         </div>
       </main>
     </div>

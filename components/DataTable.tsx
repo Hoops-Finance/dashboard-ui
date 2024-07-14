@@ -12,9 +12,10 @@ const DataTable: React.FC<{ data: any[] }> = ({ data }) => {
               marketIcon={row.marketIcon}
               market={row.market}
               totalValueLocked={row.totalValueLocked}
-              volume24hr={row.volume24hr}
-              fees24hr={row.fees24hr}
+              volume={row.volume}
+              fees={row.fees}
               apr={row.apr}
+              trendingapr={row.trendingapr}
               utilization={row.utilization}
               riskScore={row.riskScore}
             />
@@ -24,7 +25,7 @@ const DataTable: React.FC<{ data: any[] }> = ({ data }) => {
       <table className="hidden lg:table min-w-full bg-white">
         <thead>
           <tr>
-            {['Markets', 'Total Value Locked', 'Volume (24hr)', 'Fees (24hr)', 'APR%', 'Utilization', 'Risk Score'].map((header) => (
+            {['Markets', 'Total Value Locked', 'Volume', 'Fees', 'APR%', 'Trending APR%', 'Utilization', 'Risk Score'].map((header) => (
               <th key={header} className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                 <div className="flex items-center">
                   {header}
@@ -49,13 +50,16 @@ const DataTable: React.FC<{ data: any[] }> = ({ data }) => {
                 <span className="text-sm text-gray-900">{row.totalValueLocked}</span>
               </td>
               <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                <span className="text-sm text-gray-900">{row.volume24hr}</span>
+                <span className="text-sm text-gray-900">{row.volume}</span>
               </td>
               <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                <span className="text-sm text-gray-900">{row.fees24hr}</span>
+                <span className="text-sm text-gray-900">{row.fees}</span>
               </td>
               <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
                 <span className="text-sm text-green-500">{row.apr}</span>
+              </td>
+              <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                <span className={`${parseFloat(row.trendingapr) > parseFloat(row.apr) ? 'text-green-500' : 'text-red-500'}`}>{row.trendingapr}</span>
               </td>
               <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
                 <span className="text-sm text-gray-900">{row.utilization}</span>
@@ -72,4 +76,3 @@ const DataTable: React.FC<{ data: any[] }> = ({ data }) => {
 };
 
 export default DataTable;
-
