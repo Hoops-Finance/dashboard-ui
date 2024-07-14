@@ -1,7 +1,9 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
 import TopWidget from '../../components/TopWidget';
 import DataTable from '../../components/DataTable';
-import { useEffect, useState } from 'react';
 
 interface Data {
   pairId: string;
@@ -10,18 +12,12 @@ interface Data {
   totalValueLocked: string;
   volume: string;
   fees: string;
-  trendingapr: string;
+  trendingapr?: string;
   apr: string;
   utilization: string;
   riskScore: string;
   rankingScore: string;
 }
-
-interface DataTableProps {
-  data: Data[];
-}
-
-const apiUrl = process.env.API_URL ;
 
 export default function Home() {
   const [data, setData] = useState<Data[]>([]);
@@ -29,24 +25,28 @@ export default function Home() {
   const [period, setPeriod] = useState('7d');
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetch(`${apiUrl}?period=${period}`, {
-          headers: { 'Authorization': process.env.API_KEY || '' }
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
-        setData(result);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching data from API:", error);
-        setLoading(false);
-      }
-    }
-    fetchData();
+    fetchData(period);
   }, [period]);
+
+  const fetchData = async (period: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/getstatistics?period=${period}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      setData(result);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data from API:", error);
+      setLoading(false);
+    }
+  };
+
+  const handlePeriodChange = (newPeriod: string) => {
+    setPeriod(newPeriod);
+  };
 
   return (
     <div className="bg-white min-h-screen">
@@ -59,7 +59,7 @@ export default function Home() {
             <select
               id="period"
               value={period}
-              onChange={(e) => setPeriod(e.target.value)}
+              onChange={(e) => handlePeriodChange(e.target.value)}
               className="border border-gray-300 rounded p-2"
             >
               <option value="24h">24 Hours</option>
