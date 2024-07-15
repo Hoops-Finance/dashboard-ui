@@ -11,7 +11,7 @@ interface Metrics {
 }
 
 const formatNumber = (number: number): string => {
-  return number.toLocaleString();
+  return number.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
 const TopWidget: React.FC<{ period: string; metrics: Metrics | null; loadingMetrics: boolean }> = ({ period, metrics, loadingMetrics }) => {

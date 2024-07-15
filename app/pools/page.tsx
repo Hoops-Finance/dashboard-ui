@@ -78,7 +78,7 @@ export default function Home() {
     setSortConfig({ key, direction });
   };
 
- const sortedData = () => {
+  const sortedData = () => {
     if (!sortConfig) return data;
     const sortedArray = [...data].sort((a, b) => {
       const aValue = a[sortConfig.key] ?? "";

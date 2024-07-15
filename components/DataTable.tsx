@@ -21,6 +21,11 @@ interface DataTableProps {
 }
 
 const DataTable: React.FC<DataTableProps> = ({ data, handleSort }) => {
+  const formatCurrency = (value: string) => {
+    const number = parseFloat(value);
+    return number.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
   return (
     <div className="overflow-x-auto bg-gray-200 lg:bg-white rounded-32px p-6">
       <div className="block lg:hidden p-4">
@@ -30,9 +35,9 @@ const DataTable: React.FC<DataTableProps> = ({ data, handleSort }) => {
               key={index}
               marketIcon={row.marketIcon}
               market={row.market}
-              totalValueLocked={row.totalValueLocked}
-              volume={row.volume}
-              fees={row.fees}
+              totalValueLocked={formatCurrency(row.totalValueLocked)}
+              volume={formatCurrency(row.volume)}
+              fees={formatCurrency(row.fees)}
               apr={row.apr}
               trendingapr={row.trendingapr ?? ''}
               utilization={row.utilization}
@@ -62,7 +67,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, handleSort }) => {
         </thead>
         <tbody>
           {data.map((row, index) => (
-            <tr key={index} className={`${index % 2 === 0 ? 'bg-custom-gray' : 'bg-white'} rounded-32px`}>
+            <tr key={index} className={`${index % 2 === 0 ? 'bg-custom-gray' : 'bg-white'} rounded-32px text-sm`}>
               <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
                 <div className="flex items-center">
                   <img src={row.marketIcon} alt={row.market} className="h-16 w-16 object-contain mr-2" />
@@ -70,13 +75,13 @@ const DataTable: React.FC<DataTableProps> = ({ data, handleSort }) => {
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                <span className="text-sm text-gray-900">{row.totalValueLocked}</span>
+                <span className="text-sm text-gray-900">{formatCurrency(row.totalValueLocked)}</span>
               </td>
               <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                <span className="text-sm text-gray-900">{row.volume}</span>
+                <span className="text-sm text-gray-900">{formatCurrency(row.volume)}</span>
               </td>
               <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
-                <span className="text-sm text-gray-900">{row.fees}</span>
+                <span className="text-sm text-gray-900">{formatCurrency(row.fees)}</span>
               </td>
               <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
                 <span className="text-sm text-green-500">{row.apr}</span>
