@@ -26,9 +26,9 @@ const Navbar: React.FC = () => {
               <span className="absolute left-0 right-0 bottom-[-30px] h-0.5 bg-black"></span>
             )}
           </Link>
-          <Link href="/poolmembers" className={`relative ${pathname === '/poolmembers' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
-            Pool Members
-            {pathname === '/poolmembers' && (
+          <Link href="/pools" className={`relative ${pathname === '/pools' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
+              Pools
+            {pathname === '/pools' && (
               <span className="absolute left-0 right-0 bottom-[-30px] h-0.5 bg-black"></span>
             )}
           </Link>
@@ -57,8 +57,8 @@ const Navbar: React.FC = () => {
           <Link href="/dashboard" className={`relative ${pathname === '/app/dashboard' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
             Dashboard
           </Link>
-          <Link href="/poolmembers" className={`relative ${pathname === '/poolmembers' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
-            Pool Members
+          <Link href="/pools" className={`relative ${pathname === '/pools' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
+            Pools
           </Link>
           <Link href="/governance" className={`relative ${pathname === '/governance' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
             Governance
