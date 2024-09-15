@@ -1,13 +1,16 @@
+/* Tailwind Imports */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Global CSS Variables */
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
 }
 
+/* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
@@ -16,17 +19,23 @@
   }
 }
 
+/* Background & Foreground */
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    to bottom,
+    transparent,
+    rgb(var(--background-end-rgb))
+  ) rgb(var(--background-start-rgb));
   background-color: white;
 }
 
+body.dark {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-start-rgb));
+}
+
+/* Tailwind Utility Classes */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -47,16 +56,16 @@ body {
   }
 }
 
-/* Custom shadow for DataCard */
+/* Custom Shadow for Cards */
 .shadow-custom {
-  box-shadow: 0px 71px 20px 0px rgba(0, 0, 0, 0.00), 
-              0px 45.5px 18px 0px rgba(0, 0, 0, 0.01), 
-              0px 25.5px 15.5px 0px rgba(0, 0, 0, 0.05), 
-              0px 11.5px 11.5px 0px rgba(0, 0, 0, 0.09), 
+  box-shadow: 0px 71px 20px 0px rgba(0, 0, 0, 0.00),
+              0px 45.5px 18px 0px rgba(0, 0, 0, 0.01),
+              0px 25.5px 15.5px 0px rgba(0, 0, 0, 0.05),
+              0px 11.5px 11.5px 0px rgba(0, 0, 0, 0.09),
               0px 3px 6.5px 0px rgba(0, 0, 0, 0.10);
 }
 
-/* Custom border radius for DataCard */
+/* Custom Border Radius for Cards */
 .rounded-32px {
   border-radius: 32px;
 }

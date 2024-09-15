@@ -3,6 +3,7 @@ import React from 'react';
 interface DataCardProps {
   marketIcon: string;
   market: string;
+  protocol: string; // Add protocol field
   totalValueLocked: string;
   volume: string;
   fees: string;
@@ -15,6 +16,7 @@ interface DataCardProps {
 const DataCard: React.FC<DataCardProps> = ({
   marketIcon,
   market,
+  protocol, // Accept protocol as prop
   totalValueLocked,
   volume,
   fees,
@@ -33,7 +35,7 @@ const DataCard: React.FC<DataCardProps> = ({
       <div className="flex flex-col items-center mb-4 pt-8 px-8">
         <div className="text-center mb-2">
           <h3 id="pairName" className="text-lg font-bold text-gray-900 mb-2">{market}</h3>
-          <p id="protocol" className="text-sm text-gray-500">Soroswap</p>
+          <p id="protocol" className="text-sm text-gray-500">{protocol}</p> {/* Display protocol here */}
         </div>
       </div>
       <div className="flex flex-col space-y-2 text-gray-900 px-8 pb-8">

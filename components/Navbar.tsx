@@ -1,70 +1,90 @@
-"use client";
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { MoonIcon, SunIcon } from '@heroicons/react/solid'; // Use Heroicons for the moon/sun icons
 
 const Navbar: React.FC = () => {
   const pathname = usePathname(); // Get the current path
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  // Adjust text size and mobile/desktop based on screen size
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768); // Adjust for mobile view
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    // Apply the initial dark mode preference from system
+    const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setDarkMode(darkModePreference);
+    document.documentElement.classList.toggle("dark", darkModePreference);
+  }, []);
+
+  const toggleDarkMode = () => {
+    setDarkMode((prevMode) => !prevMode);
+    document.documentElement.classList.toggle('dark', !darkMode); // Toggle dark mode
   };
 
   return (
-    <nav className="w-full bg-white shadow-md p-4 font-lora fixed top-0 left-0 right-0 z-50" style={{ boxShadow: "0px 2.72px 8px 0px rgba(0, 0, 0, 0.25)", borderBottom: "1px solid #C7C7C7" }}>
+    <nav className="w-full bg-white dark:bg-gray-900 shadow-md p-4 fixed top-0 left-0 right-0 z-50">
       <div className="max-w-screen-2xl mx-auto flex justify-between items-center relative px-6">
-        <div className="inline-flex items-center gap-2 font-lora">
+        {/* Brand Logo */}
+        <div className="inline-flex items-center gap-2">
           <img src="/images/logo.png" alt="Logo" className="h-8 w-auto" />
-          <span className="text-xl font-bold">hoops</span>
+          <span className={`font-bold ${isMobile ? 'text-lg' : 'text-2xl'}`}>Hoops</span>
         </div>
+
+        {/* Navigation Links */}
         <div className="hidden lg:flex space-x-8 relative">
-          <Link href="/dashboard" className={`relative ${pathname === '/app/dashboard' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
-            Dashboard
-            {pathname === '/dashboard' && (
-              <span className="absolute left-0 right-0 bottom-[-30px] h-0.5 bg-black"></span>
-            )}
+          <Link href="/markets" className={`relative ${pathname === '/markets' ? 'font-bold text-black dark:text-white' : 'text-gray-400'} hover:text-gray-600`}>
+            Markets
           </Link>
-          <Link href="/pools" className={`relative ${pathname === '/pools' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
-              Pools
-            {pathname === '/pools' && (
-              <span className="absolute left-0 right-0 bottom-[-30px] h-0.5 bg-black"></span>
-            )}
+          <Link href="/pools" className={`relative ${pathname === '/pools' ? 'font-bold text-black dark:text-white' : 'text-gray-400'} hover:text-gray-600`}>
+            Pools
           </Link>
-          <Link href="/governance" className={`relative ${pathname === '/governance' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
-            Governance
-            {pathname === '/governance' && (
-              <span className="absolute left-0 right-0 bottom-[-30px] h-0.5 bg-black"></span>
-            )}
+          <Link href="/tokens" className={`relative ${pathname === '/tokens' ? 'font-bold text-black dark:text-white' : 'text-gray-400'} hover:text-gray-600`}>
+            Tokens
           </Link>
         </div>
+
+        {/* Light/Dark Mode Toggle + Login/Signup */}
         <div className="hidden lg:flex space-x-4 items-center">
-          <div className="flex text-sm items-center pl-8 pr-8 p-1 rounded-lg border-2 border-gray-300 hover:bg-gray-100 transition duration-300" style={{ borderRadius: "16px", boxShadow: "0px 184px 52px 0px rgba(0, 0, 0, 0.00), 0px 118px 47px 0px rgba(0, 0, 0, 0.00), 0px 66px 40px 0px rgba(0, 0, 0, 0.00), 0px 29px 29px 0px rgba(0, 0, 0, 0.00), 0px 7px 16px 0px rgba(0, 0, 0, 0.00)", letterSpacing: "2px", fontFamily: "Inter, sans-serif"}}>
-            <span className="text-gray-700">Welcome, Jed</span>
-            <div className="h-8 border-l-2 border-gray-300 mx-4"></div>
-            <button className="bg-white-500 text-white px-4 py-2 rounded"><span className="text-gray-700">GBSOI...PCHI</span></button>
-          </div>
+          {/* Light/Dark Mode Toggle */}
+          <button
+            className="text-sm p-2 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition duration-300"
+            onClick={toggleDarkMode}
+          >
+            {darkMode ? (
+              <SunIcon className="h-6 w-6 text-yellow-500" />
+            ) : (
+              <MoonIcon className="h-6 w-6 text-gray-500" />
+            )}
+          </button>
+
+          {/* Login / Signup */}
+          <button className="text-sm bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300">
+            Login
+          </button>
+          <button className="text-sm bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-300">
+            Sign Up
+          </button>
         </div>
+
+        {/* Mobile Menu (if needed) */}
         <div className="lg:hidden flex items-center">
-          <button onClick={toggleMenu} className="focus:outline-none">
-            <img src="/icons/accordion.svg" alt="Menu" className="h-6 w-6" />
+          {/* Mobile Menu Button */}
+          <button className="focus:outline-none">
+            <img src="/icons/menu.svg" alt="Menu" className="h-6 w-6" />
           </button>
         </div>
       </div>
-      {isMenuOpen && (
-        <div className="lg:hidden flex flex-col space-y-4 mt-4">
-          <Link href="/dashboard" className={`relative ${pathname === '/app/dashboard' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
-            Dashboard
-          </Link>
-          <Link href="/pools" className={`relative ${pathname === '/pools' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
-            Pools
-          </Link>
-          <Link href="/governance" className={`relative ${pathname === '/governance' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
-            Governance
-          </Link>
-        </div>
-      )}
     </nav>
   );
 };

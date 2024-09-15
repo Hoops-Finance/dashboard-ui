@@ -5,6 +5,7 @@ interface Data {
   pairId: string;
   marketIcon: string;
   market: string;
+  protocol: string; // Add protocol field
   totalValueLocked: string;
   volume: string;
   fees: string;
@@ -12,7 +13,6 @@ interface Data {
   apr: string;
   utilization: string;
   riskScore: string;
-  rankingScore: string;
 }
 
 interface DataTableProps {
@@ -35,6 +35,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, handleSort }) => {
               key={index}
               marketIcon={row.marketIcon}
               market={row.market}
+              protocol={row.protocol}  // Include protocol in card view
               totalValueLocked={formatCurrency(row.totalValueLocked)}
               volume={formatCurrency(row.volume)}
               fees={formatCurrency(row.fees)}
@@ -49,7 +50,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, handleSort }) => {
       <table className="hidden lg:table min-w-full bg-white">
         <thead>
           <tr>
-            {['market', 'totalValueLocked', 'volume', 'fees', 'apr', 'trendingapr', 'utilization', 'riskScore'].map((header) => (
+            {['market', 'protocol', 'totalValueLocked', 'volume', 'fees', 'apr', 'trendingapr', 'utilization', 'riskScore'].map((header) => (
               <th
                 key={header}
                 className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
@@ -73,6 +74,9 @@ const DataTable: React.FC<DataTableProps> = ({ data, handleSort }) => {
                   <img src={row.marketIcon} alt={row.market} className="h-16 w-16 object-contain mr-2" />
                   <span className="text-sm font-medium text-gray-900">{row.market}</span>
                 </div>
+              </td>
+              <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                <span className="text-sm text-gray-900">{row.protocol}</span> {/* Show protocol */}
               </td>
               <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
                 <span className="text-sm text-gray-900">{formatCurrency(row.totalValueLocked)}</span>

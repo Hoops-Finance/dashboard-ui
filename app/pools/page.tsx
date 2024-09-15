@@ -9,6 +9,7 @@ interface Data {
   pairId: string;
   marketIcon: string;
   market: string;
+  protocol: string; // Add protocol field
   totalValueLocked: string;
   volume: string;
   fees: string;
@@ -16,12 +17,11 @@ interface Data {
   apr: string;
   utilization: string;
   riskScore: string;
-  rankingScore: string;
 }
 
 type SortKey = keyof Data;
 
-export default function Home() {
+export default function Pools() {
   const [data, setData] = useState<Data[]>([]);
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState<any>(null);
