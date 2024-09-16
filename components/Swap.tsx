@@ -177,7 +177,11 @@ export default function SwapComponent() {
                   step="0.1"
                   value={slippageTolerance}
                   onChange={(e) => setSlippageTolerance(parseFloat(e.target.value))}
-                  className="w-full"
+                  className="w-full custom-range"
+                  style={{
+                    // @ts-ignore
+                    '--range-color': '#B7A7E5',
+                  }}
                 />
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>0%</span>

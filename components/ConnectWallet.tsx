@@ -12,16 +12,6 @@ export const ConnectWallet: React.FC = () => {
       network: WalletNetwork.TESTNET,
       selectedWalletId: XBULL_ID,
       modules: allowAllModules(),
-      uiOptions: {
-        theme: 'light',
-        frameOptions: {
-          widgetStyle: {
-            fontFamily: 'Inter, sans-serif',
-            backgroundColor: 'white',
-            color: 'black',
-          },
-        },
-      },
     });
 
     try {
@@ -32,8 +22,8 @@ export const ConnectWallet: React.FC = () => {
           
           try {
             // Use dynamic import for Stellar SDK
-            const stellarSdk = await import('stellar-sdk');
-            const server = new stellarSdk.Server('https://horizon-testnet.stellar.org');
+            const StellarSdk = await import('stellar-sdk');
+            const server = new StellarSdk.default.Server('https://horizon-testnet.stellar.org');
             
             const account = await server.loadAccount(address);
             const xlmBalance = account.balances.find((b: any) => b.asset_type === 'native');
