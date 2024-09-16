@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './globals.css';
-
+// test
 const App: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center">
