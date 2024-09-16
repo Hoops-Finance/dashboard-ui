@@ -4,10 +4,12 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ConnectWallet } from './ConnectWallet';
+import { Search } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const pathname = usePathname(); // Get the current path
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -40,7 +42,17 @@ const Navbar: React.FC = () => {
             )}
           </Link>
         </div>
-        <div className="hidden lg:flex space-x-4 items-center">
+        <div className="hidden lg:flex items-center space-x-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Insert token address, contract address, etc..."
+              className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB734] focus:border-transparent"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          </div>
           <ConnectWallet />
         </div>
         <div className="lg:hidden flex items-center">
@@ -60,6 +72,16 @@ const Navbar: React.FC = () => {
           <Link href="/swap" className={`relative ${pathname === '/swap' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
             Swaps
           </Link>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Insert token address, contract address, etc..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB734] focus:border-transparent"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          </div>
           <ConnectWallet />
         </div>
       )}
