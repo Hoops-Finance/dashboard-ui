@@ -7,7 +7,7 @@ import { ConnectWallet } from './ConnectWallet';
 import { Search } from 'lucide-react';
 
 const Navbar: React.FC = () => {
-  const pathname = usePathname(); // Get the current path
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 

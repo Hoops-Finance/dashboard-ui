@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import Navbar from '../components/Navbar';
+import { ClientWalletProvider } from '../components/ClientWalletProvider';
 import './globals.css';
 
 interface RootLayoutProps {
@@ -9,11 +10,16 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      </head>
       <body>
-        <Navbar />
-        <main className="pt-16"> {/* Add padding-top to account for fixed navbar */}
-          {children}
-        </main>
+        <ClientWalletProvider>
+          <Navbar />
+          <main className="pt-16">
+            {children}
+          </main>
+        </ClientWalletProvider>
       </body>
     </html>
   );
