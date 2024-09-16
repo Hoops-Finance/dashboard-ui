@@ -31,34 +31,34 @@ export function TableComponent() {
 
   const tabData: TabData = {
     markets: [
-      { market: 'XLM/USDC', tokens: 'XLM, USDC', pairCount: '3', tvl: '$120M', pools: [
-        { protocol: 'Phoenix', pair: 'XLM/USDC', tvl: '$50M' },
-        { protocol: 'Aquarius', pair: 'XLM/USDC', tvl: '$40M' },
-        { protocol: 'Soroswap', pair: 'XLM/USDC', tvl: '$30M' },
+      { market: 'DeFi', tokens: 'ETH, USDC, DAI', pairCount: '150', tvl: '$5.2B', pools: [
+        { protocol: 'Uniswap', pair: 'ETH/USDC', tvl: '$1.2B' },
+        { protocol: 'Curve', pair: 'DAI/USDC/USDT', tvl: '$800M' },
+        { protocol: 'Aave', pair: 'ETH/DAI', tvl: '$600M' },
       ]},
-      { market: 'XLM/yXLM', tokens: 'XLM, yXLM', pairCount: '2', tvl: '$80M', pools: [
-        { protocol: 'Phoenix', pair: 'XLM/yXLM', tvl: '$45M' },
-        { protocol: 'Soroswap', pair: 'XLM/yXLM', tvl: '$35M' },
+      { market: 'NFT', tokens: 'ETH, WETH, APE', pairCount: '75', tvl: '$1.8B', pools: [
+        { protocol: 'OpenSea', pair: 'ETH/WETH', tvl: '$500M' },
+        { protocol: 'Rarible', pair: 'ETH/APE', tvl: '$300M' },
       ]},
-      { market: 'USDC/yUSDC', tokens: 'USDC, yUSDC', pairCount: '2', tvl: '$60M', pools: [
-        { protocol: 'Aquarius', pair: 'USDC/yUSDC', tvl: '$35M' },
-        { protocol: 'Soroswap', pair: 'USDC/yUSDC', tvl: '$25M' },
+      { market: 'GameFi', tokens: 'AXS, SLP, MANA', pairCount: '50', tvl: '$800M', pools: [
+        { protocol: 'Axie Infinity', pair: 'AXS/SLP', tvl: '$400M' },
+        { protocol: 'Decentraland', pair: 'MANA/ETH', tvl: '$200M' },
       ]},
     ],
     pools: [
-      { market: 'XLM/USDC', protocol: 'Phoenix', tvl: '$50M', volume: '$15M', fees: '$75K', apr: '6.2%', trendingApr: '6.5%', utilization: '78%', riskScore: 'Low' },
-      { market: 'XLM/yXLM', protocol: 'Aquarius', tvl: '$45M', volume: '$10M', fees: '$50K', apr: '5.8%', trendingApr: '6.0%', utilization: '72%', riskScore: 'Medium' },
-      { market: 'USDC/yUSDC', protocol: 'Soroswap', tvl: '$35M', volume: '$8M', fees: '$40K', apr: '7.5%', trendingApr: '7.8%', utilization: '85%', riskScore: 'Medium' },
+      { market: 'ETH/USDC', protocol: 'Uniswap', tvl: '$1.2B', volume: '$450M', fees: '$1.2M', apr: '5.2%', trendingApr: '5.5%', utilization: '75%', riskScore: 'Low' },
+      { market: 'BTC/USDT', protocol: 'Curve', tvl: '$800M', volume: '$300M', fees: '$900K', apr: '4.8%', trendingApr: '4.9%', utilization: '68%', riskScore: 'Medium' },
+      { market: 'LINK/ETH', protocol: 'SushiSwap', tvl: '$150M', volume: '$75M', fees: '$200K', apr: '6.5%', trendingApr: '6.8%', utilization: '82%', riskScore: 'High' },
     ],
     tokens: [
-      { symbol: 'XLM', name: 'Stellar Lumens', markets: '5', tvl: '$200M' },
-      { symbol: 'USDC', name: 'USD Coin', markets: '4', tvl: '$150M' },
-      { symbol: 'yXLM', name: 'Yield XLM', markets: '3', tvl: '$80M' },
+      { symbol: 'ETH', name: 'Ethereum', markets: '120', tvl: '$10B' },
+      { symbol: 'USDC', name: 'USD Coin', markets: '100', tvl: '$8B' },
+      { symbol: 'BTC', name: 'Bitcoin', markets: '80', tvl: '$6B' },
     ],
     protocols: [
-      { rank: 1, name: 'Phoenix', pools: '8', tvl: '$120M' },
-      { rank: 2, name: 'Aquarius', pools: '6', tvl: '$100M' },
-      { rank: 3, name: 'Soroswap', pools: '5', tvl: '$90M' },
+      { rank: 1, name: 'Uniswap', pools: '200', tvl: '$5B' },
+      { rank: 2, name: 'Curve', pools: '150', tvl: '$4B' },
+      { rank: 3, name: 'SushiSwap', pools: '100', tvl: '$2B' },
     ],
   };
 
