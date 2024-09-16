@@ -1,22 +1,22 @@
-import React, { ReactNode } from 'react';
+// app/layout.tsx
+import { ReactNode } from 'react';
 import Navbar from '../components/Navbar';
 import './globals.css';
+import Providers from './providers';
 
 interface RootLayoutProps {
   children: ReactNode;
 }
 
-const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body className="bg-white">
-        <Navbar />
-        <main className="pt-16 lg:pt-20"> {/* Adjust padding to ensure content is not hidden behind the navbar */}
-          {children}
-        </main>
+      <body>
+        <Providers>
+          <Navbar />
+          <main className="pt-20">{children}</main>
+        </Providers>
       </body>
     </html>
   );
-};
-
-export default RootLayout;
+}

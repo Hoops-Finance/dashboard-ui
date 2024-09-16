@@ -3,69 +3,77 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global CSS Variables */
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lora:wght@400;700&display=swap');
 
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
-/* Background & Foreground */
+/* Global Styles */
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgb(var(--background-end-rgb))
-  ) rgb(var(--background-start-rgb));
-  background-color: white;
+  @apply bg-light-bg text-light-text dark:bg-bg dark:text-text;
 }
 
-body.dark {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-start-rgb));
-}
-
-/* Tailwind Utility Classes */
+/* Custom Utilities */
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  /* Custom Fonts */
+  .font-lora {
+    font-family: 'Lora', serif;
   }
-  .bg-custom-gray {
-    background-color: #D9D9D9;
+  .font-inter {
+    font-family: 'Inter', sans-serif;
   }
+
+  /* Custom Rounded Corner */
   .rounded-32px {
     border-radius: 32px;
   }
-  .circle-icon {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background-color: green;
-    border-radius: 50%;
-    margin-right: 8px;
+
+  /* Custom Shadow */
+  .shadow-custom {
+    box-shadow: 0px 71px 20px 0px rgba(0, 0, 0, 0.00),
+                0px 45.5px 18px 0px rgba(0, 0, 0, 0.01),
+                0px 25.5px 15.5px 0px rgba(0, 0, 0, 0.05),
+                0px 11.5px 11.5px 0px rgba(0, 0, 0, 0.09),
+                0px 3px 6.5px 0px rgba(0, 0, 0, 0.10);
   }
-}
 
-/* Custom Shadow for Cards */
-.shadow-custom {
-  box-shadow: 0px 71px 20px 0px rgba(0, 0, 0, 0.00),
-              0px 45.5px 18px 0px rgba(0, 0, 0, 0.01),
-              0px 25.5px 15.5px 0px rgba(0, 0, 0, 0.05),
-              0px 11.5px 11.5px 0px rgba(0, 0, 0, 0.09),
-              0px 3px 6.5px 0px rgba(0, 0, 0, 0.10);
-}
+  /* Card Styles */
+  .card {
+    @apply bg-white text-black dark:bg-gray-800 dark:text-white p-4 rounded-32px shadow-custom;
+  }
 
-/* Custom Border Radius for Cards */
-.rounded-32px {
-  border-radius: 32px;
+  /* Navbar Styles */
+  .navbar {
+    @apply bg-light-bg text-light-text dark:bg-nav-bg dark:text-nav-text;
+  }
+
+  /* Navbar Link Styles */
+  .nav-link {
+    @apply relative text-light-text hover:text-nav-hover-text dark:text-nav-text;
+  }
+
+  .nav-link:hover {
+    @apply bg-nav-hover-bg;
+  }
+
+  /* Navbar Active Link Styles */
+  .nav-link-active {
+    @apply font-bold text-nav-accent;
+  }
+
+  /* Button Styles */
+  .btn-primary {
+    @apply bg-primary text-light-text border border-btn-primary-border rounded-lg px-4 py-2 dark:text-nav-accent-text;
+  }
+
+  .btn-primary:hover {
+    @apply bg-nav-hover-bg text-nav-hover-text;
+  }
+
+  /* Table Styles */
+  .table {
+    @apply min-w-full bg-white text-black dark:bg-gray-800 dark:text-white;
+  }
+
+  .table th,
+  .table td {
+    @apply px-4 py-2 border;
+  }
 }

@@ -1,37 +1,151 @@
-import React from 'react';
+// components/MarketTable.tsx
+'use client';
 
-interface MarketData {
-  marketName: string;
-  pairCount: number;
-  totalValueLocked: string;
+import React from 'react';
+import DataTable, { TableColumn } from 'react-data-table-component';
+import { useTheme } from 'next-themes';
+
+interface Pool {
+  protocol: string;
+  pair: string;
+  tvl?: number;
+  reserve0?: number;
+  reserve1?: number;
+  t0usd?: string;
+  t1usd?: string;
+  lptSupply?: number;
+  lpToken?: string;
+  pairtype?: string;
+  lastUpdated?: string;
+}
+
+interface TokenDetails {
+  _id: string;
+  symbol: string;
+  name: string;
+  decimals: number;
+  price: number;
+}
+
+interface Market {
+  marketLabel: string;
+  token0: string;
+  token1: string;
+  token0Details?: TokenDetails;
+  token1Details?: TokenDetails;
+  pools: Pool[];
+  totalTVL?: number;
 }
 
 interface MarketTableProps {
-  data: MarketData[];
+  data: Market[];
 }
 
 const MarketTable: React.FC<MarketTableProps> = ({ data }) => {
-  return (
-    <div className="overflow-x-auto bg-gray-200 lg:bg-white rounded-32px p-6">
-      <table className="min-w-full bg-white">
+  const { theme } = useTheme();
+
+  const isDarkMode = theme === 'dark';
+
+  const customStyles = {
+    header: {
+      style: {
+        backgroundColor: isDarkMode ? '#2b2b2b' : '#ffffff',
+        color: isDarkMode ? '#B7A7E5' : '#000000',
+      },
+    },
+    headRow: {
+      style: {
+        backgroundColor: isDarkMode ? '#2b2b2b' : '#f0f0f0',
+      },
+    },
+    rows: {
+      style: {
+        backgroundColor: isDarkMode ? '#1b1b1b' : '#ffffff',
+        color: isDarkMode ? '#ffffff' : '#000000',
+      },
+    },
+    expanderRow: {
+      style: {
+        backgroundColor: isDarkMode ? '#1b1b1b' : '#ffffff',
+      },
+    },
+    pagination: {
+      style: {
+        backgroundColor: isDarkMode ? '#2b2b2b' : '#ffffff',
+        color: isDarkMode ? '#B7A7E5' : '#000000',
+      },
+    },
+  };
+
+  const formatCurrency = (value?: number) => {
+    if (value === undefined) return '-';
+    return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const columns: TableColumn<Market>[] = [
+    {
+      name: 'Market',
+      selector: (row) => row.marketLabel,
+      sortable: true,
+      cell: (row) => (
+        <span className="text-primary font-bold">{row.marketLabel}</span>
+      ),
+    },
+    {
+      name: 'Tokens',
+      cell: (row) => `${row.token0Details?.symbol} / ${row.token1Details?.symbol}`,
+      sortable: true,
+    },
+    {
+      name: 'Pairs Count',
+      selector: (row) => row.pools.length,
+      sortable: true,
+    },
+    {
+      name: 'Total TVL',
+      selector: (row) => row.totalTVL || 0,
+      sortable: true,
+      cell: (row) => formatCurrency(row.totalTVL),
+    },
+  ];
+
+  const ExpandedComponent: React.FC<{ data: Market }> = ({ data }) => (
+    <div className="p-4 bg-white dark:bg-gray-800 text-black dark:text-white">
+      <h3 className="text-lg font-bold mb-2">Pools in {data.marketLabel}</h3>
+      <table className="w-full">
         <thead>
           <tr>
-            <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Market</th>
-            <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Pairs Count</th>
-            <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Total Value Locked</th>
+            <th className="text-left">Protocol</th>
+            <th className="text-left">Pair</th>
+            <th className="text-left">TVL</th>
+            <th className="text-left">Reserve0</th>
+            <th className="text-left">Reserve1</th>
           </tr>
         </thead>
         <tbody>
-          {data.map((row, index) => (
-            <tr key={index} className={`${index % 2 === 0 ? 'bg-custom-gray' : 'bg-white'} rounded-32px text-sm`}>
-              <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">{row.marketName}</td>
-              <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">{row.pairCount}</td>
-              <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">{row.totalValueLocked}</td>
+          {data.pools.map((pool, index) => (
+            <tr key={index}>
+              <td>{pool.protocol}</td>
+              <td>{pool.pair}</td>
+              <td>{formatCurrency(pool.tvl)}</td>
+              <td>{pool.reserve0}</td>
+              <td>{pool.reserve1}</td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+  );
+
+  return (
+    <DataTable
+      columns={columns}
+      data={data}
+      expandableRows
+      expandableRowsComponent={ExpandedComponent}
+      pagination
+      customStyles={customStyles}
+    />
   );
 };
 
