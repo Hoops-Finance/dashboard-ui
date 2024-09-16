@@ -12,6 +12,16 @@ export const ConnectWallet: React.FC = () => {
       network: WalletNetwork.TESTNET,
       selectedWalletId: XBULL_ID,
       modules: allowAllModules(),
+      uiOptions: {
+        theme: 'light',
+        frameOptions: {
+          widgetStyle: {
+            fontFamily: 'Inter, sans-serif',
+            backgroundColor: 'white',
+            color: 'black',
+          },
+        },
+      },
     });
 
     try {

@@ -14,7 +14,13 @@ export function WalletConnection() {
   return (
     <Card className="p-6 transition-all duration-300 hover:shadow-xl">
       <div className="flex justify-between items-center">
-        <ConnectWallet />
+        {isConnected ? (
+          <div className="text-green-600 font-semibold">
+            Welcome!
+          </div>
+        ) : (
+          <ConnectWallet />
+        )}
         <div className="text-right">
           <p className="text-gray-600">Balance: {isConnected ? `${parseFloat(balance!).toFixed(2)} XLM` : '---'}</p>
           <p className="text-gray-600">Address: {isConnected ? truncateAddress(address!) : '---'}</p>
