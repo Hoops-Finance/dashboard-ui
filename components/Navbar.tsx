@@ -21,21 +21,15 @@ const Navbar: React.FC = () => {
           <span className="text-xl font-bold">hoops</span>
         </div>
         <div className="hidden lg:flex space-x-8 relative">
-          <Link href="/dashboard" className={`relative ${pathname === '/app/dashboard' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
+          <Link href="/dashboard2" className={`relative ${pathname === '/dashboard2' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
             Dashboard
-            {pathname === '/dashboard' && (
+            {pathname === '/dashboard2' && (
               <span className="absolute left-0 right-0 bottom-[-30px] h-0.5 bg-black"></span>
             )}
           </Link>
-          <Link href="/pools" className={`relative ${pathname === '/pools' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
-              Pools
-            {pathname === '/pools' && (
-              <span className="absolute left-0 right-0 bottom-[-30px] h-0.5 bg-black"></span>
-            )}
-          </Link>
-          <Link href="/governance" className={`relative ${pathname === '/governance' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
-            Governance
-            {pathname === '/governance' && (
+          <Link href="/swap" className={`relative ${pathname === '/swap' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
+            Swaps
+            {pathname === '/swap' && (
               <span className="absolute left-0 right-0 bottom-[-30px] h-0.5 bg-black"></span>
             )}
           </Link>
@@ -51,14 +45,11 @@ const Navbar: React.FC = () => {
       </div>
       {isMenuOpen && (
         <div className="lg:hidden flex flex-col space-y-4 mt-4">
-          <Link href="/dashboard" className={`relative ${pathname === '/app/dashboard' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
+          <Link href="/dashboard2" className={`relative ${pathname === '/dashboard2' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
             Dashboard
           </Link>
-          <Link href="/pools" className={`relative ${pathname === '/pools' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
-            Pools
-          </Link>
-          <Link href="/governance" className={`relative ${pathname === '/governance' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
-            Governance
+          <Link href="/swap" className={`relative ${pathname === '/swap' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
+            Swaps
           </Link>
           <ConnectWallet />
         </div>
