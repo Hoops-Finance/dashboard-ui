@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import MarketInfo from '../../components/MarketData';
+import Swap from '../../components/Swap';
 
 interface MarketData {
   marketCap: number;
@@ -52,5 +53,16 @@ export default function MarketsPage() {
     return <div>Loading...</div>;
   }
 
-  return <MarketInfo marketData={marketData} />;
+  return (
+    <div className="container mx-auto p-4 flex justify-center items-start min-h-screen">
+      <div className="flex flex-col lg:flex-row gap-8 w-full max-w-7xl">
+        <div className="w-full lg:w-1/3 lg:sticky lg:top-20 self-start">
+          <Swap />
+        </div>
+        <div className="w-full lg:w-2/3 self-start">
+          <MarketInfo marketData={marketData} />
+        </div>
+      </div>
+    </div>
+  );
 }
