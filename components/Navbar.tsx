@@ -27,6 +27,12 @@ const Navbar: React.FC = () => {
               <span className="absolute left-0 right-0 bottom-[-30px] h-0.5 bg-black"></span>
             )}
           </Link>
+          <Link href="/pooldata" className={`relative ${pathname === '/pooldata' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
+            Pool Data
+            {pathname === '/pooldata' && (
+              <span className="absolute left-0 right-0 bottom-[-30px] h-0.5 bg-black"></span>
+            )}
+          </Link>
           <Link href="/swap" className={`relative ${pathname === '/swap' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
             Swaps
             {pathname === '/swap' && (
@@ -47,6 +53,9 @@ const Navbar: React.FC = () => {
         <div className="lg:hidden flex flex-col space-y-4 mt-4">
           <Link href="/dashboard2" className={`relative ${pathname === '/dashboard2' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
             Dashboard
+          </Link>
+          <Link href="/pooldata" className={`relative ${pathname === '/pooldata' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
+            Pool Data
           </Link>
           <Link href="/swap" className={`relative ${pathname === '/swap' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
             Swaps

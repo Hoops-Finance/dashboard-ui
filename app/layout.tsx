@@ -6,17 +6,15 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
-const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body className="bg-white">
+      <body>
         <Navbar />
-        <main className="pt-16 lg:pt-20"> {/* Adjust padding to ensure content is not hidden behind the navbar */}
+        <main className="pt-16"> {/* Add padding-top to account for fixed navbar */}
           {children}
         </main>
       </body>
     </html>
   );
-};
-
-export default RootLayout;
+}
