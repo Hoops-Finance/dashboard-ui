@@ -35,3 +35,5 @@ export const Card: FC<CardProps> = ({ children, className = '' }) => (
     {children}
   </div>
 );
+
+// Add any other UI component exports here

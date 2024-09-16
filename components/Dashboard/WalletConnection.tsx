@@ -9,7 +9,7 @@ export function WalletConnection() {
 
   return (
     <Card className="p-6 transition-all duration-300 hover:shadow-xl">
-      <div className="flex flex-col items-center space-y-4">
+      <div className="flex justify-between items-center">
         <Button 
           className="bg-[#e2be08] hover:bg-[#c7a707] text-white px-8 py-3 transition-all duration-300 transform hover:scale-105"
           onClick={() => setWalletConnected(!walletConnected)}
@@ -17,9 +17,9 @@ export function WalletConnection() {
           <Wallet className="inline-block mr-2 h-4 w-4" />
           {walletConnected ? 'Disconnect Wallet' : 'Connect Wallet'}
         </Button>
-        <div className="text-center">
-          <p className="text-gray-600">Balance: {walletConnected ? '1000 ETH' : '---'}</p>
-          <p className="text-gray-600">Saved: {walletConnected ? '500 ETH' : '---'}</p>
+        <div className="text-right">
+          <p className="text-gray-600">Balance: {walletConnected ? '1000 XLM' : '---'}</p>
+          <p className="text-gray-600">Saved: {walletConnected ? '500 XLM' : '---'}</p>
         </div>
       </div>
     </Card>

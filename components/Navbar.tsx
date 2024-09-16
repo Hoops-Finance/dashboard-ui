@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ConnectWallet } from './ConnectWallet';
 
 const Navbar: React.FC = () => {
   const pathname = usePathname(); // Get the current path
@@ -40,11 +41,7 @@ const Navbar: React.FC = () => {
           </Link>
         </div>
         <div className="hidden lg:flex space-x-4 items-center">
-          <div className="flex text-sm items-center pl-8 pr-8 p-1 rounded-lg border-2 border-gray-300 hover:bg-gray-100 transition duration-300" style={{ borderRadius: "16px", boxShadow: "0px 184px 52px 0px rgba(0, 0, 0, 0.00), 0px 118px 47px 0px rgba(0, 0, 0, 0.00), 0px 66px 40px 0px rgba(0, 0, 0, 0.00), 0px 29px 29px 0px rgba(0, 0, 0, 0.00), 0px 7px 16px 0px rgba(0, 0, 0, 0.00)", letterSpacing: "2px", fontFamily: "Inter, sans-serif"}}>
-            <span className="text-gray-700">Welcome, Jed</span>
-            <div className="h-8 border-l-2 border-gray-300 mx-4"></div>
-            <button className="bg-white-500 text-white px-4 py-2 rounded"><span className="text-gray-700">GBSOI...PCHI</span></button>
-          </div>
+          <ConnectWallet />
         </div>
         <div className="lg:hidden flex items-center">
           <button onClick={toggleMenu} className="focus:outline-none">
@@ -63,6 +60,7 @@ const Navbar: React.FC = () => {
           <Link href="/governance" className={`relative ${pathname === '/governance' ? "text-black font-bold" : "text-gray-400"} hover:text-gray-600`}>
             Governance
           </Link>
+          <ConnectWallet />
         </div>
       )}
     </nav>
