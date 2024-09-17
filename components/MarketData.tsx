@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowUpDown, ExternalLink, Info, ArrowUp, ArrowDown } from 'lucide-react';
+import React, { useState } from "react";
+import { ArrowUpDown, Info, ArrowUp, ArrowDown } from "lucide-react";
 
 interface MarketDataProps {
   marketData: {
@@ -26,35 +26,31 @@ interface PairData {
 
 const MarketInfo: React.FC<MarketDataProps> = ({ marketData }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [sortColumn, setSortColumn] = useState<string>('ranking');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-
-  const formatNumber = (num: number): string => {
-    return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(num);
-  };
+  const [sortColumn, setSortColumn] = useState<string>("ranking");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const formatCurrency = (num: number): string => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(num);
   };
 
   const formatPercentage = (num: number): string => {
-    return new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 2 }).format(num / 100);
+    return new Intl.NumberFormat("en-US", { style: "percent", minimumFractionDigits: 2 }).format(num / 100);
   };
 
   const sortPairs = (pairs: PairData[]): PairData[] => {
     return [...pairs].sort((a, b) => {
-      if (a[sortColumn] < b[sortColumn]) return sortDirection === 'asc' ? -1 : 1;
-      if (a[sortColumn] > b[sortColumn]) return sortDirection === 'asc' ? 1 : -1;
+      if (a[sortColumn] < b[sortColumn]) return sortDirection === "asc" ? -1 : 1;
+      if (a[sortColumn] > b[sortColumn]) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
   };
 
   const handleSort = (column: string): void => {
     if (column === sortColumn) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortColumn(column);
-      setSortDirection('asc');
+      setSortDirection("asc");
     }
   };
 
@@ -64,11 +60,8 @@ const MarketInfo: React.FC<MarketDataProps> = ({ marketData }) => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">XLM/USDC Market</h2>
           <div className="flex space-x-2">
-            {['Trade', 'Add Liquidity', 'Remove Liquidity'].map((action) => (
-              <button
-                key={action}
-                className="bg-[#FFB734] hover:bg-[#E6A52F] text-black px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200"
-              >
+            {["Trade", "Add Liquidity", "Remove Liquidity"].map((action) => (
+              <button key={action} className="bg-[#FFB734] hover:bg-[#E6A52F] text-black px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200">
                 {action}
               </button>
             ))}
@@ -85,11 +78,8 @@ const MarketInfo: React.FC<MarketDataProps> = ({ marketData }) => {
         </div>
 
         <div className="mt-6">
-          <button
-            className="flex items-center text-[#FFB734] hover:text-[#E6A52F] transition-colors duration-200"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            {isExpanded ? 'Hide' : 'Show'} Market Pairs
+          <button className="flex items-center text-[#FFB734] hover:text-[#E6A52F] transition-colors duration-200" onClick={() => setIsExpanded(!isExpanded)}>
+            {isExpanded ? "Hide" : "Show"} Market Pairs
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </button>
         </div>
@@ -99,7 +89,7 @@ const MarketInfo: React.FC<MarketDataProps> = ({ marketData }) => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  {['Ranking', 'Protocol', 'Pair', 'TVL', 'Volume', 'APY'].map((header) => (
+                  {["Ranking", "Protocol", "Pair", "TVL", "Volume", "APY"].map((header) => (
                     <th
                       key={header}
                       scope="col"
@@ -108,9 +98,7 @@ const MarketInfo: React.FC<MarketDataProps> = ({ marketData }) => {
                     >
                       <div className="flex items-center">
                         {header}
-                        {sortColumn === header.toLowerCase() && (
-                          sortDirection === 'asc' ? <ArrowUp className="ml-1 h-4 w-4" /> : <ArrowDown className="ml-1 h-4 w-4" />
-                        )}
+                        {sortColumn === header.toLowerCase() && (sortDirection === "asc" ? <ArrowUp className="ml-1 h-4 w-4" /> : <ArrowDown className="ml-1 h-4 w-4" />)}
                       </div>
                     </th>
                   ))}

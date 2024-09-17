@@ -1,9 +1,11 @@
-'use client';
+// ./app/pools/page.tsx
 
-import { useEffect, useState } from 'react';
-import Navbar from '../../components/Navbar';
-import TopWidget from '../../components/TopWidget';
-import DataTable from '../../components/DataTable';
+"use client";
+
+import { useEffect, useState } from "react";
+import Navbar from "../../components/Navbar";
+import TopWidget from "../../components/TopWidget";
+import DataTable from "../../components/DataTable";
 
 interface Data {
   pairId: string;
@@ -19,15 +21,22 @@ interface Data {
   rankingScore: string;
 }
 
+interface Metrics {
+  totalValueLocked: number;
+  poolsIndexed: number;
+  totalVolume: number;
+  liquidityProviders: number;
+}
+
 type SortKey = keyof Data;
 
 export default function Home() {
   const [data, setData] = useState<Data[]>([]);
   const [loading, setLoading] = useState(true);
-  const [metrics, setMetrics] = useState<any>(null);
+  const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [loadingMetrics, setLoadingMetrics] = useState(true);
-  const [period, setPeriod] = useState('7d');
-  const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: 'ascending' | 'descending' } | null>(null);
+  const [period, setPeriod] = useState("7d");
+  const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: "ascending" | "descending" } | null>(null);
 
   useEffect(() => {
     fetchData(period);
@@ -57,7 +66,7 @@ export default function Home() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const result = await response.json();
+      const result: Metrics = await response.json();
       setMetrics(result);
     } catch (error) {
       console.error("Error fetching metrics from API:", error);
@@ -71,9 +80,9 @@ export default function Home() {
   };
 
   const handleSort = (key: SortKey) => {
-    let direction: 'ascending' | 'descending' = 'ascending';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending';
+    let direction: "ascending" | "descending" = "ascending";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
     }
     setSortConfig({ key, direction });
   };
@@ -94,16 +103,13 @@ export default function Home() {
     <div className="bg-white min-h-screen">
       <Navbar />
       <main className="flex flex-col items-center justify-start p-6 mobile-landscape:p-0">
-        <TopWidget period={period} metrics={metrics} loadingMetrics={loadingMetrics} />
+        <TopWidget metrics={metrics} loadingMetrics={loadingMetrics} />
         <div className="w-full max-w-screen-2xl mt-6">
           <div className="flex justify-end mb-4">
-            <label htmlFor="period" className="mr-2 font-medium">Select Period:</label>
-            <select
-              id="period"
-              value={period}
-              onChange={(e) => handlePeriodChange(e.target.value)}
-              className="border border-gray-300 rounded p-2 text-black"
-            >
+            <label htmlFor="period" className="mr-2 font-medium">
+              Select Period:
+            </label>
+            <select id="period" value={period} onChange={(e) => handlePeriodChange(e.target.value)} className="border border-gray-300 rounded p-2 text-black">
               <option value="24h">24 Hours</option>
               <option value="7d">7 Days</option>
               <option value="30d">30 Days</option>

@@ -1,11 +1,12 @@
-import React from 'react';
+import React from "react";
+import Image from "next/image";
 
 const SavingsWidget: React.FC = () => {
   return (
-    <div className="bg-black text-white p-6 rounded-2xl shadow-lg relative" style={{ width: '350px', flexShrink: 0, maxWidth: '450px' }}>
+    <div className="bg-black text-white p-6 rounded-2xl shadow-lg relative" style={{ width: "350px", flexShrink: 0, maxWidth: "450px" }}>
       <div className="flex justify-between items-center mb-4 relative">
         <h2 className="text-xl font-bold">Savings Account</h2>
-        <img src="/icons/info.svg" alt="Info" className="h-4 w-4 absolute top-0 right-0" /> {/* Info icon inside the SavingsWidget */}
+        <Image src="/icons/info.svg" alt="Info" className="h-4 w-4 absolute top-0 right-0" /> {/* Info icon inside the SavingsWidget */}
       </div>
       <p className="text-sm mb-6" style={{ opacity: 0.64 }}>
         This account contains a selected amount of liquidity pools on the Stellar Blockchain sorted by risk and potential rewards.
