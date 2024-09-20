@@ -1,5 +1,6 @@
 import { TableColumn } from "react-data-table-component";
 import { TokenToken } from "../../utils/types";
+import Image from "next/image";
 
 export const tokenColumns: TableColumn<TokenToken>[] = [
   {
@@ -8,7 +9,7 @@ export const tokenColumns: TableColumn<TokenToken>[] = [
     sortable: true,
     cell: (row) => (
       <div className="flex items-center">
-        {row.tokenData.logoUrl ? <img src={row.tokenData.logoUrl} alt={row.tokenData.name} className="h-8 w-8 mr-2" /> : <div className="h-8 w-8 mr-2 bg-gray-300 rounded-full"></div>}
+        {row.tokenData.logoUrl ? <Image src={row.tokenData.logoUrl} alt={row.tokenData.name} className="h-8 w-8 mr-2" /> : <div className="h-8 w-8 mr-2 bg-gray-300 rounded-full"></div>}
         <span className="text-primary font-bold">{row.tokenData.symbol}</span>
       </div>
     )

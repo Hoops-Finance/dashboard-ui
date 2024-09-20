@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { SwitchVerticalIcon, InformationCircleIcon, ArrowUpIcon, ArrowDownIcon } from "@heroicons/react/outline";
-import {} from "@heroicons/react/outline";
+import { ArrowsUpDownIcon, InformationCircleIcon, ArrowUpIcon, ArrowDownIcon } from "@heroicons/react/24/outline";
 interface MarketDataProps {
   marketData: {
     marketCap: number;
@@ -80,7 +79,7 @@ const MarketInfo: React.FC<MarketDataProps> = ({ marketData }) => {
         <div className="mt-6">
           <button className="flex items-center text-[#FFB734] hover:text-[#E6A52F] transition-colors duration-200" onClick={() => setIsExpanded(!isExpanded)}>
             {isExpanded ? "Hide" : "Show"} Market Pairs
-            <SwitchVerticalIcon className="ml-2 h-4 w-4" />
+            <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
           </button>
         </div>
 

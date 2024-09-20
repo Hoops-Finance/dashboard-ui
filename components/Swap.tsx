@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { SwitchVerticalIcon, InformationCircleIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/outline";
+import { ArrowsUpDownIcon, InformationCircleIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { Address } from "@stellar/stellar-sdk";
 
@@ -106,7 +106,7 @@ export default function SwapComponent() {
         {/* Swap Button */}
         <div className="flex justify-center">
           <button className="bg-gray-200 dark:bg-gray-600 p-2 rounded-full">
-            <SwitchVerticalIcon className="text-gray-600 dark:text-gray-300" />
+            <ArrowsUpDownIcon className="text-gray-600 dark:text-gray-300" />
           </button>
         </div>
 

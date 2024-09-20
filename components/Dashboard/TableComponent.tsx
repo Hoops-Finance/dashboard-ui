@@ -17,6 +17,7 @@ import { ExpandedMarketComponent } from "../DataViews/ExpandedMarkets";
 import { ExpandedTokenComponent } from "../DataViews/ExpandedTokenComponent";
 import { customTableStyles } from "../DataViews/TableStyles";
 import { TabData, MyWalletData, PoolData, TokenToken } from "../../utils/types";
+import { Lit } from "litlyx-js"; // Import Litlyx
 
 export function TableComponent() {
   const [activeTab, setActiveTab] = useState<"markets" | "pools" | "tokens" | "mywallet">("markets");
@@ -58,6 +59,18 @@ export function TableComponent() {
 
   // Filtered data for Pools based on showZeroLiquidity
   const filteredPools = poolData.filter((pool) => (showZeroLiquidity ? true : parseFloat(pool.totalValueLocked) !== 0));
+
+  // Log sorting event
+  const handleSort = (column, sortDirection) => {
+    console.log(`Sorting by ${column.selector} in ${sortDirection} order`);
+    Lit.event("table_sort", {
+      metadata: {
+        column: column.selector,
+        direction: sortDirection,
+        tab: activeTab
+      }
+    });
+  };
 
   if (loading || (activeTab === "pools" && loadingPools)) {
     return <div>Loading...</div>;
@@ -106,6 +119,7 @@ export function TableComponent() {
             pagination
             paginationRowsPerPageOptions={[10, 20, 30, 50, 100]}
             customStyles={customTableStyles(theme)}
+            onSort={handleSort} // Track sorting events
           />
         )}
 
@@ -114,14 +128,19 @@ export function TableComponent() {
           <DataTable
             columns={poolsColumns}
             data={filteredPools}
-            // Expandable rows are removed as per instructions
             pagination
             paginationRowsPerPageOptions={[10, 20, 30, 50, 100]}
             customStyles={customTableStyles(theme)}
-            // Handle row click to navigate to detail page
+            onSort={handleSort} // Track sorting events
             onRowClicked={(row) => {
-              // this will go to the details page
               console.log(`Navigate to detail page for pairId: ${row.pairId}`);
+              // Track the event with Litlyx
+              Lit.event("navigate_to_pool_detail", {
+                metadata: {
+                  pairId: row.pairId,
+                  poolName: row.market // Assuming you have a poolName field
+                }
+              });
             }}
           />
         )}
@@ -136,12 +155,20 @@ export function TableComponent() {
             pagination
             paginationRowsPerPageOptions={[10, 20, 30, 50, 100]}
             customStyles={customTableStyles(theme)}
+            onSort={handleSort} // Track sorting events
           />
         )}
 
         {/* MyWallet Tab */}
         {activeTab === "mywallet" && (
-          <DataTable columns={walletColumns} data={filteredWalletData} pagination paginationRowsPerPageOptions={[10, 20, 30, 50, 100]} customStyles={customTableStyles(theme)} />
+          <DataTable
+            columns={walletColumns}
+            data={filteredWalletData}
+            pagination
+            paginationRowsPerPageOptions={[10, 20, 30, 50, 100]}
+            customStyles={customTableStyles(theme)}
+            onSort={handleSort} // Track sorting events
+          />
         )}
       </div>
     </div>

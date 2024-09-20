@@ -2,13 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 
-import { ExternalLinkIcon, InformationCircleIcon, SwitchVerticalIcon } from "@heroicons/react/outline"; // Import Heroicons
-
-const ArrowUpDownIcon = (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
-  </svg>
-);
+import { LinkSlashIcon, InformationCircleIcon, ArrowsUpDownIcon } from "@heroicons/react/24/outline"; // Import Heroicons
 
 interface PoolData {
   protocol: string;
@@ -96,7 +90,7 @@ const PoolInfo: React.FC<{ poolData?: PoolData }> = ({ poolData = dummyPoolData 
         <div className="mt-6">
           <button className="flex items-center text-[#FFB734] hover:text-[#E6A52F] transition-colors duration-200" onClick={() => setIsExpanded(!isExpanded)}>
             {isExpanded ? "Hide" : "Show"} Currency Reserves
-            <SwitchVerticalIcon className="ml-2 h-4 w-4" />
+            <ArrowsUpDownIcon className="ml-2 h-4 w-4" />
           </button>
         </div>
 
@@ -168,7 +162,7 @@ const ContractCard: React.FC<ContractCardProps> = ({ title, address }) => (
     <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
     <div className="flex items-center justify-between">
       <p className="text-sm text-gray-800">{address ? `${address.slice(0, 8)}...${address.slice(-8)}` : "Address not available"}</p>
-      {address && <ExternalLinkIcon className="h-4 w-4 text-[#FFB734] cursor-pointer hover:text-[#E6A52F] transition-colors duration-200" />}
+      {address && <LinkSlashIcon className="h-4 w-4 text-[#FFB734] cursor-pointer hover:text-[#E6A52F] transition-colors duration-200" />}
     </div>
   </div>
 );

@@ -1,6 +1,6 @@
 import React from "react";
 import { Switch, Popover, Transition } from "@headlessui/react";
-import { CogIcon } from "@heroicons/react/outline";
+import { CogIcon } from "@heroicons/react/24/outline";
 
 interface FilterOptionsPopoverProps {
   showTrackedOnly: boolean;

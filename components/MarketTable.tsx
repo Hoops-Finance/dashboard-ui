@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { useWallet } from "./WalletContext";
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/outline";
 
 interface Pool {
   _id: string;
@@ -30,13 +29,6 @@ interface Market {
   token1Details?: TokenDetails;
   pools: Pool[];
   totalTVL?: number;
-}
-
-interface MyWalletData {
-  assetType: string;
-  assetCode: string;
-  assetIssuer: string;
-  balance: string;
 }
 
 interface TabData {
@@ -219,7 +211,7 @@ export function TableComponent() {
   ];
 
   // Render Market Card for mobile view
-  const renderMarketCard = (market: Market) => {
+  const RenderMarketCard = (market: Market) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
@@ -285,7 +277,7 @@ export function TableComponent() {
       <div className="overflow-x-auto">
         {activeTab === "markets" &&
           (isMobile ? (
-            tabData?.markets.map((market, index) => renderMarketCard(market))
+            tabData?.markets.map((market) => RenderMarketCard(market))
           ) : (
             <DataTable columns={marketColumns} data={tabData?.markets || []} expandableRows pagination customStyles={customStyles} />
           ))}

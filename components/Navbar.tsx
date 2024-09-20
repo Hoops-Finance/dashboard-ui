@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ConnectWallet } from "./ConnectWallet";
-import { SearchIcon, MenuIcon, XIcon, SunIcon, MoonIcon } from "@heroicons/react/outline"; // Import Heroicons
+import { MagnifyingGlassIcon, Bars4Icon, XMarkIcon, SunIcon, MoonIcon } from "@heroicons/react/24/outline"; // Import Heroicons
 import Image from "next/image";
 import { useTheme } from "./ThemeContext"; // Import the useTheme hook
 
@@ -53,7 +53,7 @@ const Navbar: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width={20} height={20} />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width={20} height={20} />
           </div>
           <ConnectWallet />
           {/* Theme Toggle Button */}
@@ -63,7 +63,7 @@ const Navbar: React.FC = () => {
         </div>
         <div className="lg:hidden flex items-center">
           <button onClick={toggleMenu} className="focus:outline-none">
-            {isMenuOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+            {isMenuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars4Icon className="w-6 h-6" />}
           </button>
         </div>
       </div>
@@ -90,7 +90,7 @@ const Navbar: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width={20} height={20} />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width={20} height={20} />
           </div>
         </div>
       )}

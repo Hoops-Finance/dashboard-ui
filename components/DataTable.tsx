@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import DataCard from "./DataCard";
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/outline";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
 
 interface Data {
   pairId: string;

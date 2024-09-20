@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Card } from "../ui";
 import { ConnectWallet } from "../ConnectWallet";
 import { useWallet } from "../WalletContext";
-import { ClipboardCopyIcon } from "@heroicons/react/outline";
+import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 export function WalletConnection() {
   const { isConnected, address, balance } = useWallet();
   const [showMessage, setShowMessage] = useState(false);
@@ -30,7 +29,7 @@ export function WalletConnection() {
               <p className="text-gray-600 dark:text-gray-400 mr-2">Address: {isConnected ? truncateAddress(address!) : "---"}</p>
               {isConnected && (
                 <button onClick={copyToClipboard} className="text-gray-400 hover:text-gray-600">
-                  <ClipboardCopyIcon />
+                  <ClipboardDocumentIcon />
                 </button>
               )}
             </div>

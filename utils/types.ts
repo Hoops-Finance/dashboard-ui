@@ -12,6 +12,13 @@ export interface RiskFactors {
   numSwappers: number;
 }
 
+export interface MyWalletData {
+  assetType: string;
+  assetCode: string;
+  assetIssuer: string;
+  balance: string;
+}
+
 export interface RankingFactors {
   score: number;
   normalizedTVL: number;

@@ -2,16 +2,15 @@
 
 import React from "react";
 import DataTable, { TableColumn, ExpanderComponentProps } from "react-data-table-component";
-import { TokenPair, TokenToken, TokenMarket, TokenData } from "../../utils/types";
+import { TokenToken, TokenMarket } from "../../utils/types";
 import { customTableStyles } from "./TableStyles";
+import Image from "next/image";
 interface TokenTableProps {
   data: TokenToken[];
   theme: string;
 }
 
 const TokenTable: React.FC<TokenTableProps> = ({ data, theme }) => {
-  const isDarkMode = theme === "dark";
-
   const formatCurrency = (value?: number) => {
     if (value === undefined) return "-";
     return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -24,7 +23,7 @@ const TokenTable: React.FC<TokenTableProps> = ({ data, theme }) => {
       sortable: true,
       cell: (row) => (
         <div className="flex items-center">
-          {row.tokenData.logoUrl ? <img src={row.tokenData.logoUrl} alt={row.tokenData.name} className="h-8 w-8 mr-2" /> : <div className="h-8 w-8 mr-2 bg-gray-300 rounded-full"></div>}
+          {row.tokenData.logoUrl ? <Image src={row.tokenData.logoUrl} alt={row.tokenData.name} className="h-8 w-8 mr-2" /> : <div className="h-8 w-8 mr-2 bg-gray-300 rounded-full"></div>}
           <span className="text-primary font-bold">{row.tokenData.symbol}</span>
         </div>
       )

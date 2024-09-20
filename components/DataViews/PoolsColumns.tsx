@@ -1,5 +1,6 @@
 import { TableColumn } from "react-data-table-component";
 import { PoolData } from "../../utils/types";
+import Image from "next/image";
 
 export const poolsColumns: TableColumn<PoolData>[] = [
   {
@@ -8,7 +9,7 @@ export const poolsColumns: TableColumn<PoolData>[] = [
     sortable: true,
     cell: (row) => (
       <div className="flex items-center">
-        <img src={row.marketIcon} alt={row.market} className="h-8 w-8 object-contain mr-2" />
+        <Image src={row.marketIcon} alt={row.market} className="h-8 w-8 object-contain mr-2" />
         <span>{row.market}</span>
       </div>
     )
