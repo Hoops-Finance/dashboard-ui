@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { ArrowUpDown, Info, ArrowUp, ArrowDown } from "lucide-react";
-
+import { SwitchVerticalIcon, InformationCircleIcon, ArrowUpIcon, ArrowDownIcon } from "@heroicons/react/outline";
+import {} from "@heroicons/react/outline";
 interface MarketDataProps {
   marketData: {
     marketCap: number;
@@ -80,7 +80,7 @@ const MarketInfo: React.FC<MarketDataProps> = ({ marketData }) => {
         <div className="mt-6">
           <button className="flex items-center text-[#FFB734] hover:text-[#E6A52F] transition-colors duration-200" onClick={() => setIsExpanded(!isExpanded)}>
             {isExpanded ? "Hide" : "Show"} Market Pairs
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+            <SwitchVerticalIcon className="ml-2 h-4 w-4" />
           </button>
         </div>
 
@@ -98,7 +98,7 @@ const MarketInfo: React.FC<MarketDataProps> = ({ marketData }) => {
                     >
                       <div className="flex items-center">
                         {header}
-                        {sortColumn === header.toLowerCase() && (sortDirection === "asc" ? <ArrowUp className="ml-1 h-4 w-4" /> : <ArrowDown className="ml-1 h-4 w-4" />)}
+                        {sortColumn === header.toLowerCase() && (sortDirection === "asc" ? <ArrowUpIcon className="ml-1 h-4 w-4" /> : <ArrowDownIcon className="ml-1 h-4 w-4" />)}
                       </div>
                     </th>
                   ))}
@@ -121,7 +121,7 @@ const MarketInfo: React.FC<MarketDataProps> = ({ marketData }) => {
         )}
 
         <div className="mt-6 flex items-center text-sm text-gray-500">
-          <Info className="h-4 w-4 mr-2" />
+          <InformationCircleIcon className="h-4 w-4 mr-2" />
           Last updated: {new Date(marketData.lastUpdated).toLocaleString()}
         </div>
       </div>

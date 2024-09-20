@@ -2,6 +2,15 @@
 trainer.md
 # dependencies
 /node_modules
+**/*.old.*
+**/*.dev.*
+*.dev.*
+*.old.*
+*.log
+*.log.*
+*.log-*
+**/*.dev
+
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -34,3 +43,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+app/app.tsx.old

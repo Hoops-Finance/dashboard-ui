@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/outline";
 
 const ManageLiquidity: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"deposit" | "withdraw">("deposit");
@@ -50,7 +50,7 @@ const ManageLiquidity: React.FC = () => {
             onClick={() => setShowAdvanced(!showAdvanced)}
           >
             Advanced Options
-            {showAdvanced ? <ChevronUp className="ml-2" size={20} /> : <ChevronDown className="ml-2" size={20} />}
+            {showAdvanced ? <ChevronUpIcon className="ml-2" size-20 /> : <ChevronDownIcon className="ml-2" size-20 />}
           </button>
 
           {showAdvanced && (

@@ -1,7 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { ArrowUpDown, ExternalLink, Info } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+
+import { ExternalLinkIcon, InformationCircleIcon, SwitchVerticalIcon } from "@heroicons/react/outline"; // Import Heroicons
+
+const ArrowUpDownIcon = (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+  </svg>
+);
 
 interface PoolData {
   protocol: string;
@@ -52,15 +59,15 @@ const PoolInfo: React.FC<{ poolData?: PoolData }> = ({ poolData = dummyPoolData 
   }, [poolData.lastUpdated]);
 
   const formatNumber = (num: number): string => {
-    return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(num);
+    return new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(num);
   };
 
   const formatCurrency = (num: number): string => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(num);
   };
 
   const formatPercentage = (num: number): string => {
-    return new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 2 }).format(num / 100);
+    return new Intl.NumberFormat("en-US", { style: "percent", minimumFractionDigits: 2 }).format(num / 100);
   };
 
   return (
@@ -69,11 +76,8 @@ const PoolInfo: React.FC<{ poolData?: PoolData }> = ({ poolData = dummyPoolData 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">{poolData.protocol} USD Pool</h2>
           <div className="flex space-x-2">
-            {['Deposit', 'Withdraw/Claim', 'Swap'].map((action) => (
-              <button
-                key={action}
-                className="bg-[#FFB734] hover:bg-[#E6A52F] text-black px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200"
-              >
+            {["Deposit", "Withdraw/Claim", "Swap"].map((action) => (
+              <button key={action} className="bg-[#FFB734] hover:bg-[#E6A52F] text-black px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200">
                 {action}
               </button>
             ))}
@@ -90,12 +94,9 @@ const PoolInfo: React.FC<{ poolData?: PoolData }> = ({ poolData = dummyPoolData 
         </div>
 
         <div className="mt-6">
-          <button
-            className="flex items-center text-[#FFB734] hover:text-[#E6A52F] transition-colors duration-200"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            {isExpanded ? 'Hide' : 'Show'} Currency Reserves
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+          <button className="flex items-center text-[#FFB734] hover:text-[#E6A52F] transition-colors duration-200" onClick={() => setIsExpanded(!isExpanded)}>
+            {isExpanded ? "Hide" : "Show"} Currency Reserves
+            <SwitchVerticalIcon className="ml-2 h-4 w-4" />
           </button>
         </div>
 
@@ -121,8 +122,8 @@ const PoolInfo: React.FC<{ poolData?: PoolData }> = ({ poolData = dummyPoolData 
         </div>
 
         <div className="mt-6 flex items-center text-sm text-gray-500">
-          <Info className="h-4 w-4 mr-2" />
-          Last updated: {clientSideDate || 'Loading...'}
+          <InformationCircleIcon className="h-4 w-4 mr-2" />
+          Last updated: {clientSideDate || "Loading..."}
         </div>
       </div>
     </div>
@@ -152,7 +153,7 @@ const ReserveCard: React.FC<ReserveCardProps> = ({ title, token, reserve, usdVal
   <div className="bg-gray-50 p-4 rounded-lg">
     <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
     <p className="text-xs text-gray-400 break-all">{token}</p>
-    <p className="text-lg font-bold text-gray-800 mt-1">Reserve: {new Intl.NumberFormat('en-US').format(reserve)}</p>
+    <p className="text-lg font-bold text-gray-800 mt-1">Reserve: {new Intl.NumberFormat("en-US").format(reserve)}</p>
     <p className="text-sm text-gray-600">USD Value: ${usdValue.toFixed(7)}</p>
   </div>
 );
@@ -166,12 +167,8 @@ const ContractCard: React.FC<ContractCardProps> = ({ title, address }) => (
   <div className="bg-gray-50 p-4 rounded-lg">
     <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
     <div className="flex items-center justify-between">
-      <p className="text-sm text-gray-800">
-        {address ? `${address.slice(0, 8)}...${address.slice(-8)}` : 'Address not available'}
-      </p>
-      {address && (
-        <ExternalLink className="h-4 w-4 text-[#FFB734] cursor-pointer hover:text-[#E6A52F] transition-colors duration-200" />
-      )}
+      <p className="text-sm text-gray-800">{address ? `${address.slice(0, 8)}...${address.slice(-8)}` : "Address not available"}</p>
+      {address && <ExternalLinkIcon className="h-4 w-4 text-[#FFB734] cursor-pointer hover:text-[#E6A52F] transition-colors duration-200" />}
     </div>
   </div>
 );

@@ -3,7 +3,7 @@
 import React from "react";
 import { StellarWalletsKit, WalletNetwork, allowAllModules, XBULL_ID } from "@creit.tech/stellar-wallets-kit";
 import { useWallet } from "./WalletContext";
-import { Horizon } from "@stellar/stellar-sdk"; // Import Balance type
+import { Horizon } from "@stellar/stellar-sdk";
 import { AccountResponse, HorizonApi } from "@stellar/stellar-sdk/lib/horizon";
 
 export const ConnectWallet: React.FC = () => {
@@ -59,10 +59,7 @@ export const ConnectWallet: React.FC = () => {
   };
 
   return (
-    <button
-      onClick={isConnected ? disconnectWallet : connectWallet}
-      className={`px-4 py-2 rounded-lg transition-colors duration-200 font-inter ${isConnected ? "bg-[#14141C] text-white hover:bg-[#2A2A3C]" : "bg-[#FFB734] text-black hover:bg-[#E6A52F]"}`}
-    >
+    <button onClick={isConnected ? disconnectWallet : connectWallet} className={`button-base ${isConnected ? "button-dark" : "button-light"}`}>
       {isConnected ? "Disconnect Wallet" : "Connect Wallet"}
     </button>
   );

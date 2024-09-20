@@ -1,6 +1,9 @@
+"use client";
+
 import React, { ReactNode } from "react";
-import Navbar from "../components/Navbar";
 import { ClientWalletProvider } from "../components/ClientWalletProvider";
+import Navbar from "../components/Navbar";
+import { ThemeProvider } from "../components/ThemeContext"; // Import ThemeProvider
 import "./globals.css";
 import { Inter } from "next/font/google";
 
@@ -16,13 +19,15 @@ const inter = Inter({
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" className={inter.variable}>
       <head />
       <body>
-        <ClientWalletProvider>
-          <Navbar />
-          <main className="pt-16">{children}</main>
-        </ClientWalletProvider>
+        <ThemeProvider>
+          <ClientWalletProvider>
+            <Navbar />
+            <main className="pt-16">{children}</main>
+          </ClientWalletProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
