@@ -9,7 +9,7 @@ export const poolsColumns: TableColumn<PoolData>[] = [
     sortable: true,
     cell: (row) => (
       <div className="flex items-center">
-        <Image src={row.marketIcon} alt={row.market} className="h-8 w-8 object-contain mr-2" />
+        <Image src={row.marketIcon} alt={row.market} width={32} height={32} className="h-8 w-8 object-contain mr-2" />
         <span>{row.market}</span>
       </div>
     )

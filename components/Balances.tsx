@@ -10,7 +10,7 @@ const Balances: React.FC = () => {
         <button className="text-gray-400 hover:text-gray-600">Account</button>
       </div>
       <div className="balance flex items-center mb-4">
-        <Image src="/icons/usdc.png" alt="Savings Icon" width={32} height={32} className="h-8 w-8 mr-4 object-contain" />
+        <Image src="/icons/usdc.png" alt="Savings Icon" width={16} height={16} className="h-8 w-8 mr-4 object-contain" />
         <span className="text-6xl font-bold text-black">12,488.27</span>
       </div>
       <div className="bottom flex space-x-4">
