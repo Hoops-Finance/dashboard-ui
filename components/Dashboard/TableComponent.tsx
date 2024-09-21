@@ -17,9 +17,10 @@ import { ExpandedMarketComponent } from "../DataViews/ExpandedMarkets";
 import { ExpandedTokenComponent } from "../DataViews/ExpandedTokenComponent";
 import { customTableStyles } from "../DataViews/TableStyles";
 import { TabData, MyWalletData, PoolData, TokenToken } from "../../utils/types";
-import { Lit } from "litlyx-js"; // Import Litlyx
+import { usePlausible } from "next-plausible";
 
 export function TableComponent() {
+  const plausible = usePlausible(); // Initialize Plausible
   const [activeTab, setActiveTab] = useState<"markets" | "pools" | "tokens" | "mywallet">("markets");
   const [tabData, setTabData] = useState<TabData | null>(null);
   const [tokens, setTokens] = useState<TokenToken[]>([]); // State for tokens
@@ -33,6 +34,22 @@ export function TableComponent() {
   const [filteredWalletData, setFilteredWalletData] = useState<MyWalletData[]>([]);
   const { theme } = useTheme();
   const { otherBalances } = useWallet();
+
+  // Track Tab Change
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab.toLowerCase() as keyof TabData | "mywallet");
+    plausible("Tab Change", { props: { tab } }); // Send custom event to Plausible
+  };
+
+  // Track Filter Changes
+  const handleFilterChange = (filterType: string, value: boolean) => {
+    plausible("Filter Change", { props: { filterType, value } }); // Send filter change event
+  };
+
+  // Track Row Click
+  const handleRowClick = (row: any, tab: string) => {
+    plausible("Row Click", { props: { tab, id: row.pairId || row.tokenId } }); // Send row click event with tab and row ID
+  };
 
   // Fetch Markets and Tokens data
   useEffect(() => {
@@ -60,18 +77,6 @@ export function TableComponent() {
   // Filtered data for Pools based on showZeroLiquidity
   const filteredPools = poolData.filter((pool) => (showZeroLiquidity ? true : parseFloat(pool.totalValueLocked) !== 0));
 
-  // Log sorting event
-  const handleSort = (column, sortDirection) => {
-    console.log(`Sorting by ${column.selector} in ${sortDirection} order`);
-    Lit.event("table_sort", {
-      metadata: {
-        column: column.selector,
-        direction: sortDirection,
-        tab: activeTab
-      }
-    });
-  };
-
   if (loading || (activeTab === "pools" && loadingPools)) {
     return <div>Loading...</div>;
   }
@@ -84,7 +89,7 @@ export function TableComponent() {
           {["Markets", "Pools", "Tokens", "MyWallet"].map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab.toLowerCase() as keyof TabData | "mywallet")}
+              onClick={() => handleTabChange(tab)} // Track tab change
               className={`px-4 py-2 rounded-2xl transition-all duration-300 ${
                 activeTab === tab.toLowerCase() ? "bg-[#E2BE08] text-black" : "text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
               }`}
@@ -99,9 +104,18 @@ export function TableComponent() {
           showTrackedOnly={showTrackedOnly}
           showZeroBalances={showZeroBalances}
           showZeroLiquidity={showZeroLiquidity}
-          setShowTrackedOnly={setShowTrackedOnly}
-          setShowZeroBalances={setShowZeroBalances}
-          setShowZeroLiquidity={setShowZeroLiquidity}
+          setShowTrackedOnly={(value) => {
+            setShowTrackedOnly(value);
+            handleFilterChange("Tracked Only", value); // Track filter change
+          }}
+          setShowZeroBalances={(value) => {
+            setShowZeroBalances(value);
+            handleFilterChange("Show Zero Balances", value); // Track filter change
+          }}
+          setShowZeroLiquidity={(value) => {
+            setShowZeroLiquidity(value);
+            handleFilterChange("Show Zero Liquidity", value); // Track filter change
+          }}
           activeTab={activeTab}
           poolPeriod={activeTab === "pools" ? poolPeriod : undefined}
           setPoolPeriod={activeTab === "pools" ? setPoolPeriod : undefined}
@@ -119,7 +133,7 @@ export function TableComponent() {
             pagination
             paginationRowsPerPageOptions={[10, 20, 30, 50, 100]}
             customStyles={customTableStyles(theme)}
-            onSort={handleSort} // Track sorting events
+            onRowClicked={(row) => handleRowClick(row, "markets")} // Track row click
           />
         )}
 
@@ -131,17 +145,7 @@ export function TableComponent() {
             pagination
             paginationRowsPerPageOptions={[10, 20, 30, 50, 100]}
             customStyles={customTableStyles(theme)}
-            onSort={handleSort} // Track sorting events
-            onRowClicked={(row) => {
-              console.log(`Navigate to detail page for pairId: ${row.pairId}`);
-              // Track the event with Litlyx
-              Lit.event("navigate_to_pool_detail", {
-                metadata: {
-                  pairId: row.pairId,
-                  poolName: row.market // Assuming you have a poolName field
-                }
-              });
-            }}
+            onRowClicked={(row) => handleRowClick(row, "pools")} // Track row click
           />
         )}
 
@@ -155,7 +159,7 @@ export function TableComponent() {
             pagination
             paginationRowsPerPageOptions={[10, 20, 30, 50, 100]}
             customStyles={customTableStyles(theme)}
-            onSort={handleSort} // Track sorting events
+            onRowClicked={(row) => handleRowClick(row, "tokens")} // Track row click
           />
         )}
 
@@ -167,7 +171,7 @@ export function TableComponent() {
             pagination
             paginationRowsPerPageOptions={[10, 20, 30, 50, 100]}
             customStyles={customTableStyles(theme)}
-            onSort={handleSort} // Track sorting events
+            onRowClicked={(row) => handleRowClick(row, "mywallet")} // Track row click
           />
         )}
       </div>

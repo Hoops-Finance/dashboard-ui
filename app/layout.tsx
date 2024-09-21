@@ -7,7 +7,7 @@ import Navbar from "../components/Navbar";
 import { ThemeProvider } from "../components/ThemeContext";
 import "./globals.css";
 import { Inter } from "next/font/google";
-import { Lit } from "litlyx-js"; // Import Litlyx
+import PlausibleProvider from "next-plausible";
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -20,18 +20,13 @@ const inter = Inter({
 });
 
 export default function RootLayout({ children }: RootLayoutProps) {
-  useEffect(() => {
-    const projectId = process.env.LITLX_ID;
-    if (projectId) {
-      Lit.init(projectId);
-    } else {
-      console.error("Litlyx project ID is not defined in the environment variables.");
-    }
-  }, []);
-
   return (
     <html lang="en" className={inter.variable}>
-      <head />
+      <head>
+        <script defer data-domain="hoops.stellar.red" src="https://hoops-analytics.stellar.red/js/script.js"></script>
+
+        <PlausibleProvider domain="hoops.stellar.red" customDomain="hoops-analytics.stellar.red" selfHosted />
+      </head>
       <body>
         <ThemeProvider>
           <ClientWalletProvider>

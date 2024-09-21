@@ -1,15 +1,21 @@
+// Import the necessary functions and packages
+import { withPlausibleProxy } from "next-plausible";
+import dotenv from "dotenv";
 
-
-import dotenv from 'dotenv';
-
+// Load environment variables
 dotenv.config();
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+// Apply Plausible proxy and retain your existing Next.js config
+const nextConfig = withPlausibleProxy({
+  customDomain: "https://hoops-analytics.stellar.red" // Plausible instance
+  // subdirectory: "plausible", // Optional, to customize the script URL
+  //scriptName: "plausible-script" // Optional, customize the script name if needed
+})({
   env: {
     API_URL: process.env.API_URL,
-    API_KEY: process.env.API_KEY,
-  },
-};
+    API_KEY: process.env.API_KEY
+  }
+});
 
+// Export the Next.js configuration
 export default nextConfig;
