@@ -9,6 +9,7 @@ trainer.md
 *.old.*
 *.log
 *.log.*
+package-lock.json.old
 *.log-*
 **/*.dev
 **/old*
