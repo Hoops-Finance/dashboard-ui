@@ -22,7 +22,7 @@ components/Dashboard/NewTableComponent.tsx
 .env.local
 # testing
 /coverage
-
+pnpm-lock.yaml.old
 # next.js
 /.next/
 /out/
