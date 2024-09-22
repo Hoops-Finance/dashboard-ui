@@ -1,6 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 trainer.md
 # dependencies
+
 /node_modules
 **/*.old.*
 **/*.dev.*
@@ -10,7 +11,11 @@ trainer.md
 *.log.*
 *.log-*
 **/*.dev
-
+**/old*
+app/Dashboard2
+**/Depricated/*
+components/DetailedInfoo.tsx
+components/Dashboard/NewTableComponent.tsx
 /.pnp
 .pnp.js
 .yarn/install-state.gz

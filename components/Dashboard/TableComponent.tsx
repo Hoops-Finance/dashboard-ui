@@ -1,11 +1,11 @@
+// TableComponent.tsx
+
 "use client";
 
 import React, { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import { useWallet } from "../WalletContext";
 import { useTheme } from "../ThemeContext";
-import { fetchData } from "../../utils/FetchData";
-import { fetchTokenData } from "../../utils/FetchTokenData";
 import { fetchPoolData } from "../../utils/FetchPoolData";
 import { updateWalletData } from "../../utils/UpdateWalletData";
 import { FilterOptionsPopover } from "./FilterOptionsPopover";
@@ -16,17 +16,23 @@ import { poolsColumns } from "../DataViews/PoolsColumns";
 import { ExpandedMarketComponent } from "../DataViews/ExpandedMarkets";
 import { ExpandedTokenComponent } from "../DataViews/ExpandedTokenComponent";
 import { customTableStyles } from "../DataViews/TableStyles";
-import { TabData, MyWalletData, PoolData, TokenToken } from "../../utils/types";
+import { ExplorerTableData, ProcessedToken, Market, MyWalletData, PoolRiskApiResponseObject, PairApiResponseObject, Pair } from "utils/newTypes";
 import { usePlausible } from "next-plausible";
 
-export function TableComponent() {
+interface TableComponentProps {
+  explorerData: ExplorerTableData | null;
+  processedTokens: ProcessedToken[];
+  poolData: PoolRiskApiResponseObject[];
+  setPoolData: React.Dispatch<React.SetStateAction<PoolRiskApiResponseObject[]>>;
+  loadingPools: boolean;
+  setLoadingPools: React.Dispatch<React.SetStateAction<boolean>>;
+  onSelectPair: (pairData: Pair, poolRiskData: PoolRiskApiResponseObject) => void;
+}
+
+export function TableComponent({ explorerData, processedTokens, poolData, setPoolData, loadingPools, setLoadingPools, onSelectPair }: TableComponentProps) {
   const plausible = usePlausible(); // Initialize Plausible
   const [activeTab, setActiveTab] = useState<"markets" | "pools" | "tokens" | "mywallet">("markets");
-  const [tabData, setTabData] = useState<TabData | null>(null);
-  const [tokens, setTokens] = useState<TokenToken[]>([]); // State for tokens
-  const [poolData, setPoolData] = useState<PoolData[]>([]); // Pool data state
-  const [loading, setLoading] = useState(true);
-  const [loadingPools, setLoadingPools] = useState(false); // Pool loading state
+  const [loading, setLoading] = useState(false);
   const [showTrackedOnly, setShowTrackedOnly] = useState(false);
   const [showZeroBalances, setShowZeroBalances] = useState(true);
   const [showZeroLiquidity, setShowZeroLiquidity] = useState(false);
@@ -37,7 +43,7 @@ export function TableComponent() {
 
   // Track Tab Change
   const handleTabChange = (tab: string) => {
-    setActiveTab(tab.toLowerCase() as keyof TabData | "mywallet");
+    setActiveTab(tab.toLowerCase() as "markets" | "pools" | "tokens" | "mywallet");
     plausible("Tab Change", { props: { tab } }); // Send custom event to Plausible
   };
 
@@ -49,20 +55,13 @@ export function TableComponent() {
   // Track Row Click
   const handleRowClick = (row: any, tab: string) => {
     plausible("Row Click", { props: { tab, id: row.pairId || row.tokenId } }); // Send row click event with tab and row ID
-  };
 
-  // Fetch Markets and Tokens data
-  useEffect(() => {
-    fetchData(setTabData, setLoading);
-    fetchTokenData(setTokens, setLoading); // Fetch token data separately
-  }, []);
-
-  // Update Wallet Data when relevant states change
-  useEffect(() => {
-    if (tabData) {
-      updateWalletData(otherBalances, showTrackedOnly, showZeroBalances, tabData, setFilteredWalletData);
+    const selectedPair = explorerData?.pools.find((pair) => pair.id === row.pairId);
+    const selectedPoolRisk = poolData.find((pool) => pool.pairId === row.pairId);
+    if (selectedPair && selectedPoolRisk) {
+      onSelectPair(selectedPair, selectedPoolRisk);
     }
-  }, [showTrackedOnly, showZeroBalances, otherBalances, tabData]);
+  };
 
   // Fetch Pools data when Pools tab is active or poolPeriod changes
   useEffect(() => {
@@ -71,13 +70,23 @@ export function TableComponent() {
     }
   }, [activeTab, poolPeriod]);
 
+  // Update Wallet Data when relevant states change
+  useEffect(() => {
+    if (explorerData) {
+      updateWalletData(otherBalances, showTrackedOnly, showZeroBalances, explorerData, setFilteredWalletData);
+    }
+  }, [showTrackedOnly, showZeroBalances, otherBalances, explorerData]);
+
   // Filtered data for Markets based on showZeroLiquidity
-  const filteredMarkets = tabData?.markets.filter((market) => (showZeroLiquidity ? true : parseFloat(market.totalTVL?.toString() || "0") !== 0));
+  const filteredMarkets = explorerData?.markets.filter((market) => (showZeroLiquidity ? true : market.totalTVL !== 0));
 
   // Filtered data for Pools based on showZeroLiquidity
   const filteredPools = poolData.filter((pool) => (showZeroLiquidity ? true : parseFloat(pool.totalValueLocked) !== 0));
 
-  if (loading || (activeTab === "pools" && loadingPools)) {
+  // Filtered data for Tokens based on showZeroLiquidity
+  const filteredTokens = processedTokens.filter((token) => (showZeroLiquidity ? true : token.totalTVL !== 0));
+
+  if (!explorerData) {
     return <div>Loading...</div>;
   }
 
@@ -153,7 +162,7 @@ export function TableComponent() {
         {activeTab === "tokens" && (
           <DataTable
             columns={tokenColumns}
-            data={tokens || []}
+            data={filteredTokens} // Updated to use processed tokens
             expandableRows
             expandableRowsComponent={ExpandedTokenComponent}
             pagination

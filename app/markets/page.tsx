@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import MarketInfo from '../../components/MarketData';
-import Swap from '../../components/Swap';
+import { useState, useEffect } from "react";
+import MarketInfo from "../../components/Depricated/MarketData";
+import Swap from "../../components/Swap";
 
 interface MarketData {
   marketCap: number;
@@ -37,11 +37,11 @@ export default function MarketsPage() {
         usdcPrice: 1,
         marketDominance: 5,
         pairs: [
-          { ranking: 1, protocol: 'StellarX', pair: 'XLM/USDC', tvl: 500000000, volume: 25000000, apy: 5.2 },
-          { ranking: 2, protocol: 'StellarTerm', pair: 'XLM/USDT', tvl: 300000000, volume: 15000000, apy: 4.8 },
+          { ranking: 1, protocol: "Soroswap", pair: "XLM/USDC", tvl: 500000000, volume: 25000000, apy: 5.2 },
+          { ranking: 2, protocol: "Phoenix", pair: "XLM/USDC", tvl: 300000000, volume: 15000000, apy: 4.8 }
           // Add more dummy pairs as needed
         ],
-        lastUpdated: new Date().toISOString(),
+        lastUpdated: new Date().toISOString()
       };
       setMarketData(dummyData);
     };

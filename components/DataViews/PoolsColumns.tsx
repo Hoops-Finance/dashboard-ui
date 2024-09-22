@@ -1,8 +1,8 @@
 import { TableColumn } from "react-data-table-component";
-import { PoolData } from "../../utils/types";
+import { PoolRiskApiResponseObject } from "../../utils/newTypes";
 import Image from "next/image";
 
-export const poolsColumns: TableColumn<PoolData>[] = [
+export const poolsColumns: TableColumn<PoolRiskApiResponseObject>[] = [
   {
     name: "Market",
     selector: (row) => row.market,
@@ -39,7 +39,7 @@ export const poolsColumns: TableColumn<PoolData>[] = [
   },
   {
     name: "APR",
-    selector: (row) => parseFloat(row.apr),
+    selector: (row) => row.apr,
     sortable: true,
     cell: (row) => `${row.apr}`
   },
@@ -49,7 +49,7 @@ export const poolsColumns: TableColumn<PoolData>[] = [
     sortable: true,
     cell: (row) => {
       const trendingAPR = parseFloat(row.trendingapr || "0");
-      return <span className={trendingAPR > parseFloat(row.apr) ? "text-green-500" : "text-red-500"}>{row.trendingapr || "0.00"}%</span>;
+      return <span className={trendingAPR > Number(row.apr) ? "text-green-500" : "text-red-500"}>{row.trendingapr || "0.00"}%</span>;
     }
   },
   {

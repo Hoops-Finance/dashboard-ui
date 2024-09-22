@@ -1,5 +1,5 @@
 import { TableColumn } from "react-data-table-component";
-import { Market } from "../../utils/types";
+import { Market } from "../../utils/newTypes";
 
 export const marketColumns: TableColumn<Market>[] = [
   {
@@ -10,7 +10,7 @@ export const marketColumns: TableColumn<Market>[] = [
   },
   {
     name: "Tokens",
-    cell: (row) => <div className="text-center">{`${row.token0Details?.symbol} / ${row.token1Details?.symbol}`}</div>,
+    cell: (row) => <div className="text-center">{`${row.token0?.symbol} / ${row.token1?.symbol}`}</div>,
     sortable: true
   },
   {

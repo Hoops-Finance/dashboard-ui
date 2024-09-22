@@ -1,10 +1,12 @@
+// ExpandedTokenComponent.tsx
+
 import React from "react";
 import { ExpanderComponentProps } from "react-data-table-component";
-import { TokenToken } from "../../utils/types";
+import { ProcessedToken, TokenMarket } from "../../utils/newTypes";
 
-export const ExpandedTokenComponent: React.FC<ExpanderComponentProps<TokenToken>> = ({ data }) => (
+export const ExpandedTokenComponent: React.FC<ExpanderComponentProps<ProcessedToken>> = ({ data }) => (
   <div className="p-4 bg-white dark:bg-gray-800 text-black dark:text-white">
-    {data.markets.map((market, index) => (
+    {data.markets.map((market: TokenMarket, index: number) => (
       <div key={index} className="mb-4 border-b pb-2">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-bold">Market: {market.counterTokenSymbol}</h3>
@@ -23,7 +25,7 @@ export const ExpandedTokenComponent: React.FC<ExpanderComponentProps<TokenToken>
           <tbody>
             {market.pairs.map((pair, pairIndex) => (
               <tr key={pairIndex}>
-                <td>{pair._id}</td>
+                <td>{pair.id}</td>
                 <td>{pair.protocol}</td>
                 <td>
                   {pair.tvl !== undefined

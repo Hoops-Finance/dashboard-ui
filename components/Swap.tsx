@@ -1,10 +1,13 @@
+// /components/Swap.tsx
+
 "use client";
 
 import { useState } from "react";
-
-import { ArrowsUpDownIcon, InformationCircleIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
+import { ArrowsUpDownIcon, LinkSlashIcon, InformationCircleIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { Address } from "@stellar/stellar-sdk";
+import DetailedInfo from "./DetailedInfo";
+import { UTCTimestamp } from "lightweight-charts";
 
 export interface TokenSwapInfo {
   tokenAddress: Address;
@@ -49,6 +52,12 @@ export default function SwapComponent() {
   const [slippageTolerance, setSlippageTolerance] = useState(0.5);
   const [customFee, setCustomFee] = useState("");
 
+  // Handle swapping tokens
+  const handleSwapTokens = () => {
+    setPayToken(receiveToken);
+    setReceiveToken(payToken);
+  };
+
   return (
     <div className="w-full max-w-md p-6 card-base">
       <div className="flex justify-between items-center mb-6">
@@ -57,6 +66,8 @@ export default function SwapComponent() {
           {/* Settings Icon */}
           <svg width="24" height="24" fill="currentColor">
             {/* SVG content */}
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
           </svg>
         </button>
       </div>
@@ -236,3 +247,56 @@ export default function SwapComponent() {
     </div>
   );
 }
+
+interface InfoCardProps {
+  title: string;
+  value: string;
+}
+
+const InfoCard: React.FC<InfoCardProps> = ({ title, value }) => (
+  <div className="bg-gray-50 p-4 rounded-lg">
+    <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
+    <p className="text-xl font-bold text-gray-800">{value}</p>
+  </div>
+);
+
+interface ReserveCardProps {
+  title: string;
+  token: string;
+  reserve: number;
+  usdValue: number;
+}
+
+const ReserveCard: React.FC<ReserveCardProps> = ({ title, token, reserve, usdValue }) => (
+  <div className="bg-gray-50 p-4 rounded-lg">
+    <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
+    <p className="text-xs text-gray-400 break-all">{token}</p>
+    <p className="text-lg font-bold text-gray-800 mt-1">Reserve: {new Intl.NumberFormat("en-US").format(reserve)}</p>
+    <p className="text-sm text-gray-600">USD Value: ${usdValue.toFixed(2)}</p>
+  </div>
+);
+
+interface ContractCardProps {
+  title: string;
+  address: string;
+}
+
+const ContractCard: React.FC<ContractCardProps> = ({ title, address }) => (
+  <div className="bg-gray-50 p-4 rounded-lg">
+    <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
+    <div className="flex items-center justify-between">
+      <p className="text-sm text-gray-800">{address ? `${address.slice(0, 8)}...${address.slice(-8)}` : "Address not available"}</p>
+      {address && <LinkSlashIcon className="h-4 w-4 text-[#FFB734] cursor-pointer hover:text-[#E6A52F] transition-colors duration-200" />}
+    </div>
+  </div>
+);
+
+interface CandleData {
+  time: UTCTimestamp;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+//export default SwapComponent;
