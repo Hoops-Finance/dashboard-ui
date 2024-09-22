@@ -103,6 +103,9 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ lineSeries }) => {
         chartRef.current?.remove();
       };
     }
+    {
+      /* @tslint-ignore */
+    }
   }, []); // Empty dependency array ensures this runs once on mount
 
   // Update the chart when lineSeries changes

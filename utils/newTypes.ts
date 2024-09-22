@@ -196,6 +196,17 @@ export interface AssetDetails {
   };
 }
 
+export interface TransformedCandleData {
+  time: UTCTimestamp;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  baseVolume: number;
+  quoteVolume: number;
+  tradesCount: number;
+}
+
 export interface CandleData {
   time: UTCTimestamp;
   open: number;
@@ -212,4 +223,20 @@ export interface SxCandleResponse {
   baseVolume: number; //Base volume
   quoteVolume: number; //Quote volume
   tradesCount: number; //Trades count in the record
+}
+
+export interface ContractCardProps {
+  title: string;
+  address: string;
+}
+
+export interface InfoCardProps {
+  title: string;
+  value: string;
+}
+export interface ReserveCardProps {
+  title: string;
+  token: string;
+  reserve: number;
+  usdValue: number;
 }

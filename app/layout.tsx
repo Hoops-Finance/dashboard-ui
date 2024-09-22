@@ -1,7 +1,7 @@
 // app/layout.tsx
 "use client";
 
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode } from "react";
 import { ClientWalletProvider } from "../components/ClientWalletProvider";
 import Navbar from "../components/Navbar";
 import { ThemeProvider } from "../components/ThemeContext";

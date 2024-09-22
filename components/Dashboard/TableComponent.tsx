@@ -16,8 +16,28 @@ import { poolsColumns } from "../DataViews/PoolsColumns";
 import { ExpandedMarketComponent } from "../DataViews/ExpandedMarkets";
 import { ExpandedTokenComponent } from "../DataViews/ExpandedTokenComponent";
 import { customTableStyles } from "../DataViews/TableStyles";
-import { ExplorerTableData, ProcessedToken, Market, MyWalletData, PoolRiskApiResponseObject, PairApiResponseObject, Pair } from "utils/newTypes";
+import { ExplorerTableData, ProcessedToken, MyWalletData, PoolRiskApiResponseObject, Pair, Market } from "utils/newTypes";
 import { usePlausible } from "next-plausible";
+type TableRow = Market | PoolRiskApiResponseObject | ProcessedToken | MyWalletData | Pair;
+function isMarket(row: TableRow): row is Market {
+  return (row as Market).token0 !== undefined && (row as Market).token1 !== undefined;
+}
+
+function isPair(row: TableRow): row is Pair {
+  return (row as Pair).token0 !== undefined && (row as Pair).token1 !== undefined && (row as Pair).lpToken !== undefined;
+}
+
+function isPool(row: TableRow): row is PoolRiskApiResponseObject {
+  return (row as PoolRiskApiResponseObject).pairId !== undefined && (row as PoolRiskApiResponseObject).market !== undefined;
+}
+
+function isToken(row: TableRow): row is ProcessedToken {
+  return (row as ProcessedToken).token !== undefined && (row as ProcessedToken).markets !== undefined;
+}
+
+function isWalletData(row: TableRow): row is MyWalletData {
+  return (row as MyWalletData).assetType !== undefined && (row as MyWalletData).balance !== undefined;
+}
 
 interface TableComponentProps {
   explorerData: ExplorerTableData | null;
@@ -32,7 +52,6 @@ interface TableComponentProps {
 export function TableComponent({ explorerData, processedTokens, poolData, setPoolData, loadingPools, setLoadingPools, onSelectPair }: TableComponentProps) {
   const plausible = usePlausible(); // Initialize Plausible
   const [activeTab, setActiveTab] = useState<"markets" | "pools" | "tokens" | "mywallet">("markets");
-  const [loading, setLoading] = useState(false);
   const [showTrackedOnly, setShowTrackedOnly] = useState(false);
   const [showZeroBalances, setShowZeroBalances] = useState(true);
   const [showZeroLiquidity, setShowZeroLiquidity] = useState(false);
@@ -53,13 +72,59 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
   };
 
   // Track Row Click
-  const handleRowClick = (row: any, tab: string) => {
+  /*
+  const handleRowClick = (row: TableRow, tab: string) => {
+    let id: string | undefined;
+    // Determine the ID based on the row type
+    if ("pairId" in row) {
+      id = row.pairId;
+    } else if ("tokenId" in row) {
+      id = row.tokenId;
+    }
     plausible("Row Click", { props: { tab, id: row.pairId || row.tokenId } }); // Send row click event with tab and row ID
 
     const selectedPair = explorerData?.pools.find((pair) => pair.id === row.pairId);
     const selectedPoolRisk = poolData.find((pool) => pool.pairId === row.pairId);
     if (selectedPair && selectedPoolRisk) {
       onSelectPair(selectedPair, selectedPoolRisk);
+    }
+  };*/
+  const handleRowClick = (row: TableRow, tab: string) => {
+    if (isMarket(row)) {
+      plausible("Market Row Click", { props: { tab, id: row.marketLabel } });
+      const selectedPair = explorerData?.pools.find((pair) => pair.id === row.pools[0].id);
+      const selectedPoolRisk = poolData.find((pool) => pool.pairId === row.pools[0].id);
+      if (selectedPair && selectedPoolRisk) {
+        onSelectPair(selectedPair, selectedPoolRisk);
+      }
+      // Handle Market row click logic here
+    } else if (isPair(row)) {
+      plausible("Pair Row Click", { props: { tab, id: row.id } });
+      const selectedPair = explorerData?.pools.find((pair) => pair.id === row.id);
+      const selectedPoolRisk = poolData.find((pool) => pool.pairId === row.id);
+      if (selectedPair && selectedPoolRisk) {
+        onSelectPair(selectedPair, selectedPoolRisk);
+      }
+    } else if (isPool(row)) {
+      plausible("Pool Row Click", { props: { tab, id: row.pairId } });
+      const selectedPair = explorerData?.pools.find((pair) => pair.id === row.pairId);
+      const selectedPoolRisk = poolData.find((pool) => pool.pairId === row.pairId);
+      if (selectedPair && selectedPoolRisk) {
+        onSelectPair(selectedPair, selectedPoolRisk);
+      }
+    } else if (isToken(row)) {
+      plausible("Token Row Click", { props: { tab, id: row.token.id } });
+      const selectedPair = explorerData?.pools.find((pair) => pair.id === row.markets[0].pairs[0].id);
+      const selectedPoolRisk = poolData.find((pool) => pool.pairId === row.markets[0].pairs[0].id);
+      if (selectedPair && selectedPoolRisk) {
+        onSelectPair(selectedPair, selectedPoolRisk);
+      }
+      // Handle Token row click logic here
+    } else if (isWalletData(row)) {
+      plausible("Wallet Row Click", { props: { tab, id: row.assetCode } });
+      // Handle Wallet data row click logic here
+    } else {
+      plausible("Row Click", { props: { tab, id: "unknown" } });
     }
   };
 
@@ -68,7 +133,7 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
     if (activeTab === "pools") {
       fetchPoolData(setPoolData, setLoadingPools, poolPeriod);
     }
-  }, [activeTab, poolPeriod]);
+  }, [activeTab, poolPeriod, setPoolData, setLoadingPools]);
 
   // Update Wallet Data when relevant states change
   useEffect(() => {
@@ -184,6 +249,9 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
           />
         )}
       </div>
+
+      {/* Loading state for pools */}
+      {loadingPools && <div>Loading pool data...</div>}
     </div>
   );
 }

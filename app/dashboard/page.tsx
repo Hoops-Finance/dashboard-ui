@@ -7,7 +7,7 @@ import { WalletConnection } from "../../components/Dashboard/WalletConnection";
 import { Metrics } from "../../components/Dashboard/Metrics";
 import { TableComponent } from "../../components/Dashboard/TableComponent";
 import DetailedInfo from "../../components/DetailedInfo"; // Import DetailedInfo
-import { ExplorerTableData, ProcessedToken, PoolRiskApiResponseObject, PairApiResponseObject, Pair } from "utils/newTypes";
+import { ExplorerTableData, ProcessedToken, PoolRiskApiResponseObject, Pair } from "utils/newTypes";
 import { fetchData } from "../../utils/FetchData";
 
 export default function Dashboard() {
@@ -64,6 +64,8 @@ export default function Dashboard() {
           }}
         />
       </div>
+      {/* Loading state */}
+      {loading && <div>Loading data...</div>}
     </div>
   );
 }

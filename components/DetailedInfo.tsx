@@ -6,9 +6,9 @@ import React, { useState, useEffect } from "react";
 import { LinkSlashIcon, InformationCircleIcon, ArrowsUpDownIcon } from "@heroicons/react/24/outline";
 import ChartComponent from "./DetailsView/ChartComponent";
 import { fetchMarketCandles } from "../utils/fetchCandles"; // Adjust the path if necessary
-import { UTCTimestamp } from "lightweight-charts";
 import { useTheme } from "./ThemeContext";
-import { Pair, CandleData, TokenApiResponseObject, PairApiResponseObject, ProcessedToken, PoolRiskApiResponseObject, AssetDetails } from "utils/newTypes";
+import { Pair, CandleData, ProcessedToken, PoolRiskApiResponseObject, AssetDetails } from "utils/newTypes";
+import Image from "next/image";
 
 interface DetailedInfoProps {
   pairData: Pair;
@@ -67,8 +67,8 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
       try {
         const assetId0 = getTokenName(pairData.token0);
         const assetId1 = getTokenName(pairData.token1);
-        const tokenC0Details = await getTokenDetails(pairData.token0);
-        const tokenC1Details = await getTokenDetails(pairData.token1);
+        // const tokenC0Details = await getTokenDetails(pairData.token0);
+        // const tokenC1Details = await getTokenDetails(pairData.token1);
         const token0Details = await getTokenDetails(assetId0);
         const token1Details = await getTokenDetails(assetId1);
         // example tokencontract details:
@@ -133,10 +133,11 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
   }
 
   // Formatters
+  /*
   const formatNumber = (num: number): string => {
     return new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(num);
   };
-
+*/
   const formatCurrency = (num: number): string => {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(num);
   };
@@ -293,7 +294,7 @@ const ReserveCard: React.FC<ReserveCardProps> = ({ title, token, reserve, usdVal
       <h3 className="text-sm font-medium">{title}</h3>
       <div className="flex items-center mb-2">
         {tokenMetadata?.toml_info.image ? (
-          <img src={tokenMetadata.toml_info.image} alt={tokenMetadata.asset} className="h-6 w-6 mr-2" />
+          <Image height={20} width={20} src={tokenMetadata.toml_info.image} alt={tokenMetadata.asset} className="h-6 w-6 mr-2" />
         ) : (
           <div className="h-6 w-6 mr-2 bg-gray-300 rounded-full"></div>
         )}

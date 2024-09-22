@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { SxCandleResponse } from "utils/newTypes";
 
 const API_BASE_URL = "https://api.stellar.expert/explorer/public/market";
 const API_KEY = process.env.SXX_API_KEY;
@@ -38,14 +39,24 @@ export async function GET(request: NextRequest, { params }: { params: { token0: 
       return NextResponse.json({ error: errorData }, { status: response.status });
     }
 
-    const data = await response.json();
+    const data: SxCandleResponse[] = await response.json();
 
     // Transform data and ensure the `close` value is filled using the next candle's open value
-    const transformedData = data.map((record: any[], index: number, array: any[]) => {
+    const transformedData = data.map((record: SxCandleResponse, index: number, array) => {
       // Get the open value of the next candle (if it exists)
-      const nextCandleOpen = index < array.length - 1 ? array[index + 1][1] : record[1];
+      const nextCandleOpen = index < array.length - 1 ? array[index + 1].open : record.open;
 
       return {
+        time: record.time, // Unix timestamp
+        open: record.open, // Open price
+        high: record.high, // High price
+        low: record.low, // Low price
+        close: nextCandleOpen, // Close value is the next candle's open value
+        baseVolume: record.baseVolume, // Base volume
+        quoteVolume: record.quoteVolume, // Quote volume
+        tradesCount: record.tradesCount // Trades count
+      };
+      /*
         time: record[0], // Unix timestamp
         open: record[1], // Open price
         high: record[2], // High price
@@ -55,6 +66,7 @@ export async function GET(request: NextRequest, { params }: { params: { token0: 
         quoteVolume: record[5], // Quote volume
         tradesCount: record[6] // Trades count
       };
+      */
     });
 
     return NextResponse.json(transformedData);

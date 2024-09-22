@@ -3,11 +3,9 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowsUpDownIcon, LinkSlashIcon, InformationCircleIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
+import { ArrowsUpDownIcon, InformationCircleIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { Address } from "@stellar/stellar-sdk";
-import DetailedInfo from "./DetailedInfo";
-import { UTCTimestamp } from "lightweight-charts";
 
 export interface TokenSwapInfo {
   tokenAddress: Address;
@@ -51,13 +49,13 @@ export default function SwapComponent() {
   const [advancedOptionsOpen, setAdvancedOptionsOpen] = useState(false);
   const [slippageTolerance, setSlippageTolerance] = useState(0.5);
   const [customFee, setCustomFee] = useState("");
-
+  /*
   // Handle swapping tokens
   const handleSwapTokens = () => {
     setPayToken(receiveToken);
     setReceiveToken(payToken);
   };
-
+*/
   return (
     <div className="w-full max-w-md p-6 card-base">
       <div className="flex justify-between items-center mb-6">
@@ -248,25 +246,16 @@ export default function SwapComponent() {
   );
 }
 
-interface InfoCardProps {
-  title: string;
-  value: string;
-}
-
+/*
 const InfoCard: React.FC<InfoCardProps> = ({ title, value }) => (
   <div className="bg-gray-50 p-4 rounded-lg">
     <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
     <p className="text-xl font-bold text-gray-800">{value}</p>
   </div>
 );
+*/
 
-interface ReserveCardProps {
-  title: string;
-  token: string;
-  reserve: number;
-  usdValue: number;
-}
-
+/*
 const ReserveCard: React.FC<ReserveCardProps> = ({ title, token, reserve, usdValue }) => (
   <div className="bg-gray-50 p-4 rounded-lg">
     <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
@@ -275,12 +264,8 @@ const ReserveCard: React.FC<ReserveCardProps> = ({ title, token, reserve, usdVal
     <p className="text-sm text-gray-600">USD Value: ${usdValue.toFixed(2)}</p>
   </div>
 );
-
-interface ContractCardProps {
-  title: string;
-  address: string;
-}
-
+*/
+/*
 const ContractCard: React.FC<ContractCardProps> = ({ title, address }) => (
   <div className="bg-gray-50 p-4 rounded-lg">
     <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
@@ -290,13 +275,5 @@ const ContractCard: React.FC<ContractCardProps> = ({ title, address }) => (
     </div>
   </div>
 );
-
-interface CandleData {
-  time: UTCTimestamp;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-}
-
+*/
 //export default SwapComponent;
