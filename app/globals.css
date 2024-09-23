@@ -32,9 +32,6 @@ body.dark {
   @apply transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700;
 }
 
-.card-base {
-  @apply p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md;
-}
 
 .button-primary {
   @apply bg-[#e2be08] text-gray-900 rounded-lg font-semibold hover:bg-[#c7a707] transition-colors;
@@ -87,4 +84,32 @@ body.dark {
 /* Card base styles */
 .card-base {
   @apply p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl;
+}
+
+.info-card-container {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+.card-base {
+  @apply p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md;
+}
+
+.info-card-base {
+  @apply p-4 rounded-lg;
+}
+
+.info-card-light {
+  @apply bg-gray-700 text-white;
+}
+
+.info-card-dark {
+  @apply bg-gray-50 text-black;
+}
+
+.info-card-title {
+  @apply text-sm font-medium;
+}
+
+.info-card-value {
+  @apply text-xl font-bold;
 }

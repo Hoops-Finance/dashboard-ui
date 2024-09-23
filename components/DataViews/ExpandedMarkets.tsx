@@ -1,12 +1,16 @@
 import React from "react";
 import DataTable from "react-data-table-component";
-import { Market } from "../../utils/newTypes";
+import { Market, Pair } from "../../utils/newTypes";
 import { pairColumns } from "../DataViews/PairColumns";
 import { customTableStyles } from "./TableStyles";
 import { useTheme } from "../ThemeContext"; // Import useTheme
 import { ExpanderComponentProps } from "react-data-table-component";
 
-export const ExpandedMarketComponent: React.FC<ExpanderComponentProps<Market>> = ({ data }) => {
+interface ExpandedMarketComponentProps extends ExpanderComponentProps<Market> {
+  handleRowClick: (row: Pair, tab: string) => void; // Add handleRowClick prop
+}
+
+export const ExpandedMarketComponent: React.FC<ExpandedMarketComponentProps> = ({ data, handleRowClick }) => {
   const { theme } = useTheme(); // Access the theme using useTheme
 
   const token0Symbol = data.token0.symbol || "Token0";
@@ -25,6 +29,7 @@ export const ExpandedMarketComponent: React.FC<ExpanderComponentProps<Market>> =
         pagination={false}
         noHeader
         customStyles={customTableStyles(theme)} // Pass theme to customTableStyles
+        onRowClicked={(row) => handleRowClick(row, "pairs")} // Use handleRowClick prop
       />
     </div>
   );

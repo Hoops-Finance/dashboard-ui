@@ -23,9 +23,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" className={inter.variable}>
       <head>
-        <script defer data-domain="app.hoops.finance" src="https://hoops-analytics.stellar.red/js/script.js"></script>
+        <script defer data-domain="hoops.stellar.red" src="https://hoops-analytics.stellar.red/js/script.js"></script>
 
-        <PlausibleProvider domain="app.hoops.finance" customDomain="hoops-analytics.stellar.red" selfHosted />
+        <PlausibleProvider domain="hoops.stellar.red" customDomain="hoops-analytics.stellar.red" selfHosted />
       </head>
       <body>
         <ThemeProvider>

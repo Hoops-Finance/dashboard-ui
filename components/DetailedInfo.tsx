@@ -112,13 +112,14 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
   const t0usd = Number(pairData.t0usd);
   const t1usd = Number(pairData.t1usd);
   console.log("the poolRiskData:", poolRiskData);
-
+  const token0name = getTokenName(pairData.token0);
+  const token1name = getTokenName(pairData.token1);
   return (
     <div className={`shadow-lg rounded-lg overflow-hidden ${theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-black"}`}>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">
-            {pairData.protocol} - {getTokenName(pairData.token0)} / {getTokenName(pairData.token1)}
+            {pairData.protocol} - {token0name.split(":")[0]} / {token1name.split(":")[0]}
           </h2>
           <div className="flex space-x-2">
             {["Deposit", "Withdraw/Claim", "Swap"].map((action) => (
@@ -134,7 +135,7 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
           <ChartComponent lineSeries={[{ name: "Candlestick", data: candlestick, color: "#0000FF" }, ...overlays]} />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="info-card-container">
           <InfoCard title="TVL" value={formatCurrency(parseFloat(poolRiskData.totalValueLocked))} />
           <InfoCard title="USD Volume" value={formatCurrency(Number(poolRiskData.volume))} />
           <InfoCard title="Liquidity Utilization" value={formatPercentage(parseFloat(poolRiskData.utilization))} />
@@ -188,9 +189,9 @@ interface InfoCardProps {
 const InfoCard: React.FC<InfoCardProps> = ({ title, value }) => {
   const { theme } = useTheme();
   return (
-    <div className={`p-4 rounded-lg ${theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-50 text-black"}`}>
-      <h3 className="text-sm font-medium">{title}</h3>
-      <p className="text-xl font-bold">{value}</p>
+    <div className={`info-card-base ${theme === "dark" ? "info-card-light" : "info-card-dark"}`}>
+      <h3 className="info-card-title">{title}</h3>
+      <p className="info-card-value">{value}</p>
     </div>
   );
 };
@@ -206,8 +207,8 @@ interface ReserveCardProps {
 const ReserveCard: React.FC<ReserveCardProps> = ({ title, token, reserve, usdValue, tokenMetadata }) => {
   const { theme } = useTheme();
   return (
-    <div className={`p-4 rounded-lg ${theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-50 text-black"}`}>
-      <h3 className="text-sm font-medium">{title}</h3>
+    <div className={`info-card-base ${theme === "dark" ? "info-card-light" : "info-card-dark"}`}>
+      <h3 className="info-card-title">{title}</h3>
       <div className="flex items-center mb-2">
         {tokenMetadata?.toml_info.image ? (
           <Image height={16} width={16} src={tokenMetadata.toml_info.image} alt={tokenMetadata.asset} className="h-6 w-6 mr-2" />
@@ -230,8 +231,8 @@ interface ContractCardProps {
 const ContractCard: React.FC<ContractCardProps> = ({ title, address }) => {
   const { theme } = useTheme();
   return (
-    <div className={`p-4 rounded-lg ${theme === "dark" ? "bg-gray-700 text-white" : "bg-gray-50 text-black"}`}>
-      <h3 className="text-sm font-medium">{title}</h3>
+    <div className={`info-card-base ${theme === "dark" ? "info-card-light" : "info-card-dark"}`}>
+      <h3 className="info-card-title">{title}</h3>
       <div className="flex items-center justify-between">
         <p className="text-sm">{address ? `${address.slice(0, 8)}...${address.slice(-8)}` : "Address not available"}</p>
         {address && <LinkSlashIcon className="h-4 w-4 text-yellow-400 cursor-pointer hover:text-yellow-300 transition-colors duration-200" />}
