@@ -23,7 +23,7 @@ const Navbar: React.FC = () => {
       <div className="max-w-screen-2xl mx-auto flex justify-between items-center relative px-6">
         <Link href="/dashboard" className="inline-flex items-center gap-2 font-lora">
           {/* Apply the invert filter in dark mode */}
-          <Image src="/images/logo.svg" alt="Logo" width={48} height={48} className={`h-8 w-auto ${theme === "dark" ? "invert" : ""}`} />
+          <Image src="/images/logo.svg" alt="Logo" width={128} height={128} className={`h-8 w-auto ${theme === "dark" ? "invert" : ""}`} />
           <span className="text-xl font-bold text-gray-800 dark:text-white">hoops</span>
         </Link>
         <div className="hidden lg:flex space-x-8 relative">
