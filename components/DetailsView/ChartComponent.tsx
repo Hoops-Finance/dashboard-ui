@@ -1,16 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { createChart, IChartApi, ISeriesApi, UTCTimestamp, TimeScaleOptions, ChartOptions, DeepPartial, HorzAlign, VertAlign } from "lightweight-charts";
+import { createChart, IChartApi, ISeriesApi, TimeScaleOptions, ChartOptions, DeepPartial, HorzAlign, VertAlign } from "lightweight-charts";
 import { useTheme } from "../ThemeContext"; // Import the theme context
-
-interface CandleData {
-  time: UTCTimestamp;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-}
+import { CandleData } from "utils/newTypes";
 
 interface LineSeriesData {
   name: string;
@@ -90,6 +83,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ lineSeries }) => {
       // Handle chart resizing
       const handleResize = () => {
         if (chartContainerRef.current && chartRef.current) {
+          console.log("Resizing chart to width:", chartContainerRef.current.clientWidth);
           chartRef.current.applyOptions({
             width: chartContainerRef.current.clientWidth
           });
@@ -103,10 +97,8 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ lineSeries }) => {
         chartRef.current?.remove();
       };
     }
-    {
-      /* @tslint-ignore */
-    }
-  }, []); // Empty dependency array ensures this runs once on mount
+  }, [lineSeries, theme]);
+  // Empty dependency array ensures this runs once on mount
 
   // Update the chart when lineSeries changes
   useEffect(() => {

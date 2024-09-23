@@ -1,5 +1,3 @@
-// /components/DetailedInfo.tsx
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -18,7 +16,6 @@ interface DetailedInfoProps {
 
 const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, processedTokens }) => {
   const { theme } = useTheme();
-  // State Hooks
   const [isExpanded, setIsExpanded] = useState(false);
   const [clientSideDate, setClientSideDate] = useState<string | null>(null);
   const [chartData, setChartData] = useState<{
@@ -35,24 +32,16 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
   // Helper function to get token name from processed tokens
   const getTokenName = (tokenId: string): string => {
     const token = processedTokens.find((t) => t.token.id === tokenId);
-    if (!token) return "Unknown Token";
-    return token.token.name;
+    return token ? token.token.name : "Unknown Token";
   };
 
   // Fetch token metadata (AssetDetails)
   const getTokenDetails = async (tokenId: string): Promise<AssetDetails | null> => {
     try {
-      // tokenId.match(/:/g) ? tokenId.replace(/:/g, "-") : tokenId;
-      let assetId;
-      if (tokenId.toLowerCase() === "xlm" || tokenId.toLowerCase() === "native") {
-        assetId = "XLM";
-      } else {
-        assetId = tokenId.replace(/:/g, "-");
-      }
+      const assetId = tokenId.toLowerCase() === "xlm" || tokenId.toLowerCase() === "native" ? "XLM" : tokenId.replace(/:/g, "-");
       const response = await fetch(`/api/tokeninfo/${assetId}`);
       if (!response.ok) throw new Error(`Failed to fetch details for token: ${tokenId} with assetId: ${assetId}`);
-      const data: AssetDetails = await response.json();
-      return data;
+      return (await response.json()) as AssetDetails;
     } catch (error) {
       console.error(error);
       return null;
@@ -67,12 +56,8 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
       try {
         const assetId0 = getTokenName(pairData.token0);
         const assetId1 = getTokenName(pairData.token1);
-        // const tokenC0Details = await getTokenDetails(pairData.token0);
-        // const tokenC1Details = await getTokenDetails(pairData.token1);
         const token0Details = await getTokenDetails(assetId0);
         const token1Details = await getTokenDetails(assetId1);
-        // example tokencontract details:
-        //{"asset":"CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA","created":1708482496,"supply":2695131717580,"trustlines":{"total":0,"authorized":0,"funded":37},"payments":288,"payments_amount":337509325869,"volume":null,"volume7d":null,"rating":{"age":6,"trades":0,"payments":3,"trustlines":3,"volume7d":0,"interop":1,"liquidity":0,"average":1.9}}
 
         if (token0Details && token1Details) {
           setTokenMetadata({
@@ -85,27 +70,13 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
         const to = Math.floor(Date.now() / 1000); // Now
 
         // Fetch candlestick data for the pool's market
-        console.log("attempting to fetch candlestick data");
-        console.log(pairData.token0, pairData.token1, from, to);
-
-        //const candlestick_contractid = await fetchMarketCandles(pairData.token0, pairData.token1, from, to);
+        console.log("attempting to fetch candlestick data", pairData.token0, pairData.token1, from, to);
         const candlestick = await fetchMarketCandles(assetId0, assetId1, from, to);
-        //console.log("Fetched Candlestick Data[0]:", candlestick_contractid);
         console.log("Fetched Candlestick Data[1]:", candlestick[0]);
 
         setChartData({
           candlestick,
-          overlays:
-            candlestick.length > 0
-              ? [
-                  {
-                    name: "Classic",
-                    data: candlestick,
-                    color: "#FF0000" // Example color
-                  }
-                  // Add more overlays as needed
-                ]
-              : [] // If no overlays, pass an empty array
+          overlays: candlestick.length > 0 ? [{ name: "Classic", data: candlestick, color: "#FF0000" }] : []
         });
       } catch (error) {
         console.error("Error fetching chart or token data:", error);
@@ -123,7 +94,6 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
     setClientSideDate(new Date(pairData.lastUpdated).toLocaleString());
   }, [pairData.lastUpdated]);
 
-  // Conditional Rendering
   if (loading) {
     return <div>Loading chart...</div>;
   }
@@ -133,73 +103,22 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
   }
 
   // Formatters
-  /*
-  const formatNumber = (num: number): string => {
-    return new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(num);
-  };
-*/
-  const formatCurrency = (num: number): string => {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(num);
-  };
-
-  const formatPercentage = (num: number): string => {
-    return new Intl.NumberFormat("en-US", { style: "percent", minimumFractionDigits: 2 }).format(num / 100);
-  };
+  // const formatNumber = (num: number): string => new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(num);
+  const formatCurrency = (num: number): string => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(num);
+  const formatPercentage = (num: number): string => new Intl.NumberFormat("en-US", { style: "percent", minimumFractionDigits: 2 }).format(num / 100);
 
   const { candlestick, overlays } = chartData;
 
-  /*
-  // Prepare data for the ChartComponent
-  const prepareChartData = () => {
-    const candlestickData = chartData.candlestick.map((record: CandleData) => ({
-      time: record.time,
-      open: record.open,
-      high: record.high,
-      low: record.low,
-      close: record.close
-    }));
-
-    const overlays = chartData.overlays.map((overlay) => ({
-      name: overlay.name,
-      data: overlay.data.map((record: CandleData) => ({
-        time: record.time,
-        open: record.open,
-        high: record.high,
-        low: record.low,
-        close: record.close
-      })),
-      color: overlay.color
-    }));
-
-    return {
-      candlestick: candlestickData,
-      overlays: overlays
-    };
-  };
-  const { candlestick, overlays } = prepareChartData();
-
-*/
-
-  /*
-  const chartSeries: any[] = [
-    {
-      name: "Candlestick",
-      data: candlestick,
-      color: "#0000FF" // Candlestick color
-    },
-    ...overlays
-  ];
-  */
   const t0usd = Number(pairData.t0usd);
   const t1usd = Number(pairData.t1usd);
   console.log("the poolRiskData:", poolRiskData);
+
   return (
     <div className={`shadow-lg rounded-lg overflow-hidden ${theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-black"}`}>
-      {" "}
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">
-            {pairData.protocol} - {getTokenName(pairData.token0)} / {getTokenName(pairData.token1)}{" "}
+            {pairData.protocol} - {getTokenName(pairData.token0)} / {getTokenName(pairData.token1)}
           </h2>
           <div className="flex space-x-2">
             {["Deposit", "Withdraw/Claim", "Swap"].map((action) => (
@@ -212,7 +131,6 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
 
         {/* Chart Component */}
         <div className="mb-6">
-          {/*<ChartComponent lineSeries={chartSeries} />*/}
           <ChartComponent lineSeries={[{ name: "Candlestick", data: candlestick, color: "#0000FF" }, ...overlays]} />
         </div>
 
@@ -235,9 +153,7 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
         {isExpanded && (
           <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             <ReserveCard title="Token 0" token={pairData.token0} reserve={pairData.reserve0 || 0} usdValue={t0usd} tokenMetadata={tokenMetadata[pairData.token0]} />
-
             <ReserveCard title="Token 1" token={pairData.token1} reserve={pairData.reserve1 || 0} usdValue={t1usd} tokenMetadata={tokenMetadata[pairData.token1]} />
-
             <ReserveCard
               title="Total Reserve (USD)"
               token="Combined"
@@ -294,7 +210,7 @@ const ReserveCard: React.FC<ReserveCardProps> = ({ title, token, reserve, usdVal
       <h3 className="text-sm font-medium">{title}</h3>
       <div className="flex items-center mb-2">
         {tokenMetadata?.toml_info.image ? (
-          <Image height={20} width={20} src={tokenMetadata.toml_info.image} alt={tokenMetadata.asset} className="h-6 w-6 mr-2" />
+          <Image height={16} width={16} src={tokenMetadata.toml_info.image} alt={tokenMetadata.asset} className="h-6 w-6 mr-2" />
         ) : (
           <div className="h-6 w-6 mr-2 bg-gray-300 rounded-full"></div>
         )}
