@@ -111,7 +111,7 @@ const Navbar: React.FC = () => {
             <h2 className="text-xl font-semibold mb-4">Disclaimer</h2>
             <p className="mb-4">
               This website is currently a development demo, and as such we do not suggest using it for real life tasks yet. There may be errors in data, or in functionality as we are still building
-              it. Otherwise, feel free to look around.
+              it. Otherwise, feel free to look around...
             </p>
             <button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-4 rounded" onClick={() => setShowModal(false)}>
               I understand
