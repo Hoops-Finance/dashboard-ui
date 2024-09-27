@@ -1,27 +1,71 @@
-import React from 'react';
-import Balances from '../../components/Balances';
-import SavingsWidget from '../../components/SavingsWidget';
-import MapWidget from '../../components/MapWidget';
-import InfoWidget from '../../components/InfoWidget';
+// Dashboard/page.tsx
 
-const Dashboard: React.FC = () => {
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { WalletConnection } from "../../components/Dashboard/WalletConnection";
+import { Metrics } from "../../components/Dashboard/Metrics";
+import { TableComponent } from "../../components/Dashboard/TableComponent";
+import DetailedInfo from "../../components/DetailedInfo"; // Import DetailedInfo
+import { ExplorerTableData, ProcessedToken, PoolRiskApiResponseObject, Pair } from "utils/newTypes";
+import { fetchData } from "../../utils/FetchData";
+
+export default function Dashboard() {
+  const [totalTVL, setTotalTVL] = useState(0);
+  const [totalTokens, setTotalTokens] = useState(0);
+  const [totalPools, setTotalPools] = useState(0);
+  const [explorerData, setExplorerTableData] = useState<ExplorerTableData | null>(null);
+  const [processedTokens, setProcessedTokens] = useState<ProcessedToken[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingPools, setLoadingPools] = useState(false);
+  const [poolData, setPoolData] = useState<PoolRiskApiResponseObject[]>([]);
+  const [selectedPairData, setSelectedPairData] = useState<Pair | null>(null);
+  const [selectedPoolRiskData, setSelectedPoolRiskData] = useState<PoolRiskApiResponseObject | null>(null);
+
+  // Metrics will derive from explorerData
+  useEffect(() => {
+    const calculateMetrics = () => {
+      if (explorerData) {
+        const totalTVL = explorerData.pools.reduce((acc, pool) => acc + (pool.tvl || 0), 0);
+        setTotalTVL(totalTVL);
+        setTotalTokens(explorerData.tokens.length);
+        setTotalPools(explorerData.pools.length);
+      }
+    };
+    calculateMetrics();
+  }, [explorerData]);
+
+  // Fetch data and pass it to TableComponent and Metrics
+  useEffect(() => {
+    fetchData(setExplorerTableData, setProcessedTokens, setLoading);
+  }, []);
+
   return (
-    <div
-      className="bg-white min-h-screen p-6"
-      style={{ backgroundImage: "url('/images/dash-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}
-    >
-      <div className="max-w-screen-2xl mx-auto flex flex-col tablet:flex-col lg:flex-row">
-        <div className="w-full lg:w-3/5 pr-4 flex flex-col items-center tablet:items-center lg:items-start"> {/* Centered on mobile, side by side on larger screens */}
-          <Balances />
-          <MapWidget />
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-8 font-inter">
+      <div className="container mx-auto max-w-screen-xl px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <WalletConnection />
+          <Metrics totalTVL={totalTVL} totalTokens={totalTokens} totalPools={totalPools} totalProtocols={3} />
         </div>
-        <div className="w-full lg:w-2/5 pl-4 flex flex-col items-center tablet:items-center lg:items-start"> {/* Centered on mobile, side by side on larger screens */}
-          <SavingsWidget />
-          <InfoWidget />
-        </div>
+        {/* Display DetailedInfo if a pair is selected */}
+        {selectedPairData && selectedPoolRiskData && <DetailedInfo pairData={selectedPairData} poolRiskData={selectedPoolRiskData} processedTokens={processedTokens} />}
+
+        {/* Pass the fetched data to TableComponent */}
+        <TableComponent
+          explorerData={explorerData}
+          processedTokens={processedTokens}
+          poolData={poolData}
+          setPoolData={setPoolData}
+          loadingPools={loadingPools}
+          setLoadingPools={setLoadingPools}
+          onSelectPair={(pairData: Pair, poolRiskData: PoolRiskApiResponseObject) => {
+            setSelectedPairData(pairData);
+            setSelectedPoolRiskData(poolRiskData);
+          }}
+        />
       </div>
+      {/* Loading state */}
+      {loading && <div>Loading data...</div>}
     </div>
   );
-};
-
-export default Dashboard;
+}

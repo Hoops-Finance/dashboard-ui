@@ -1,14 +1,29 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
+trainer.md
 # dependencies
+
 /node_modules
+**/*.old.*
+**/*.dev.*
+*.dev.*
+*.old.*
+*.log
+*.log.*
+package-lock.json.old
+*.log-*
+**/*.dev
+**/old*
+app/Dashboard2
+**/Depricated/*
+components/DetailedInfoo.tsx
+components/Dashboard/NewTableComponent.tsx
 /.pnp
 .pnp.js
 .yarn/install-state.gz
 .env.local
 # testing
 /coverage
-
+pnpm-lock.yaml.old
 # next.js
 /.next/
 /out/
@@ -34,3 +49,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+app/app.tsx.old

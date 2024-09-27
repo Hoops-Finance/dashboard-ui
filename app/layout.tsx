@@ -1,22 +1,57 @@
-import React, { ReactNode } from 'react';
-import Navbar from '../components/Navbar';
-import './globals.css';
+// app/layout.tsx
+"use client";
+
+import React, { ReactNode, useState } from "react";
+import { ClientWalletProvider } from "../components/ClientWalletProvider";
+import Navbar from "../components/Navbar";
+import { ThemeProvider } from "../components/ThemeContext";
+import "./globals.css";
+import { Inter } from "next/font/google";
+import PlausibleProvider from "next-plausible";
 
 interface RootLayoutProps {
   children: ReactNode;
 }
 
-const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter"
+});
+
+export default function RootLayout({ children }: RootLayoutProps) {
+  const [showModal, setShowModal] = useState(true);
+
   return (
-    <html lang="en">
-      <body className="bg-white">
-        <Navbar />
-        <main className="pt-16 lg:pt-20"> {/* Adjust padding to ensure content is not hidden behind the navbar */}
-          {children}
-        </main>
+    <html lang="en" className={inter.variable}>
+      <head>
+        <script defer data-domain="hoops.stellar.red" src="https://hoops-analytics.stellar.red/js/script.js"></script>
+
+        <PlausibleProvider domain="hoops.stellar.red" customDomain="hoops-analytics.stellar.red" selfHosted />
+      </head>
+      <body>
+        <ThemeProvider>
+          <ClientWalletProvider>
+            <Navbar />
+            <main className="pt-16">{children}</main>
+
+            {showModal && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                  <h2 className="text-xl font-semibold mb-4">Disclaimer</h2>
+                  <p className="mb-4">
+                    This website is currently a development demo, and as such we do not suggest using it for real life tasks yet There may be errors in data, or in functionality as we are still
+                    building it. Otherwise, feel free to look around.
+                  </p>
+                  <button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-4 rounded" onClick={() => setShowModal(false)}>
+                    I understand
+                  </button>
+                </div>
+              </div>
+            )}
+          </ClientWalletProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
-};
-
-export default RootLayout;
+}
