@@ -13,20 +13,29 @@ const Navbar: React.FC = () => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   return (
-    <nav className="w-full bg-white dark:bg-gray-800 shadow-md p-4 font-lora fixed top-0 left-0 right-0 z-50 border-b border-gray-300 dark:border-gray-700">
-      <div className="max-w-screen-2xl mx-auto flex justify-between items-center relative px-6">
+    <nav className="w-full bg-white dark:bg-gray-800 shadow-md font-lora fixed top-0 left-0 right-0 z-50 border-b border-gray-300 dark:border-gray-700">
+      {/* Top bar with clickable disclaimer */}
+      <div
+        className="w-full bg-black text-yellow-500 font-bold text-center py-2 cursor-pointer"
+        onClick={() => setShowModal(true)} // Show modal when clicked
+      >
+        NON PRODUCTION DEMO USE ONLY
+      </div>
+
+      <div className="max-w-screen-2xl mx-auto flex justify-between items-center relative px-6 py-4">
         <Link href="/dashboard" className="inline-flex items-center gap-2 font-lora">
           {/* Apply the invert filter in dark mode */}
           <Image src="/images/logo2.svg" alt="Logo" width={64} height={64} className={`h-8 w-auto ${theme === "dark" ? "invert" : ""}`} />
         </Link>
         <div className="hidden lg:flex space-x-8 relative">
-          {["Dashboard", "Pool Data", "Swaps"].map((tab) => (
+          {["Dashboard"].map((tab) => (
             <Link
               key={tab}
               href={`/${tab.toLowerCase().replace(" ", "")}`}
@@ -66,9 +75,10 @@ const Navbar: React.FC = () => {
           </button>
         </div>
       </div>
+
       {isMenuOpen && (
         <div className="lg:hidden flex flex-col space-y-4 mt-4">
-          {["Dashboard", "Pool Data", "Swaps"].map((tab) => (
+          {["Dashboard"].map((tab) => (
             <Link
               key={tab}
               href={`/${tab.toLowerCase().replace(" ", "")}`}
@@ -90,6 +100,22 @@ const Navbar: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width={20} height={20} />
+          </div>
+        </div>
+      )}
+
+      {/* Disclaimer Modal */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-xl font-semibold mb-4">Disclaimer</h2>
+            <p className="mb-4">
+              This website is currently a development demo, and as such we do not suggest using it for real life tasks yet. There may be errors in data, or in functionality as we are still building
+              it. Otherwise, feel free to look around.
+            </p>
+            <button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-4 rounded" onClick={() => setShowModal(false)}>
+              I understand
+            </button>
           </div>
         </div>
       )}

@@ -1,7 +1,7 @@
 // app/layout.tsx
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import { ClientWalletProvider } from "../components/ClientWalletProvider";
 import Navbar from "../components/Navbar";
 import { ThemeProvider } from "../components/ThemeContext";
@@ -20,6 +20,8 @@ const inter = Inter({
 });
 
 export default function RootLayout({ children }: RootLayoutProps) {
+  const [showModal, setShowModal] = useState(true);
+
   return (
     <html lang="en" className={inter.variable}>
       <head>
@@ -32,6 +34,21 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <ClientWalletProvider>
             <Navbar />
             <main className="pt-16">{children}</main>
+
+            {showModal && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                  <h2 className="text-xl font-semibold mb-4">Disclaimer</h2>
+                  <p className="mb-4">
+                    This website is currently a development demo, and as such we do not suggest using it for real life tasks yet There may be errors in data, or in functionality as we are still
+                    building it. Otherwise, feel free to look around.
+                  </p>
+                  <button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-4 rounded" onClick={() => setShowModal(false)}>
+                    I understand
+                  </button>
+                </div>
+              </div>
+            )}
           </ClientWalletProvider>
         </ThemeProvider>
       </body>
