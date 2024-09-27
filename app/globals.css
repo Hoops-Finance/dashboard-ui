@@ -2,114 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base styles for light and dark modes */
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
 body {
-  @apply bg-white text-black;
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  background-color: white;
 }
 
-body.dark {
-  @apply bg-gray-900 text-white;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .bg-custom-gray {
+    background-color: #D9D9D9;
+  }
+  .rounded-32px {
+    border-radius: 32px;
+  }
+  .circle-icon {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: green;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
 }
 
-/* Custom utility classes */
-.table-cell-base {
-  @apply px-6 py-4 whitespace-nowrap text-sm;
+/* Custom shadow for DataCard */
+.shadow-custom {
+  box-shadow: 0px 71px 20px 0px rgba(0, 0, 0, 0.00), 
+              0px 45.5px 18px 0px rgba(0, 0, 0, 0.01), 
+              0px 25.5px 15.5px 0px rgba(0, 0, 0, 0.05), 
+              0px 11.5px 11.5px 0px rgba(0, 0, 0, 0.09), 
+              0px 3px 6.5px 0px rgba(0, 0, 0, 0.10);
 }
 
-.table-cell-text-primary {
-  @apply text-gray-800 dark:text-gray-200;
-}
-
-.table-cell-text-secondary {
-  @apply text-gray-600 dark:text-gray-400;
-}
-
-.table-header-cell {
-  @apply px-6 py-3 border-b-2 border-gray-300 dark:border-gray-600 text-left text-xs font-medium uppercase tracking-wider cursor-pointer text-gray-500 dark:text-gray-300;
-}
-
-.table-row-hover {
-  @apply transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700;
-}
-
-
-.button-primary {
-  @apply bg-[#e2be08] text-gray-900 rounded-lg font-semibold hover:bg-[#c7a707] transition-colors;
-}
-
-.button-secondary {
-  @apply border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600;
-}
-
-.input-base {
-  @apply w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e2be08] focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200;
-}
-
-.text-primary {
-  @apply text-gray-800 dark:text-gray-200;
-}
-
-.text-secondary {
-  @apply text-gray-600 dark:text-gray-400;
-}
-
-/* Button base styles */
-.button-base {
-  @apply px-4 py-2 rounded-lg transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2;
-}
-
-/* Dark mode styles for buttons */
-.button-dark {
-  @apply bg-[#14141C] text-white hover:bg-[#2A2A3C];
-}
-
-.button-light {
-  @apply bg-[#FFB734] text-black hover:bg-[#E6A52F];
-}
-
-/* Input base styles */
-.input-base {
-  @apply px-3 py-2 bg-white border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#e2be08];
-}
-
-/* Dark mode styles for inputs */
-.input-dark {
-  @apply bg-gray-700 text-gray-200 border-gray-600;
-}
-
-.input-light {
-  @apply bg-white text-gray-800;
-}
-
-/* Card base styles */
-.card-base {
-  @apply p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl;
-}
-
-.info-card-container {
-  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
-}
-
-.card-base {
-  @apply p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md;
-}
-
-.info-card-base {
-  @apply p-4 rounded-lg;
-}
-
-.info-card-light {
-  @apply bg-gray-700 text-white;
-}
-
-.info-card-dark {
-  @apply bg-gray-50 text-black;
-}
-
-.info-card-title {
-  @apply text-sm font-medium;
-}
-
-.info-card-value {
-  @apply text-xl font-bold;
+/* Custom border radius for DataCard */
+.rounded-32px {
+  border-radius: 32px;
 }
