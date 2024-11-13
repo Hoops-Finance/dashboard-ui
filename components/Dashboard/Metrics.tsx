@@ -10,47 +10,43 @@ export function Metrics({ totalValueLocked, poolsIndexed, totalVolume, liquidity
   return (
     <React.Fragment>
       <MetricCard title="Total Value Locked (TVL) represents the total amount of assets locked in the protocol.">
-        <h3 className="text-lg font-bold text-gray-500 dark:text-gray-400 mb-1">TVL</h3>
-        <p className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">{`$${totalValueLocked.toLocaleString()}`}</p>
+        <h3 className="metric-title">TVL</h3>
+        <p className="metric-value">{`$${totalValueLocked.toLocaleString()}`}</p>
       </MetricCard>
 
       <MetricCard title="Number of liquidity pools indexed in the protocol.">
-        <h3 className="text-lg font-bold text-gray-500 dark:text-gray-400 mb-1">Pools Indexed</h3>
-        <p className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">{poolsIndexed}</p>
+        <h3 className="metric-title">Pools Indexed</h3>
+        <p className="metric-value">{poolsIndexed}</p>
       </MetricCard>
 
       <MetricCard title="Total trading volume across all pools.">
-        <h3 className="text-lg font-bold text-gray-500 dark:text-gray-400 mb-1">Total Volume</h3>
-        <p className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">{`$${totalVolume.toLocaleString()}`}</p>
+        <h3 className="metric-title">Total Volume</h3>
+        <p className="metric-value">{`$${totalVolume.toLocaleString()}`}</p>
       </MetricCard>
 
       <MetricCard title="Unique liquidity providers who have contributed to the protocol.">
-        <h3 className="text-lg font-bold text-gray-500 dark:text-gray-400 mb-1">Liquidity Providers</h3>
-        <p className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">{liquidityProviders}</p>
+        <h3 className="metric-title">Liquidity Providers</h3>
+        <p className="metric-value">{liquidityProviders}</p>
       </MetricCard>
 
       <MetricCard title="Trading volume of the top 5 pools with the lowest risk scores.">
-        <h3 className="text-lg font-bold text-gray-500 dark:text-gray-400 mb-1">Top 5 Volume</h3>
-        <p className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">{`$${top5volume.toLocaleString()}`}</p>
+        <h3 className="metric-title">Top 5 Volume</h3>
+        <p className="metric-value">{`$${top5volume.toLocaleString()}`}</p>
       </MetricCard>
 
       <MetricCard title="Total Value Locked of the top 5 pools with the lowest risk scores.">
-        <h3 className="text-lg font-bold text-gray-500 dark:text-gray-400 mb-1">Top 5 TVL</h3>
-        <p className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">{`$${top5tvl.toLocaleString()}`}</p>
+        <h3 className="metric-title">Top 5 TVL</h3>
+        <p className="metric-value">{`$${top5tvl.toLocaleString()}`}</p>
       </MetricCard>
 
       <MetricCard title="Average Annual Percentage Rate (APR) for the top 5 pools.">
-        <h3 className="text-lg font-bold text-gray-500 dark:text-gray-400 mb-1">Top 5 APR</h3>
-        <p className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">{`${top5apr.toFixed(2)}%`}</p>
+        <h3 className="metric-title">Top 5 APR</h3>
+        <p className="metric-value">{`${top5apr.toFixed(2)}%`}</p>
       </MetricCard>
 
-      <Card className="p-4 transition-all duration-300 hover:shadow-xl bg-white dark:bg-gray-800">
-        <h3 className="text-lg font-bold text-gray-500 dark:text-gray-400 mb-1">Select Period</h3>
-        <select
-          value={period}
-          onChange={(e) => setPeriod(e.target.value as MetricsProps["period"])}
-          className="mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700 w-auto"
-        >
+      <Card className="card-custom">
+        <h3 className="metric-title">Select Period</h3>
+        <select value={period} onChange={(e) => setPeriod(e.target.value as MetricsProps["period"])} className="select-base">
           <option value="24h">24h</option>
           <option value="7d">7d</option>
           <option value="14d">14d</option>

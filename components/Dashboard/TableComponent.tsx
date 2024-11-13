@@ -50,23 +50,6 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
     plausible("Filter Change", { props: { filterType, value } }); // Send filter change event
   };
 
-  /*
-  const handleRowClick = (row: TableRow, tab: string) => {
-    let id: string | undefined;
-    // Determine the ID based on the row type
-    if ("pairId" in row) {
-      id = row.pairId;
-    } else if ("tokenId" in row) {
-      id = row.tokenId;
-    }
-    plausible("Row Click", { props: { tab, id: row.pairId || row.tokenId } }); // Send row click event with tab and row ID
-
-    const selectedPair = explorerData?.pools.find((pair) => pair.id === row.pairId);
-    const selectedPoolRisk = poolData.find((pool) => pool.pairId === row.pairId);
-    if (selectedPair && selectedPoolRisk) {
-      onSelectPair(selectedPair, selectedPoolRisk);
-    }
-  };*/
   const handleRowClick = (row: TableRow, tab: string) => {
     switch (tab) {
       case "markets": {
