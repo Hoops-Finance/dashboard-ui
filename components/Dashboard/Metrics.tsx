@@ -44,7 +44,7 @@ export function Metrics({ totalValueLocked, poolsIndexed, totalVolume, liquidity
         <p className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">{`${top5apr.toFixed(2)}%`}</p>
       </MetricCard>
 
-      <Card>
+      <Card className="p-4 transition-all duration-300 hover:shadow-xl bg-white dark:bg-gray-800">
         <h3 className="text-lg font-bold text-gray-500 dark:text-gray-400 mb-1">Select Period</h3>
         <select
           value={period}
