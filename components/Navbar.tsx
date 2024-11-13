@@ -20,10 +20,10 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="w-full bg-white dark:bg-gray-800 shadow-md font-inter fixed top-0 left-0 right-0 z-50 border-b border-gray-300 dark:border-gray-700">
+    <nav className="navbar">
       {/* Top bar with clickable disclaimer */}
       <div
-        className="w-full bg-black text-yellow-500 font-inter font-bold text-center py-2 cursor-pointer"
+        className="topbar-disclaimer"
         onClick={() => setShowModal(true)} // Show modal when clicked
       >
         This is a development build. Use data with caution.
@@ -54,13 +54,7 @@ const Navbar: React.FC = () => {
         </div>
         <div className="hidden lg:flex items-center space-x-4">
           <div className="relative">
-            <input
-              type="text"
-              placeholder="Insert token address, contract address, etc..."
-              className="w-64 pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB734] focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-inter"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <input type="text" placeholder="Insert token address, contract address, etc..." className="input-base w-64" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width={20} height={20} />
           </div>
           <SignInButton />
@@ -91,13 +85,7 @@ const Navbar: React.FC = () => {
             </Link>
           ))}
           <div className="relative hidden sm:block w-full max-w-md sm:max-w-lg lg:max-w-xl">
-            <input
-              type="text"
-              placeholder="Insert token address, contract address, etc..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB734] focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-inter"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <input type="text" placeholder="Insert token address, contract address, etc..." className="input-base w-full" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width={20} height={20} />
           </div>
 

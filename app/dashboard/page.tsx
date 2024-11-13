@@ -38,8 +38,8 @@ export default function Dashboard() {
   }, [period]);
 
   return (
-    <div className="mt-10 min-h-screen bg-white dark:bg-gray-900 p-4 md:p-8 font-inter">
-      <div className="w-full max-w-screen-2xl mx-auto">
+    <div className="app">
+      <div className="container">
         <div className="grid grid-cols-1 gap-8 mb-8">
           <div className="hidden">
             <WalletConnection />

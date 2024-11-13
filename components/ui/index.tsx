@@ -16,9 +16,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   className?: string;
 }
 
-export const Input: FC<InputProps> = ({ className = "", ...props }) => (
-  <input className={`px-3 py-2 bg-white border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#e2be08] ${className}`} {...props} />
-);
+export const Input: FC<InputProps> = ({ className = "", ...props }) => <input className={`input-base ${className}`} {...props} />;
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
@@ -26,7 +24,6 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 
 export const Card: FC<CardProps> = ({ children, className = "" }) => <div className={`bg-white rounded-2xl shadow-lg ${className}`}>{children}</div>;
 
-// Add any other UI component exports here
 // New MetricCard component for hover explanation text
 interface MetricCardProps extends CardProps {
   title: string; // Explanation for the metric
@@ -40,3 +37,5 @@ export const MetricCard: FC<MetricCardProps> = ({ children, className = "", titl
     {children}
   </div>
 );
+
+// Add any other UI component exports here

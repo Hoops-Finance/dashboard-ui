@@ -115,7 +115,7 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
   const token0name = getTokenName(pairData.token0);
   const token1name = getTokenName(pairData.token1);
   return (
-    <div className={`shadow-lg rounded-lg overflow-hidden ${theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-black"}`}>
+    <div className="card-detailed-info">
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">
