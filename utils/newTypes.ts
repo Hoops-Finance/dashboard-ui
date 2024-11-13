@@ -240,3 +240,27 @@ export interface ReserveCardProps {
   reserve: number;
   usdValue: number;
 }
+
+export interface MetricsProps {
+  totalTVL: number;
+  totalTokens: number;
+  totalPools: number;
+  totalProtocols: number;
+  totalVolume: number;
+  liquidityProviders: number;
+  bestAPRPair?: string;
+  bestAPR?: number;
+}
+
+export interface GlobalMetrics {
+  totalValueLocked: number;
+  poolsIndexed: number;
+  totalVolume: number;
+  liquidityProviders: number;
+  top5volume: number;
+  top5tvl: number;
+  top5apr: number;
+  bestaprpair: string;
+  bestapraddress: string;
+  period: "24h" | "7d" | "14d" | "30d" | "90d" | "180d" | "360d";
+}

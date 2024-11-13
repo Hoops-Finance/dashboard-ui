@@ -7,6 +7,9 @@ charting_library
 components/DetailsView/AdvancedChartComponent.tsx
 components/DetailsView/Details.tsx
 app/advanced
+app/dash1/*
+app/dash1
+components/Dashboard/NewMetrics.tsx
 public/datafeeds
 /node_modules
 **/*.old.*
