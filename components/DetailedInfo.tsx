@@ -123,7 +123,11 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
           </h2>
           <div className="flex space-x-2">
             {["Deposit", "Withdraw/Claim", "Swap"].map((action) => (
-              <button key={action} className="bg-[#FFB734] hover:bg-[#E6A52F] text-black px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200">
+              <button
+                key={action}
+                className="bg-[#FFB734] hover:bg-[#E6A52F] text-black px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 hidden"
+                //style={{ visibility: "hidden" }}
+              >
                 {action}
               </button>
             ))}

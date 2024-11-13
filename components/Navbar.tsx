@@ -23,13 +23,13 @@ const Navbar: React.FC = () => {
     <nav className="w-full bg-white dark:bg-gray-800 shadow-md font-lora fixed top-0 left-0 right-0 z-50 border-b border-gray-300 dark:border-gray-700">
       {/* Top bar with clickable disclaimer */}
       <div
-        className="w-full bg-black text-yellow-500 font-bold text-center py-2 cursor-pointer"
+        className="w-full bg-black text-white font-bold font-inter text-center py-2 cursor-pointer"
         onClick={() => setShowModal(true)} // Show modal when clicked
       >
-        NON PRODUCTION DEMO USE ONLY
+        This is a development build. Use data with caution.
       </div>
 
-      <div className="max-w-screen-2xl mx-auto flex justify-between items-center relative px-6 py-4">
+      <div className="max-w-screen-2xl mx-auto flex justify-between items-center relative px-4 md:px-6 py-4">
         <Link href="/dashboard" className="inline-flex items-center gap-2 font-lora">
           {/* Apply the invert filter in dark mode */}
           <Image src="/images/logo2.svg" alt="Logo" width={64} height={64} className={`h-8 w-auto ${theme === "dark" ? "invert" : ""}`} />

@@ -41,8 +41,8 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 p-8 font-inter">
-      <div className="container mx-auto max-w-screen-xl px-8">
+    <div className="mt-10 min-h-screen bg-white dark:bg-gray-900 p-4 md:p-8 font-inter">
+      <div className="w-full max-w-screen-2xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <WalletConnection />
           <Metrics totalTVL={totalTVL} totalTokens={totalTokens} totalPools={totalPools} totalProtocols={3} />

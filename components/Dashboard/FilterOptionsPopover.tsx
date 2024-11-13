@@ -9,7 +9,7 @@ interface FilterOptionsPopoverProps {
   setShowTrackedOnly: (value: boolean) => void;
   setShowZeroBalances: (value: boolean) => void;
   setShowZeroLiquidity: (value: boolean) => void;
-  activeTab: "markets" | "pools" | "tokens" | "mywallet";
+  activeTab: "markets" | "pools" | "tokens" | "mywallet"; // remove mywallet for now /* | "mywallet"; */
   poolPeriod?: string;
   setPoolPeriod?: (value: string) => void;
 }
@@ -28,7 +28,7 @@ export const FilterOptionsPopover: React.FC<FilterOptionsPopoverProps> = ({
   <Popover className="relative">
     <Popover.Button className="flex items-center space-x-2 px-4 py-2 rounded-md bg-[#463B03] text-white hover:bg-[#E2BE08] hover:text-white transition">
       <CogIcon className="h-6 w-6" />
-      <span>Filter Options</span>
+      <span className="hidden sm:inline">Filter Options</span>
     </Popover.Button>
 
     <Transition

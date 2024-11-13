@@ -59,7 +59,7 @@ export const ConnectWallet: React.FC = () => {
   };
 
   return (
-    <button onClick={isConnected ? disconnectWallet : connectWallet} className={`button-base ${isConnected ? "button-dark" : "button-light"}`}>
+    <button onClick={isConnected ? disconnectWallet : connectWallet} className={`button-base hidden ${isConnected ? "button-dark" : "button-light"}`}>
       {isConnected ? "Disconnect Wallet" : "Connect Wallet"}
     </button>
   );

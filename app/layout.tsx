@@ -26,10 +26,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en" className={inter.variable}>
       <head>
         <script defer data-domain="hoops.stellar.red" src="https://hoops-analytics.stellar.red/js/script.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://hoops.stellar.red/charting_library/charting_library.css" />
 
         <PlausibleProvider domain="hoops.stellar.red" customDomain="hoops-analytics.stellar.red" selfHosted />
       </head>
       <body>
+        <script type="text/javascript" src="https://hoops.stellar.red/charting_library/charting_library.js"></script>
         <ThemeProvider>
           <ClientWalletProvider>
             <Navbar />

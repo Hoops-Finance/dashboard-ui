@@ -166,7 +166,7 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
       <div className="flex justify-between items-center mb-4">
         {/* Tabs */}
         <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-2xl">
-          {["Markets", "Pools", "Tokens", "MyWallet"].map((tab) => (
+          {["Markets", "Pools", "Tokens" /*, "MyWallet"*/].map((tab) => (
             <button
               key={tab}
               onClick={() => handleTabChange(tab)} // Track tab change
@@ -209,9 +209,12 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
             columns={marketColumns}
             data={filteredMarkets || []}
             expandableRows
+            expandOnRowClicked
+            expandableRowsHideExpander
             expandableRowsComponent={(props) => (
               <ExpandedMarketComponent {...props} handleRowClick={handleRowClick} /> // Pass handleRowClick as a prop
             )}
+            selectableRowsHighlight
             pagination
             paginationRowsPerPageOptions={[10, 20, 30, 50, 100]}
             customStyles={customTableStyles(theme)}
@@ -237,6 +240,7 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
             columns={tokenColumns}
             data={filteredTokens} // Updated to use processed tokens
             expandableRows
+            expandOnRowClicked
             expandableRowsComponent={(props) => (
               <ExpandedTokenComponent {...props} handleRowClick={handleRowClick} /> // Pass handleRowClick as a prop
             )}

@@ -49,7 +49,9 @@ export const poolsColumns: TableColumn<PoolRiskApiResponseObject>[] = [
     sortable: true,
     cell: (row) => {
       const trendingAPR = parseFloat(row.trendingapr || "0");
-      return <span className={trendingAPR > Number(row.apr) ? "text-green-500" : "text-red-500"}>{row.trendingapr || "0.00"}%</span>;
+      const apr = parseFloat(row.apr || "0");
+
+      return <span className={Number(trendingAPR) > Number(apr) ? "text-green-500" : "text-red-500"}>{row.trendingapr || "0.00"}</span>;
     }
   },
   {
