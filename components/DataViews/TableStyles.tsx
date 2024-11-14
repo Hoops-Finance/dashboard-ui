@@ -1,4 +1,10 @@
 export const customTableStyles = (theme: string) => ({
+  tableWrapper: {
+    style: {
+      overflowX: "auto" as const, // Ensure the literal type 'auto' is used
+      display: "block"
+    }
+  },
   headRow: {
     style: {
       backgroundColor: theme === "dark" ? "#374151" : "#f9fafb"
@@ -10,13 +16,24 @@ export const customTableStyles = (theme: string) => ({
       color: theme === "dark" ? "#ffffff" : "#000000",
       fontSize: "16px",
       fontWeight: "bold",
-      textAlign: "center" as const
+      textAlign: "center" as const,
+      whiteSpace: "nowrap"
     }
   },
   rows: {
     style: {
       backgroundColor: theme === "dark" ? "#1f2937" : "#ffffff",
-      color: theme === "dark" ? "#ffffff" : "#000000"
+      color: theme === "dark" ? "#ffffff" : "#000000",
+      fontSize: "14px",
+      wordWrap: "break-word" as const // Correct literal type
+    }
+  },
+  cells: {
+    style: {
+      padding: "8px",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis"
     }
   },
   pagination: {

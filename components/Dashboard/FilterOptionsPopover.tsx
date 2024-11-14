@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Popover, Transition } from "@headlessui/react";
+import { Switch, Popover, Transition, PopoverButton, PopoverPanel, PopoverBackdrop } from "@headlessui/react";
 import { CogIcon } from "@heroicons/react/24/outline";
 
 interface FilterOptionsPopoverProps {
@@ -9,7 +9,7 @@ interface FilterOptionsPopoverProps {
   setShowTrackedOnly: (value: boolean) => void;
   setShowZeroBalances: (value: boolean) => void;
   setShowZeroLiquidity: (value: boolean) => void;
-  activeTab: "markets" | "pools" | "tokens" | "mywallet";
+  activeTab: "markets" | "pools" | "tokens" | "mywallet"; // remove mywallet for now /* | "mywallet"; */
   poolPeriod?: string;
   setPoolPeriod?: (value: string) => void;
 }
@@ -26,10 +26,10 @@ export const FilterOptionsPopover: React.FC<FilterOptionsPopoverProps> = ({
   setPoolPeriod
 }) => (
   <Popover className="relative">
-    <Popover.Button className="flex items-center space-x-2 px-4 py-2 rounded-md bg-[#463B03] text-white hover:bg-[#E2BE08] hover:text-white transition">
+    <PopoverButton className="popover-button">
       <CogIcon className="h-6 w-6" />
-      <span>Filter Options</span>
-    </Popover.Button>
+      <span className="hidden sm:inline">Filter Options</span>
+    </PopoverButton>
 
     <Transition
       enter="transition ease-out duration-300"
@@ -39,8 +39,8 @@ export const FilterOptionsPopover: React.FC<FilterOptionsPopoverProps> = ({
       leaveFrom="transform opacity-100 scale-100"
       leaveTo="transform opacity-0 scale-95"
     >
-      <Popover.Panel className="absolute z-10 mt-2 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4">
-        <Popover.Backdrop className="fixed inset-0 bg-black/50" />
+      <PopoverPanel className="absolute z-10 mt-2 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4">
+        <PopoverBackdrop className="fixed inset-0 bg-black/50" />
         <div className="space-y-4">
           {activeTab === "mywallet" && (
             <div className="flex items-center">
@@ -98,7 +98,7 @@ export const FilterOptionsPopover: React.FC<FilterOptionsPopoverProps> = ({
             </div>
           )}
         </div>
-      </Popover.Panel>
+      </PopoverPanel>
     </Transition>
   </Popover>
 );

@@ -1,8 +1,11 @@
+import { UTCTimestamp } from "lightweight-charts";
 import { NextRequest, NextResponse } from "next/server";
 import { SxCandleResponse } from "utils/newTypes";
 
 const API_BASE_URL = "https://api.stellar.expert/explorer/public/asset";
 const API_KEY = process.env.SXX_API_KEY;
+
+type CandleDataRaw = [number, number, number, number, number, number, number]; // Adjusted raw data type
 
 export async function GET(request: NextRequest, { params }: { params: { token0: string } }) {
   let { token0 } = params;
@@ -37,37 +40,30 @@ export async function GET(request: NextRequest, { params }: { params: { token0: 
       return NextResponse.json({ error: errorData }, { status: response.status });
     }
 
-    const data: SxCandleResponse[] = await response.json();
+    const data: CandleDataRaw[] = await response.json(); // Assume the API returns raw candle data
 
-    // Transform the data to include the `close` value as the next candle's open
-    const transformedData = data.map((record: SxCandleResponse, index: number, array) => {
-      // Get the open value of the next candle (if it exists)
-      const nextCandleOpen = index < array.length - 1 ? array[index + 1].open : record.open;
+    // Transform the data to match the expected format with UTCTimestamp
+    const transformedData = data.map((record: CandleDataRaw, index: number, array: CandleDataRaw[]) => {
+      const nextCandleOpen = index < array.length - 1 ? array[index + 1][1] : record[1];
 
       return {
-        time: record.time, // Unix timestamp
-        open: record.open, // Open price
-        high: record.high, // High price
-        low: record.low, // Low price
-        close: nextCandleOpen, // Close is the next candle's open
-        baseVolume: record.baseVolume, // Base volume
-        quoteVolume: record.quoteVolume, // Quote volume
-        tradesCount: record.tradesCount // Trades count
-      };
-      /*
-        time: record[0], // Unix timestamp
+        time: record[0] as UTCTimestamp, // Cast time to UTCTimestamp
         open: record[1], // Open price
         high: record[2], // High price
         low: record[3], // Low price
-        close: nextCandleOpen, // Close is the next candle's open
+        close: nextCandleOpen, // Close price (set to next candle's open)
         baseVolume: record[4], // Base volume
         quoteVolume: record[5], // Quote volume
         tradesCount: record[6] // Trades count
       };
-      */
     });
 
-    return NextResponse.json(transformedData);
+    return NextResponse.json(transformedData, {
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Allow all origins for CORS
+        "Cache-Control": "no-store, max-age=0" // Disable caching
+      }
+    });
   } catch (error) {
     console.error("Error fetching candle data:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

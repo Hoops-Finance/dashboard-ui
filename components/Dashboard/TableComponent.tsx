@@ -50,29 +50,14 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
     plausible("Filter Change", { props: { filterType, value } }); // Send filter change event
   };
 
-  /*
-  const handleRowClick = (row: TableRow, tab: string) => {
-    let id: string | undefined;
-    // Determine the ID based on the row type
-    if ("pairId" in row) {
-      id = row.pairId;
-    } else if ("tokenId" in row) {
-      id = row.tokenId;
-    }
-    plausible("Row Click", { props: { tab, id: row.pairId || row.tokenId } }); // Send row click event with tab and row ID
-
-    const selectedPair = explorerData?.pools.find((pair) => pair.id === row.pairId);
-    const selectedPoolRisk = poolData.find((pool) => pool.pairId === row.pairId);
-    if (selectedPair && selectedPoolRisk) {
-      onSelectPair(selectedPair, selectedPoolRisk);
-    }
-  };*/
   const handleRowClick = (row: TableRow, tab: string) => {
     switch (tab) {
       case "markets": {
         const marketRow = row as Market;
         if (marketRow.pools.length > 0) {
-          plausible("Markets Click", { props: { tab, id: (row as Market).marketLabel } });
+          plausible("Markets Click", {
+            props: { tab, id: (row as Market).marketLabel }
+          });
 
           const selectedPair = explorerData?.pools.find((pair) => pair.id === marketRow.pools[0].id);
           const selectedPoolRisk = poolData.find((pool) => pool.pairId === marketRow.pools[0].id);
@@ -96,7 +81,9 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
       }
 
       case "pools": {
-        plausible("pools Click", { props: { tab, id: (row as PoolRiskApiResponseObject).pairId } });
+        plausible("pools Click", {
+          props: { tab, id: (row as PoolRiskApiResponseObject).pairId }
+        });
 
         const poolRow = row as PoolRiskApiResponseObject;
         const selectedPair = explorerData?.pools.find((pair) => pair.id === poolRow.pairId);
@@ -109,7 +96,9 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
 
       case "tokens": {
         const tokenRow = row as ProcessedToken;
-        plausible("tokens Click", { props: { tab, id: (row as ProcessedToken).token.name } });
+        plausible("tokens Click", {
+          props: { tab, id: (row as ProcessedToken).token.name }
+        });
 
         if (tokenRow.markets.length > 0 && tokenRow.markets[0].pairs.length > 0) {
           const selectedPair = explorerData?.pools.find((pair) => pair.id === tokenRow.markets[0].pairs[0].id);
@@ -162,17 +151,15 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
   }
 
   return (
-    <div className={`card-base ${theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-black"}`}>
+    <div className="card-base">
       <div className="flex justify-between items-center mb-4">
         {/* Tabs */}
-        <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-2xl">
-          {["Markets", "Pools", "Tokens", "MyWallet"].map((tab) => (
+        <div className="tab-container">
+          {["Markets", "Pools", "Tokens" /*, "MyWallet"*/].map((tab) => (
             <button
               key={tab}
               onClick={() => handleTabChange(tab)} // Track tab change
-              className={`px-4 py-2 rounded-2xl transition-all duration-300 ${
-                activeTab === tab.toLowerCase() ? "bg-[#E2BE08] text-black" : "text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
-              }`}
+              className={`tab-button ${activeTab === tab.toLowerCase() ? "tab-button-active" : "tab-button-inactive"}`}
             >
               {tab}
             </button>
@@ -209,9 +196,17 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
             columns={marketColumns}
             data={filteredMarkets || []}
             expandableRows
+            highlightOnHover
+            pointerOnHover
+            expandOnRowClicked
+            expandableRowsHideExpander
             expandableRowsComponent={(props) => (
-              <ExpandedMarketComponent {...props} handleRowClick={handleRowClick} /> // Pass handleRowClick as a prop
+              <ExpandedMarketComponent
+                {...props}
+                handleRowClick={handleRowClick} // Pass handleRowClick as a prop
+              />
             )}
+            selectableRowsHighlight
             pagination
             paginationRowsPerPageOptions={[10, 20, 30, 50, 100]}
             customStyles={customTableStyles(theme)}
@@ -224,6 +219,9 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
           <DataTable
             columns={poolsColumns}
             data={filteredPools}
+            highlightOnHover
+            pointerOnHover
+            selectableRowsHighlight
             pagination
             paginationRowsPerPageOptions={[10, 20, 30, 50, 100]}
             customStyles={customTableStyles(theme)}
@@ -237,8 +235,14 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
             columns={tokenColumns}
             data={filteredTokens} // Updated to use processed tokens
             expandableRows
+            expandOnRowClicked
+            highlightOnHover
+            pointerOnHover
             expandableRowsComponent={(props) => (
-              <ExpandedTokenComponent {...props} handleRowClick={handleRowClick} /> // Pass handleRowClick as a prop
+              <ExpandedTokenComponent
+                {...props}
+                handleRowClick={handleRowClick} // Pass handleRowClick as a prop
+              />
             )}
             pagination
             paginationRowsPerPageOptions={[10, 20, 30, 50, 100]}

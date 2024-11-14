@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { TransformedCandleData } from "utils/newTypes";
-import { UTCTimestamp } from "lightweight-charts"; // Assuming this is where UTCTimestamp is defined
-type CandleDataRaw = [number, number, number, number, number, number, number, number]; // [time, open, high, low, close, baseVolume, quoteVolume, tradesCount]
+import { UTCTimestamp } from "lightweight-charts";
+
+type CandleDataRaw = [number, number, number, number, number, number, number, number];
 
 const API_BASE_URL = "https://api.stellar.expert/explorer/public/market";
 const API_KEY = process.env.SXX_API_KEY;
@@ -58,7 +59,12 @@ export async function GET(request: NextRequest, { params }: { params: { token0: 
       };
     });
 
-    return NextResponse.json(transformedData);
+    return NextResponse.json(transformedData, {
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Allow all origins for CORS
+        "Cache-Control": "no-store, max-age=0" // Disable caching
+      }
+    });
   } catch (error) {
     console.error("Error fetching market pair candle data:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

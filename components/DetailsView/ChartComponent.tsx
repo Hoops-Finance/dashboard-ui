@@ -34,20 +34,21 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ lineSeries }) => {
       horzLines: { color: theme === "dark" ? "#4E4E4E" : "#e1e1e1" }
     },
     crosshair: {
-      mode: 0 // Normal crosshair
+      mode: 0
     },
     timeScale: {
       borderColor: theme === "dark" ? "#777777" : "#cccccc",
       timeVisible: true,
-      secondsVisible: false
+      secondsVisible: false,
+      rightOffset: 0, // Aligns candles close to the edge
+      fixLeftEdge: true // Ensures alignment starts from the left
     } as TimeScaleOptions,
-    watermark: {
-      visible: true,
-      color: theme === "dark" ? "rgba(255, 255, 255, 0.3)" : "rgba(0, 0, 0, 0.3)",
-      text: "Powered by TradingView",
-      fontSize: 12,
-      horzAlign: "left" as HorzAlign, // Fixing the error by using HorzAlign enum
-      vertAlign: "bottom" as VertAlign // Fixing the error by using VertAlign enum
+    leftPriceScale: {
+      visible: true, // Ensure the price scale adjusts properly
+      borderColor: theme === "dark" ? "#777777" : "#cccccc"
+    },
+    rightPriceScale: {
+      visible: false // Optional, depending on your layout
     }
   });
 
@@ -57,35 +58,37 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ lineSeries }) => {
       console.log("Initializing chart...");
       chartRef.current = createChart(chartContainerRef.current, getChartOptions(theme));
 
-      // Add candlestick series initially
+      const candlestickSeries = chartRef.current.addCandlestickSeries({
+        priceFormat: {
+          type: "price",
+          precision: 7,
+          minMove: 0.0000001
+        }
+      });
+
       if (lineSeries[0]?.data?.length > 0) {
-        console.log("Adding candlestick series with data:", lineSeries[0].data);
-        const candlestickSeries = chartRef.current.addCandlestickSeries();
         candlestickSeries.setData(lineSeries[0].data);
         seriesRefs.current.push(candlestickSeries);
       }
 
-      // Add any overlay series if available
-      lineSeries.slice(1).forEach((line, index) => {
-        if (line?.data?.length > 0) {
-          console.log(`Adding line series ${index + 1} with data:`, line.data);
-          const lineSeriesInstance = chartRef.current!.addLineSeries({
-            color: line.color,
-            lineWidth: 2,
-            priceLineVisible: false,
-            title: line.name
-          });
-          lineSeriesInstance.setData(line.data);
-          seriesRefs.current.push(lineSeriesInstance);
+      // Make the chart fit its content and adjust candle spacing
+      chartRef.current.timeScale().fitContent();
+
+      // Adjust candle width dynamically to scale with display size
+      chartRef.current.applyOptions({
+        timeScale: {
+          barSpacing: Math.max(chartContainerRef.current.clientWidth / 100, 6) // Dynamically set spacing
         }
       });
 
-      // Handle chart resizing
+      // Handle resizing
       const handleResize = () => {
         if (chartContainerRef.current && chartRef.current) {
-          console.log("Resizing chart to width:", chartContainerRef.current.clientWidth);
+          chartRef.current.resize(chartContainerRef.current.clientWidth, 400);
           chartRef.current.applyOptions({
-            width: chartContainerRef.current.clientWidth
+            timeScale: {
+              barSpacing: Math.max(chartContainerRef.current.clientWidth / 100, 6) // Recalculate spacing on resize
+            }
           });
         }
       };
@@ -98,6 +101,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ lineSeries }) => {
       };
     }
   }, [lineSeries, theme]);
+
   // Empty dependency array ensures this runs once on mount
 
   // Update the chart when lineSeries changes
@@ -150,7 +154,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ lineSeries }) => {
     }
   }, [theme]);
 
-  return <div ref={chartContainerRef} className="w-full h-96" />;
+  return <div ref={chartContainerRef} className="relative w-full h-96 p-0 m-0" />;
 };
 
 export default ChartComponent;

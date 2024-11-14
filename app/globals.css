@@ -4,14 +4,17 @@
 
 /* Base styles for light and dark modes */
 body {
-  @apply bg-white text-black;
+  @apply bg-gray-50 text-black;
 }
 
 body.dark {
-  @apply bg-gray-900 text-white;
+  @apply bg-gray-900 text-gray-100;
 }
 
 /* Custom utility classes */
+.app {
+  @apply mt-10 min-h-screen bg-white dark:bg-gray-900 p-4 md:p-8 font-inter;
+}
 .table-cell-base {
   @apply px-6 py-4 whitespace-nowrap text-sm;
 }
@@ -31,7 +34,6 @@ body.dark {
 .table-row-hover {
   @apply transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700;
 }
-
 
 .button-primary {
   @apply bg-[#e2be08] text-gray-900 rounded-lg font-semibold hover:bg-[#c7a707] transition-colors;
@@ -83,15 +85,11 @@ body.dark {
 
 /* Card base styles */
 .card-base {
-  @apply p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl;
+  @apply p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl text-black dark:text-white;
 }
 
 .info-card-container {
   @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
-}
-
-.card-base {
-  @apply p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md;
 }
 
 .info-card-base {
@@ -112,4 +110,133 @@ body.dark {
 
 .info-card-value {
   @apply text-xl font-bold;
+}
+
+/* New classes for metrics component */
+.metric-title {
+  @apply text-lg font-bold text-gray-500 dark:text-gray-400 mb-1;
+}
+
+.metric-value {
+  @apply text-2xl font-bold text-center text-gray-800 dark:text-gray-100;
+}
+
+.select-base {
+  @apply mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700 w-auto;
+}
+
+.card-custom {
+  @apply p-4 transition-all duration-300 hover:shadow-xl bg-white dark:bg-gray-800;
+}
+
+/* New classes added */
+
+/* Container class */
+.container {
+  @apply w-full max-w-screen-2xl mx-auto;
+}
+
+/* Tab container */
+.tab-container {
+  @apply flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-2xl;
+}
+
+/* Tab button base */
+.tab-button {
+  @apply px-4 py-2 rounded-2xl transition-all duration-300;
+}
+
+/* Tab button active */
+.tab-button-active {
+  @apply bg-[#E2BE08] text-black;
+}
+
+/* Tab button inactive */
+.tab-button-inactive {
+  @apply text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600;
+}
+
+/* Popover button */
+.popover-button {
+  @apply flex items-center space-x-2 px-4 py-2 rounded-md bg-[#463B03] text-white hover:bg-[#E2BE08] hover:text-white transition;
+}
+
+/* Detailed info card */
+.card-detailed-info {
+  @apply shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 text-black dark:text-white;
+}
+
+/* Navbar */
+.navbar {
+  @apply w-full bg-white dark:bg-gray-800 shadow-md font-inter fixed top-0 left-0 right-0 z-50 border-b border-gray-300 dark:border-gray-700;
+}
+
+/* Top bar disclaimer */
+.topbar-disclaimer {
+  @apply w-full bg-black text-yellow-500 font-inter font-bold text-center py-2 cursor-pointer;
+}
+
+/* Input field */
+.input-field {
+  @apply mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFB734] focus:border-transparent;
+}
+
+/* Dark mode input field */
+.input-field-dark {
+  @apply bg-gray-700 border-gray-600 text-white placeholder-gray-400;
+}
+
+/* Light mode input field */
+.input-field-light {
+  @apply bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500;
+}
+
+/* Classes for SignUp component */
+
+/* Container for SignUp component */
+.signup-container {
+  @apply w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-lg shadow-xl relative;
+}
+
+/* Close button in SignUp component */
+.close-button {
+  @apply absolute top-4 right-4 p-1 rounded-full transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white;
+}
+
+/* Heading in SignUp component */
+.signup-heading {
+  @apply text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white;
+}
+
+/* Label in forms */
+.form-label {
+  @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+}
+
+/* Separator line */
+.separator-line {
+  @apply w-full border-t border-gray-300 dark:border-gray-600;
+}
+
+/* Separator text */
+.separator-text {
+  @apply px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400;
+}
+
+/* Social Auth Button */
+.social-button {
+  @apply flex items-center justify-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB734];
+}
+
+.social-button-light {
+  @apply border-gray-300 text-gray-700 bg-white hover:bg-gray-50;
+}
+
+.social-button-dark {
+  @apply border-gray-600 text-gray-300 bg-gray-700 hover:bg-gray-600;
+}
+
+/* Footer text */
+.footer-text {
+  @apply text-center text-sm text-gray-500 dark:text-gray-400;
 }
