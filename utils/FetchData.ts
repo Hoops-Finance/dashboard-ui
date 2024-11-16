@@ -10,9 +10,9 @@ export const fetchData = async (setExplorerTableData: (data: ExplorerTableData) 
   try {
     // Fetch markets, pairs, and tokens concurrently
     const [marketsResponse, pairsResponse, tokensResponse] = await Promise.all([
-      fetch("https://api.v1.xlm.services/markets"),
-      fetch("https://api.v1.xlm.services/pairs"),
-      fetch("https://api.v1.xlm.services/tokens")
+      fetch("https://api.hoops.finance/markets"),
+      fetch("https://api.hoops.finance/pairs"),
+      fetch("https://api.hoops.finance/tokens")
     ]);
 
     // Parse JSON responses
