@@ -9,6 +9,17 @@ import { PageLayout } from "@/components/ui/PageLayout"
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from "next/link"
 
+interface Strategy {
+  id: string;
+  name: string;
+  tokens: { symbol: string; }[];
+  totalValue: string;
+  feesGenerated: string;
+  age: string;
+  apr: string;
+  isAutomated?: boolean;
+}
+
 export default function StrategiesPage() {
   return (
     <PageLayout>
