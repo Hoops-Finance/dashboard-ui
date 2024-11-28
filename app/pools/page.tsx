@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Flame, Diamond, Coins, Search, Info } from 'lucide-react'
+import { Flame, Diamond, Coins } from 'lucide-react'
 import { PageLayout } from "@/components/ui/PageLayout"
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useState } from 'react'
 
 const formatPercentage = (value: number | string) => {

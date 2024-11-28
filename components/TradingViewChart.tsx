@@ -140,9 +140,9 @@ export function TradingViewChart() {
     ma50Series.setData(calculateMA(data, 50))
 
     // Handle resize
-    const handleResize = () => {
+    const handleResize = (container: HTMLElement) => {
       if (chartContainerRef.current) {
-        chart.applyOptions({ width: chartContainerRef.current.clientWidth })
+        chart.resize(container.clientWidth, container.clientHeight)
       }
     }
 

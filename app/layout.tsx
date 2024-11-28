@@ -8,6 +8,7 @@ import { Footer } from "@/components/ui/Footer";
 import { ThemeProvider } from "@/components/ThemeContext";
 import "./globals.css";
 import { Inter } from "next/font/google";
+import { cn } from "@/lib/utils"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,8 +23,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
-        <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+      <body className={cn("min-h-screen bg-background antialiased")}>
+        <ThemeProvider attribute="class" defaultTheme="dark">
           <ClientWalletProvider>
             <Navbar />
             <main className="flex-1">
