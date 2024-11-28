@@ -5,7 +5,7 @@ import React, { useEffect } from "react";
 import { ClientWalletProvider } from "../components/ClientWalletProvider";
 import Navbar from "@/components/Navbar";
 import { Footer } from "@/components/ui/Footer";
-import { ThemeProvider } from "../components/ThemeContext";
+import { ThemeProvider } from "@/components/ThemeContext";
 import "./globals.css";
 import { Inter } from "next/font/google";
 
@@ -20,15 +20,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  useEffect(() => {
-    const theme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.classList.add(theme);
-  }, []);
-
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} bg-background text-foreground antialiased min-h-screen flex flex-col`}>
-        <ThemeProvider>
+      <body>
+        <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
           <ClientWalletProvider>
             <Navbar />
             <main className="flex-1">

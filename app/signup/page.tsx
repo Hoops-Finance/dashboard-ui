@@ -1,23 +1,29 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Checkbox } from '@headlessui/react'
-import { MoonIcon, SunIcon } from '@heroicons/react/24/solid'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { SunIcon, MoonIcon } from '@heroicons/react/24/outline'
+import { Checkbox } from "@/components/ui/checkbox"
+import { useTheme } from "@/components/ThemeContext"
 
 export default function Component() {
-  const [isLogin, setIsLogin] = useState(false)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { theme, toggleTheme } = useTheme()
+  const [isLogin, setIsLogin] = useState(searchParams.get('mode') === 'login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [agreed, setAgreed] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
 
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [darkMode])
+    setIsLogin(searchParams.get('mode') === 'login')
+  }, [searchParams])
+
+  const toggleMode = () => {
+    const newMode = !isLogin
+    const newPath = `/signup${newMode ? '?mode=login' : ''}`
+    router.push(newPath)
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,10 +38,10 @@ export default function Component() {
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
       <div className="absolute top-4 right-4">
         <button
-          onClick={() => setDarkMode(!darkMode)}
+          onClick={toggleTheme}
           className="p-2 rounded-full bg-secondary text-secondary-foreground"
         >
-          {darkMode ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
+          {theme === "dark" ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
         </button>
       </div>
       <div className="w-full max-w-md bg-card text-card-foreground rounded-[var(--radius)] p-8 shadow-xl">
@@ -76,19 +82,18 @@ export default function Component() {
           </button>
 
           {!isLogin && (
-            <div className="flex items-center justify-center">
+            <div className="flex items-center space-x-2">
               <Checkbox
+                id="terms"
                 checked={agreed}
-                onChange={setAgreed}
+                onCheckedChange={setAgreed}
                 className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
+              />
+              <label
+                htmlFor="terms"
+                className="text-sm text-muted-foreground"
               >
-                <span className="sr-only">Accept terms</span>
-              </Checkbox>
-              <label htmlFor="terms" className="ml-2 block text-sm text-muted-foreground">
-                I agree to the{' '}
-                <a href="#" className="text-primary hover:text-primary/90">
-                  Terms of Service
-                </a>
+                I agree to the terms and conditions
               </label>
             </div>
           )}
@@ -141,7 +146,7 @@ export default function Component() {
 
         <div className="mt-6 text-center">
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={toggleMode}
             className="text-sm text-primary hover:text-primary/90"
           >
             {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
