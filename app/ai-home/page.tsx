@@ -88,6 +88,18 @@ export default function Home() {
     }
   }, [response])
 
+  useEffect(() => {
+    if (conversation.length > 0) {
+      document.documentElement.style.setProperty('--footer-display', 'none');
+    } else {
+      document.documentElement.style.setProperty('--footer-display', 'block');
+    }
+
+    return () => {
+      document.documentElement.style.setProperty('--footer-display', 'block');
+    };
+  }, [conversation.length]);
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col pt-[72px]">
       <main className="flex-1 flex flex-col items-center justify-start p-8 max-w-4xl mx-auto w-full">
@@ -347,18 +359,6 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <footer className="border-t border-border p-4">
-        <nav className="flex justify-center gap-6 text-sm text-muted-foreground">
-          <a href="#" className="hover:text-primary transition-colors duration-300">Pricing</a>
-          <a href="#" className="hover:text-primary transition-colors duration-300">Enterprise</a>
-          <a href="#" className="hover:text-primary transition-colors duration-300">FAQ</a>
-          <a href="#" className="hover:text-primary transition-colors duration-300">Legal</a>
-          <a href="#" className="hover:text-primary transition-colors duration-300">Privacy</a>
-          <a href="#" className="hover:text-primary transition-colors duration-300">Explore</a>
-          <a href="#" className="hover:text-primary transition-colors duration-300">Save ↗</a>
-        </nav>
-      </footer>
 
       <Dialog open={showAuthPrompt} onOpenChange={setShowAuthPrompt}>
         <DialogContent className="sm:max-w-[425px] bg-card border-primary">
