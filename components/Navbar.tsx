@@ -29,7 +29,7 @@ const Navbar: React.FC = () => {
     <nav className="w-full bg-background fixed top-0 left-0 right-0 z-50 border-b border-border h-[72px]">
       <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-4 md:px-6 py-4">
         {/* Logo */}
-        <Link href="/ai" className="flex items-center">
+        <Link href="ai-home" className="flex items-center">
           <svg 
             width="40" 
             height="40" 
