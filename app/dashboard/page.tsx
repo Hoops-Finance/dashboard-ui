@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { WalletConnection } from "../../components/Dashboard/WalletConnection";
-import { Metrics } from "../../components/Dashboard/Metrics";
+import { Metrics } from "@/components/Dashboard/Metrics";
 import { TableComponent } from "../../components/Dashboard/TableComponent";
 import DetailedInfo from "../../components/DetailedInfo";
 import { ExplorerTableData, ProcessedToken, PoolRiskApiResponseObject, Pair, GlobalMetrics } from "utils/newTypes";
@@ -38,37 +38,57 @@ export default function Dashboard() {
   }, [period]);
 
   return (
-    <div className="app">
-      <div className="container">
-        <div className="grid grid-cols-1 gap-8 mb-8">
-          <div className="hidden">
-            <WalletConnection />
-          </div>
-          {globalMetrics && (
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-              <Metrics {...globalMetrics} period={period} setPeriod={setPeriod} />
+    <div className="min-h-screen bg-background">
+      <main className="pt-[120px]">
+        <div className="max-w-screen-2xl mx-auto px-4">
+          <div className="space-y-8">
+            <div className="hidden">
+              <WalletConnection />
             </div>
-          )}
-        </div>
-        {/* Display DetailedInfo if a pair is selected */}
-        {selectedPairData && selectedPoolRiskData && <DetailedInfo pairData={selectedPairData} poolRiskData={selectedPoolRiskData} processedTokens={processedTokens} />}
+            
+            {globalMetrics && (
+              <Metrics 
+                totalValueLocked={globalMetrics.totalValueLocked}
+                poolsIndexed={globalMetrics.poolsIndexed}
+                totalVolume={globalMetrics.totalVolume}
+                liquidityProviders={globalMetrics.liquidityProviders}
+                top5volume={globalMetrics.top5volume}
+                top5tvl={globalMetrics.top5tvl}
+                top5apr={globalMetrics.top5apr}
+                period={period}
+                setPeriod={setPeriod}
+              />
+            )}
 
-        {/* Pass the fetched data to TableComponent */}
-        <TableComponent
-          explorerData={explorerData}
-          processedTokens={processedTokens}
-          poolData={poolData}
-          setPoolData={setPoolData}
-          loadingPools={loadingPools}
-          setLoadingPools={setLoadingPools}
-          onSelectPair={(pairData: Pair, poolRiskData: PoolRiskApiResponseObject) => {
-            setSelectedPairData(pairData);
-            setSelectedPoolRiskData(poolRiskData);
-          }}
-        />
-      </div>
-      {/* Loading state */}
-      {loading && <div>Loading data...</div>}
+            {selectedPairData && selectedPoolRiskData && (
+              <DetailedInfo 
+                pairData={selectedPairData} 
+                poolRiskData={selectedPoolRiskData} 
+                processedTokens={processedTokens} 
+              />
+            )}
+
+            <TableComponent
+              explorerData={explorerData}
+              processedTokens={processedTokens}
+              poolData={poolData}
+              setPoolData={setPoolData}
+              loadingPools={loadingPools}
+              setLoadingPools={setLoadingPools}
+              onSelectPair={(pairData: Pair, poolRiskData: PoolRiskApiResponseObject) => {
+                setSelectedPairData(pairData);
+                setSelectedPoolRiskData(poolRiskData);
+              }}
+            />
+          </div>
+        </div>
+
+        {loading && (
+          <div className="fixed inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center">
+            <div className="text-foreground">Loading data...</div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

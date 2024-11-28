@@ -2,241 +2,282 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base styles for light and dark modes */
-body {
-  @apply bg-gray-50 text-black;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 20 14.3% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 14.3% 4.1%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14.3% 4.1%;
+    --primary: 47.9 95.8% 53.1%;
+    --primary-foreground: 26 83.3% 14.1%;
+    --secondary: 60 4.8% 95.9%;
+    --secondary-foreground: 24 9.8% 10%;
+    --muted: 60 4.8% 95.9%;
+    --muted-foreground: 25 5.3% 44.7%;
+    --accent: 60 4.8% 95.9%;
+    --accent-foreground: 24 9.8% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 60 9.1% 97.8%;
+    --border: 20 5.9% 90%;
+    --input: 20 5.9% 90%;
+    --ring: 20 14.3% 4.1%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    --background: 20 14.3% 4.1%;
+    --foreground: 60 9.1% 97.8%;
+    --card: 20 14.3% 4.1%;
+    --card-foreground: 60 9.1% 97.8%;
+    --popover: 20 14.3% 4.1%;
+    --popover-foreground: 60 9.1% 97.8%;
+    --primary: 47.9 95.8% 53.1%;
+    --primary-foreground: 26 83.3% 14.1%;
+    --secondary: 12 6.5% 15.1%;
+    --secondary-foreground: 60 9.1% 97.8%;
+    --muted: 12 6.5% 15.1%;
+    --muted-foreground: 24 5.4% 63.9%;
+    --accent: 12 6.5% 15.1%;
+    --accent-foreground: 60 9.1% 97.8%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 60 9.1% 97.8%;
+    --border: 12 6.5% 15.1%;
+    --input: 12 6.5% 15.1%;
+    --ring: 35.5 91.7% 32.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
 }
 
-body.dark {
-  @apply bg-gray-900 text-gray-100;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
-/* Custom utility classes */
-.app {
-  @apply mt-10 min-h-screen bg-white dark:bg-gray-900 p-4 md:p-8 font-inter;
-}
-.table-cell-base {
-  @apply px-6 py-4 whitespace-nowrap text-sm;
-}
+/* Component styles using the new theme system */
+@layer components {
+  .navbar {
+    @apply w-full bg-[#0D0D0D] fixed top-0 left-0 right-0 z-50 border-b border-border/10 h-[72px];
+  }
 
-.table-cell-text-primary {
-  @apply text-gray-800 dark:text-gray-200;
-}
+  .topbar-disclaimer {
+    @apply w-full bg-black text-primary font-bold text-center py-2 cursor-pointer;
+  }
 
-.table-cell-text-secondary {
-  @apply text-gray-600 dark:text-gray-400;
-}
+  .button-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg font-semibold transition-colors;
+  }
 
-.table-header-cell {
-  @apply px-6 py-3 border-b-2 border-gray-300 dark:border-gray-600 text-left text-xs font-medium uppercase tracking-wider cursor-pointer text-gray-500 dark:text-gray-300;
-}
+  .button-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border;
+  }
 
-.table-row-hover {
-  @apply transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700;
-}
+  .input-base {
+    @apply w-full px-3 py-2 bg-background border border-input rounded-lg 
+    focus:outline-none focus:ring-2 focus:ring-ring focus:border-input
+    text-foreground placeholder:text-muted-foreground;
+  }
 
-.button-primary {
-  @apply bg-[#e2be08] text-gray-900 rounded-lg font-semibold hover:bg-[#c7a707] transition-colors;
-}
+  .card-base {
+    @apply bg-card text-card-foreground rounded-lg shadow-sm hover:shadow-md transition-all duration-200;
+  }
 
-.button-secondary {
-  @apply border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600;
-}
+  .table-header-cell {
+    @apply px-6 py-3 border-b-2 border-border text-left text-xs font-medium 
+    uppercase tracking-wider cursor-pointer text-muted-foreground;
+  }
 
-.input-base {
-  @apply w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e2be08] focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200;
-}
+  .table-cell-base {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-foreground;
+  }
 
-.text-primary {
-  @apply text-gray-800 dark:text-gray-200;
-}
+  .table-row-hover {
+    @apply transition-all duration-300 hover:bg-muted/50;
+  }
 
-.text-secondary {
-  @apply text-gray-600 dark:text-gray-400;
-}
+  /* Form elements */
+  .form-label {
+    @apply block text-sm font-medium text-foreground;
+  }
 
-/* Button base styles */
-.button-base {
-  @apply px-4 py-2 rounded-lg transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2;
-}
+  .select-base {
+    @apply mt-2 p-2 border border-input rounded bg-background text-foreground w-auto;
+  }
 
-/* Dark mode styles for buttons */
-.button-dark {
-  @apply bg-[#14141C] text-white hover:bg-[#2A2A3C];
-}
+  /* Modal styles */
+  .modal-backdrop {
+    @apply fixed inset-0 bg-background/80 backdrop-blur-sm;
+  }
 
-.button-light {
-  @apply bg-[#FFB734] text-black hover:bg-[#E6A52F];
-}
+  .modal-content {
+    @apply bg-card text-card-foreground p-6 rounded-lg shadow-lg;
+  }
 
-/* Input base styles */
-.input-base {
-  @apply px-3 py-2 bg-white border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#e2be08];
-}
+  /* Tab navigation */
+  .tab-container {
+    @apply flex space-x-1 bg-muted p-1 rounded-lg;
+  }
 
-/* Dark mode styles for inputs */
-.input-dark {
-  @apply bg-gray-700 text-gray-200 border-gray-600;
-}
+  .tab-button {
+    @apply px-4 py-2 rounded-md transition-all duration-200;
+  }
 
-.input-light {
-  @apply bg-white text-gray-800;
-}
+  .tab-button-active {
+    @apply bg-primary text-primary-foreground;
+  }
 
-/* Card base styles */
-.card-base {
-  @apply p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl text-black dark:text-white;
-}
+  .tab-button-inactive {
+    @apply text-muted-foreground hover:bg-background/50;
+  }
 
-.info-card-container {
-  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
-}
+  /* Info cards */
+  .info-card-container {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
+  }
 
-.info-card-base {
-  @apply p-4 rounded-lg;
-}
+  .info-card-base {
+    @apply p-4 rounded-lg bg-card text-card-foreground;
+  }
 
-.info-card-light {
-  @apply bg-gray-700 text-white;
-}
+  .metric-title {
+    @apply text-sm font-medium text-muted-foreground;
+  }
 
-.info-card-dark {
-  @apply bg-gray-50 text-black;
-}
+  .metric-value {
+    @apply text-2xl font-bold text-foreground mt-2;
+  }
 
-.info-card-title {
-  @apply text-sm font-medium;
-}
+  .metric-description {
+    @apply text-xs text-muted-foreground mt-1;
+  }
 
-.info-card-value {
-  @apply text-xl font-bold;
-}
+  .main-content {
+    @apply pt-28 min-h-screen bg-background;
+  }
 
-/* New classes for metrics component */
-.metric-title {
-  @apply text-lg font-bold text-gray-500 dark:text-gray-400 mb-1;
-}
+  .metrics-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4 max-w-screen-2xl mx-auto;
+  }
 
-.metric-value {
-  @apply text-2xl font-bold text-center text-gray-800 dark:text-gray-100;
-}
+  .metric-card {
+    @apply p-6 bg-card text-card-foreground rounded-lg shadow-sm hover:shadow-md transition-all duration-200;
+  }
 
-.select-base {
-  @apply mt-2 p-2 border border-gray-300 dark:border-gray-600 rounded text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700 w-auto;
-}
+  .page-container {
+    @apply pt-28 min-h-screen;
+  }
 
-.card-custom {
-  @apply p-4 transition-all duration-300 hover:shadow-xl bg-white dark:bg-gray-800;
-}
+  .ai-container {
+    @apply min-h-[calc(100vh-112px)] flex flex-col items-center justify-center px-4;
+  }
 
-/* New classes added */
+  /* Card styles */
+  .card {
+    @apply bg-gray-900/50 border border-gray-800 hover:border-yellow-400/50 transition-all duration-300;
+  }
 
-/* Container class */
-.container {
-  @apply w-full max-w-screen-2xl mx-auto;
-}
+  /* Text styles */
+  .text-heading {
+    @apply text-2xl font-bold text-white;
+  }
 
-/* Tab container */
-.tab-container {
-  @apply flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-2xl;
-}
+  .text-subheading {
+    @apply text-gray-400;
+  }
 
-/* Tab button base */
-.tab-button {
-  @apply px-4 py-2 rounded-2xl transition-all duration-300;
-}
+  /* Button styles */
+  .button-yellow {
+    @apply bg-yellow-400 text-black hover:bg-yellow-500 transition-colors duration-300;
+  }
 
-/* Tab button active */
-.tab-button-active {
-  @apply bg-[#E2BE08] text-black;
-}
+  .button-outline {
+    @apply bg-transparent border border-yellow-400 text-yellow-400 hover:bg-yellow-400/10 transition-colors duration-300;
+  }
 
-/* Tab button inactive */
-.tab-button-inactive {
-  @apply text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600;
-}
+  /* Input styles */
+  .input-dark {
+    @apply bg-gray-900/50 border-gray-800 text-white placeholder:text-gray-600 focus:border-yellow-400/50 focus:ring-yellow-400/20;
+  }
 
-/* Popover button */
-.popover-button {
-  @apply flex items-center space-x-2 px-4 py-2 rounded-md bg-[#463B03] text-white hover:bg-[#E2BE08] hover:text-white transition;
-}
+  /* Table styles */
+  .table-dark {
+    @apply bg-gray-900/50 border-gray-800;
+  }
 
-/* Detailed info card */
-.card-detailed-info {
-  @apply shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 text-black dark:text-white;
-}
+  .table-header-dark {
+    @apply bg-gray-900/80 text-gray-300 font-medium;
+  }
 
-/* Navbar */
-.navbar {
-  @apply w-full bg-white dark:bg-gray-800 shadow-md font-inter fixed top-0 left-0 right-0 z-50 border-b border-gray-300 dark:border-gray-700;
-}
+  .table-row-dark {
+    @apply border-gray-800 hover:bg-gray-800/50;
+  }
 
-/* Top bar disclaimer */
-.topbar-disclaimer {
-  @apply w-full bg-black text-yellow-500 font-inter font-bold text-center py-2 cursor-pointer;
-}
+  .table-cell-primary {
+    @apply text-white font-medium;
+  }
 
-/* Input field */
-.input-field {
-  @apply mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFB734] focus:border-transparent;
-}
+  .table-cell-secondary {
+    @apply text-gray-300;
+  }
 
-/* Dark mode input field */
-.input-field-dark {
-  @apply bg-gray-700 border-gray-600 text-white placeholder-gray-400;
-}
+  .table-cell-highlight {
+    @apply text-yellow-400 font-medium;
+  }
 
-/* Light mode input field */
-.input-field-light {
-  @apply bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500;
-}
+  .table-cell-success {
+    @apply text-green-400 font-medium;
+  }
 
-/* Classes for SignUp component */
+  /* Rankings styles */
+  .ranking-number {
+    @apply text-gray-300 font-medium;
+  }
 
-/* Container for SignUp component */
-.signup-container {
-  @apply w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-lg shadow-xl relative;
-}
+  .pool-name {
+    @apply text-white font-medium;
+  }
 
-/* Close button in SignUp component */
-.close-button {
-  @apply absolute top-4 right-4 p-1 rounded-full transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white;
-}
+  .pool-stats {
+    @apply text-gray-300;
+  }
 
-/* Heading in SignUp component */
-.signup-heading {
-  @apply text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white;
-}
+  /* Card content styles */
+  .card-content-row {
+    @apply flex items-center justify-between py-2;
+  }
 
-/* Label in forms */
-.form-label {
-  @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
-}
+  .card-content-label {
+    @apply text-gray-300;
+  }
 
-/* Separator line */
-.separator-line {
-  @apply w-full border-t border-gray-300 dark:border-gray-600;
-}
+  .card-content-value {
+    @apply text-white font-medium;
+  }
 
-/* Separator text */
-.separator-text {
-  @apply px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400;
-}
+  /* Percentage value styles */
+  .percentage-value {
+    @apply font-medium;
+  }
 
-/* Social Auth Button */
-.social-button {
-  @apply flex items-center justify-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB734];
-}
+  .percentage-positive {
+    @apply text-emerald-400 font-medium;
+  }
 
-.social-button-light {
-  @apply border-gray-300 text-gray-700 bg-white hover:bg-gray-50;
-}
-
-.social-button-dark {
-  @apply border-gray-600 text-gray-300 bg-gray-700 hover:bg-gray-600;
-}
-
-/* Footer text */
-.footer-text {
-  @apply text-center text-sm text-gray-500 dark:text-gray-400;
+  .percentage-negative {
+    @apply text-red-400 font-medium;
+  }
 }

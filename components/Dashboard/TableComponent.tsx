@@ -16,6 +16,8 @@ import { ExpandedTokenComponent } from "../DataViews/ExpandedTokens";
 import { customTableStyles } from "../DataViews/TableStyles";
 import { ExplorerTableData, ProcessedToken, MyWalletData, PoolRiskApiResponseObject, Pair, Market } from "utils/newTypes";
 import { usePlausible } from "next-plausible";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Pagination } from '@/components/ui/Pagination';
 type TableRow = Market | PoolRiskApiResponseObject | ProcessedToken | MyWalletData | Pair;
 
 interface TableComponentProps {
@@ -38,6 +40,21 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
   const [filteredWalletData, setFilteredWalletData] = useState<MyWalletData[]>([]);
   const { theme } = useTheme();
   const { otherBalances } = useWallet();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // You can adjust this number
+
+  // Calculate pagination
+  const totalItems = poolData?.length || 0;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = poolData?.slice(startIndex, endIndex) || [];
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Optionally scroll to top of table
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Track Tab Change
   const handleTabChange = (tab: string) => {
@@ -266,6 +283,15 @@ export function TableComponent({ explorerData, processedTokens, poolData, setPoo
 
       {/* Loading state for pools */}
       {loadingPools && <div>Loading pool data...</div>}
+
+      {/* Add pagination */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      )}
     </div>
   );
 }

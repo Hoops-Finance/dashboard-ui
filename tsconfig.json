@@ -19,8 +19,7 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@components/*": ["components/*"],
-      "@images/*": ["images/*"]
+      "@/*": ["./*"]
     },
     "allowSyntheticDefaultImports": true
   },
