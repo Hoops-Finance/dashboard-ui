@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn("min-h-screen bg-background antialiased")}>
-        <ThemeProvider attribute="class" defaultTheme="dark">
+        <ThemeProvider defaultTheme="dark">
           <ClientWalletProvider>
             <Navbar />
             <main className="flex-1">
