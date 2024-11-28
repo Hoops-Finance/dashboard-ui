@@ -201,7 +201,7 @@ export default function PortfolioPage() {
                                 <div className="flex items-center gap-2">
                                   <h3 className="font-medium">{strategy.name}</h3>
                                   {strategy.isAutomated && (
-                                    <Bot className="h-4 w-4 text-primary" title="Fully Automated" />
+                                    <Bot className="h-4 w-4 text-primary" aria-label="Fully Automated" />
                                   )}
                                 </div>
                                 <p className="text-sm text-muted-foreground">Strategy #{strategy.id}</p>
