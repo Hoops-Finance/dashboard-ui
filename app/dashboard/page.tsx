@@ -34,8 +34,18 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    fetchMetrics(period); // Fetch metrics when the period changes
-  }, [period]);
+    const fetchData = async () => {
+      await fetchMetrics(period);
+    };
+    fetchData();
+  }, [fetchMetrics, period]);
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      await fetchMetrics();
+    };
+    fetchInitialData();
+  }, [fetchMetrics]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -57,6 +67,8 @@ export default function Dashboard() {
                 top5apr={globalMetrics.top5apr}
                 period={period}
                 setPeriod={setPeriod}
+                bestaprpair={globalMetrics.bestaprpair || ''}
+                bestapraddress={globalMetrics.bestapraddress || ''}
               />
             )}
 

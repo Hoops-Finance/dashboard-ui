@@ -2,8 +2,18 @@ import React from "react";
 import { MetricCard, Card } from "../ui";
 import { GlobalMetrics } from "../../utils/newTypes";
 
-interface MetricsProps extends GlobalMetrics {
-  setPeriod: React.Dispatch<React.SetStateAction<"24h" | "7d" | "14d" | "30d" | "90d" | "180d" | "360d">>;
+interface MetricsProps {
+  totalValueLocked: number
+  poolsIndexed: number
+  totalVolume: number
+  liquidityProviders: number
+  top5volume: number
+  top5tvl: number
+  top5apr: number
+  period: "24h" | "7d" | "14d" | "30d" | "90d" | "180d" | "360d"
+  setPeriod: (period: MetricsProps["period"]) => void
+  bestaprpair?: string
+  bestapraddress?: string
 }
 
 export function Metrics({ 
