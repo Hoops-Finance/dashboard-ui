@@ -86,7 +86,7 @@ export default function Component() {
               <Checkbox
                 id="terms"
                 checked={agreed}
-                onCheckedChange={setAgreed}
+                onCheckedChange={(checked: boolean | "indeterminate") => setAgreed(checked as boolean)}
                 className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
               />
               <label

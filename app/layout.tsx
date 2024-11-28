@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import { Footer } from "@/components/ui/Footer";
 import { ThemeProvider } from "@/components/ThemeContext";
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Inter } from "@next/font/google";
 import { cn } from "@/lib/utils"
 
 const inter = Inter({
