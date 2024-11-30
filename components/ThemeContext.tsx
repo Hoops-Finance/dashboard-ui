@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-type Theme = "dark" | "light";
+type Theme = 'light' | 'dark';
 
 interface ThemeProviderProps {
   children: React.ReactNode;
@@ -28,15 +28,20 @@ export function ThemeProvider({
   storageKey = "ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = React.useState<Theme>(
-    () => (localStorage?.getItem(storageKey) as Theme) || defaultTheme
-  );
+  const [theme, setTheme] = React.useState<Theme>(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
+    }
+    return defaultTheme;
+  });
 
   React.useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
-    root.classList.add(theme);
-    localStorage.setItem(storageKey, theme);
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const root = window.document.documentElement;
+      root.classList.remove("light", "dark");
+      root.classList.add(theme);
+      localStorage.setItem(storageKey, theme);
+    }
   }, [theme, storageKey]);
 
   const toggleTheme = React.useCallback(() => {
