@@ -59,4 +59,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 app/app.tsx.old
+
+#IDE
+.idea
 .env
