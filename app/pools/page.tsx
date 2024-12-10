@@ -3,12 +3,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
   TableRow 
 } from "@/components/ui/table";
 import {
@@ -22,6 +22,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Flame, Diamond, Coins, Search, ChevronLeft, ChevronRight, X, ChevronUp, ChevronDown, ArrowUpDown, BookOpen } from 'lucide-react';
 import { PoolRiskApiResponseObject } from "@/utils/newTypes";
+import { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 // Top pools dummy data
 const topPoolsData = [
@@ -87,10 +90,11 @@ type SortConfig = {
 };
 
 export default function PoolsPage() {
+  const router = useRouter();
+  const [period, setPeriod] = useState<string>('7d');
   const [poolsData, setPoolsData] = useState<PoolRiskApiResponseObject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [period, setPeriod] = useState("24h");
   const [selectedProtocols, setSelectedProtocols] = useState<Protocol[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -243,6 +247,14 @@ export default function PoolsPage() {
         return [...prev, protocol];
       });
     }
+  };
+
+  const handleViewDetails = (pool: PoolRiskApiResponseObject) => {
+    // Format market pair for URL (replace '/' with '-')
+    const urlSafePair = pool.market.replace(/\//g, '-');
+    const urlSafeProtocol = pool.protocol.toLowerCase();
+    // Navigate to the protocol/pair page with current period parameter
+    router.push(`/pools/${urlSafeProtocol}/${urlSafePair}?period=${period}`);
   };
 
   // Column header component
@@ -451,6 +463,7 @@ export default function PoolsPage() {
                     <TableRow 
                       key={index} 
                       className="group hover:bg-muted/50 cursor-pointer border-b border-border"
+                      onClick={() => handleViewDetails(pool)}
                     >
                       <TableCell className="h-10 px-4 align-middle font-medium">
                         {pool.protocol}
@@ -458,7 +471,7 @@ export default function PoolsPage() {
                       <TableCell className="h-10 px-4 align-middle font-medium">
                         {pool.market}
                       </TableCell>
-                      <TableCell className={`h-10 px-4 align-middle text-right font-medium ${Number(pool.apr.replace('%', '')) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      <TableCell className={`h-10 px-4 align-middle text-right font-medium ${Number(pool.apr) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                         {pool.apr}
                       </TableCell>
                       <TableCell className="h-10 px-4 align-middle text-right">
@@ -480,6 +493,10 @@ export default function PoolsPage() {
                           variant="ghost"
                           size="sm"
                           className="h-8 px-3 text-muted-foreground hover:text-foreground"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDetails(pool);
+                          }}
                         >
                           Details
                         </Button>

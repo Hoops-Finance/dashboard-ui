@@ -4,6 +4,8 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || '7d';
+    const market = searchParams.get('market');
+    const protocol = searchParams.get('protocol');
 
     const apiUrl = process.env.HOOPS_API_URL;
     const apiKey = process.env.HOOPS_API_KEY;
@@ -15,7 +17,17 @@ export async function GET(request: Request) {
       );
     }
 
-    const response = await fetch(`${apiUrl}?period=${period}`, {
+    // Construct the API URL with filters
+    const url = new URL(apiUrl);
+    url.searchParams.append('period', period);
+    if (market) {
+      url.searchParams.append('market', market);
+    }
+    if (protocol) {
+      url.searchParams.append('protocol', protocol);
+    }
+
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -23,13 +35,24 @@ export async function GET(request: Request) {
         'Authorization': `Bearer ${apiKey}`
       }
     });
-
+    
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    
+    // If protocol and market are specified, filter for exact match
+    if (protocol && market) {
+      const filteredData = Array.isArray(data) ? data.filter(pool => 
+        pool.market.toLowerCase() === market.toLowerCase() &&
+        pool.protocol.toLowerCase() === protocol.toLowerCase()
+      ) : [];
+      
+      return NextResponse.json(filteredData);
+    }
+
     return NextResponse.json(data);
     
   } catch (error) {
