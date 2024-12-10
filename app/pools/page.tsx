@@ -290,7 +290,7 @@ export default function PoolsPage() {
 
   return (
     <section className="relative">
-      <div className="container max-w-7xl mx-auto px-4 py-4 space-y-6">
+      <div className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Page Title */}
         <motion.div 
           className="space-y-0.5"
@@ -473,7 +473,7 @@ export default function PoolsPage() {
                         <Badge 
                           variant="outline" 
                           className={cn(
-                            "capitalize",
+                            "capitalize px-3 py-1",
                             pool.protocol === "soroswap" && "bg-purple-500/10 text-purple-500 border-purple-500/20",
                             pool.protocol === "blend" && "bg-green-500/10 text-green-500 border-green-500/20",
                             pool.protocol === "phoenix" && "bg-orange-500/10 text-orange-500 border-orange-500/20",
@@ -486,7 +486,7 @@ export default function PoolsPage() {
                       <TableCell className="h-10 px-4 align-middle font-medium">
                         {pool.market}
                       </TableCell>
-                      <TableCell className={`h-10 px-4 align-middle text-right font-medium ${Number(pool.apr) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      <TableCell className="h-10 px-4 align-middle text-right font-medium">
                         {pool.apr}
                       </TableCell>
                       <TableCell className="h-10 px-4 align-middle text-right">
