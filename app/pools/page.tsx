@@ -466,7 +466,18 @@ export default function PoolsPage() {
                       onClick={() => handleViewDetails(pool)}
                     >
                       <TableCell className="h-10 px-4 align-middle font-medium">
-                        {pool.protocol}
+                        <Badge 
+                          variant="outline" 
+                          className={cn(
+                            "capitalize",
+                            pool.protocol === "soroswap" && "bg-purple-500/10 text-purple-500 border-purple-500/20",
+                            pool.protocol === "blend" && "bg-green-500/10 text-green-500 border-green-500/20",
+                            pool.protocol === "phoenix" && "bg-orange-500/10 text-orange-500 border-orange-500/20",
+                            pool.protocol === "aqua" && "bg-pink-500/10 text-pink-500 border-pink-500/20"
+                          )}
+                        >
+                          {pool.protocol === "aqua" ? "Aquarius" : pool.protocol}
+                        </Badge>
                       </TableCell>
                       <TableCell className="h-10 px-4 align-middle font-medium">
                         {pool.market}

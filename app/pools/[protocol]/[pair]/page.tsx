@@ -262,13 +262,14 @@ export default function PoolPage({ params, searchParams }: PageProps) {
               variant="outline" 
               className={cn(
                 "capitalize transition-colors",
-                poolData.protocol === "soroswap" && "bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500/20",
+                poolData.protocol === "soroswap" && "bg-purple-500/10 text-purple-500 border-purple-500/20 hover:bg-purple-500/20",
+                poolData.protocol === "blend" && "bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20",
                 poolData.protocol === "phoenix" && "bg-orange-500/10 text-orange-500 border-orange-500/20 hover:bg-orange-500/20",
-                poolData.protocol === "aquarius" && "bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20"
+                poolData.protocol === "aqua" && "bg-pink-500/10 text-pink-500 border-pink-500/20 hover:bg-pink-500/20"
               )}
-              title={`Protocol: ${poolData.protocol}`}
+              title={`Protocol: ${poolData.protocol === "aqua" ? "Aquarius" : poolData.protocol}`}
             >
-              {poolData.protocol}
+              {poolData.protocol === "aqua" ? "Aquarius" : poolData.protocol}
             </Badge>
           </div>
           <p className="text-muted-foreground">
