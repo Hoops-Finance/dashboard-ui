@@ -1,6 +1,10 @@
 import { PoolRiskApiResponseObject } from "./newTypes";
 
-export const fetchPoolData = async (setPoolsData: (data: PoolRiskApiResponseObject[]) => void, setLoading: (value: boolean) => void, period: string) => {
+export const fetchPoolData = async (
+  setPoolsData: (data: PoolRiskApiResponseObject[]) => void, 
+  setLoading: (value: boolean) => void, 
+  period: string
+) => {
   try {
     setLoading(true);
     const response = await fetch(`/api/getstatistics?period=${period}`);
@@ -11,6 +15,7 @@ export const fetchPoolData = async (setPoolsData: (data: PoolRiskApiResponseObje
     setPoolsData(result);
   } catch (error) {
     console.error("Error fetching pools data:", error);
+    setPoolsData([]);
   } finally {
     setLoading(false);
   }

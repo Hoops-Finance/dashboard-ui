@@ -1,92 +1,305 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Flame, Diamond, Coins } from 'lucide-react'
-import { PageLayout } from "@/components/ui/PageLayout"
-import { motion } from 'framer-motion'
-import { useState } from 'react'
+import React, { useState, useEffect, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Flame, Diamond, Coins, Search, ChevronLeft, ChevronRight, X, ChevronUp, ChevronDown, ArrowUpDown, BookOpen } from 'lucide-react';
+import { PoolRiskApiResponseObject } from "@/utils/newTypes";
 
-const formatPercentage = (value: number | string) => {
-  const numValue = typeof value === 'string' ? parseFloat(value) : value
-  return {
-    className: `percentage-value ${numValue >= 0 ? 'percentage-positive' : 'percentage-negative'}`,
-    text: `${numValue >= 0 ? '+' : ''}${numValue.toFixed(2)}%`
+// Top pools dummy data
+const topPoolsData = [
+  { 
+    title: "Best APR Pairs",
+    icon: Flame,
+    items: [
+      { rank: 1, pair: "XLM/USDC", apr: 168.67 },
+      { rank: 2, pair: "yXLM/USDC", apr: 126.86 },
+      { rank: 3, pair: "yBTC/XLM", apr: 103.61 },
+      { rank: 4, pair: "USDC/yETH", apr: 64.48 },
+      { rank: 5, pair: "yUSDC/USDC", apr: -12.36 }
+    ]
+  },
+  {
+    title: "Best Blue-chip Pools",
+    icon: Diamond,
+    items: [
+      { rank: 1, pair: "XLM/USDC", apr: 168.67 },
+      { rank: 2, pair: "BTC/XLM", apr: 45.22 },
+      { rank: 3, pair: "ETH/USDC", apr: 27.46 },
+      { rank: 4, pair: "BTC/USDC", apr: 21.69 },
+      { rank: 5, pair: "ETH/XLM", apr: 18.88 }
+    ]
+  },
+  {
+    title: "Best Stable Coin Pools",
+    icon: Coins,
+    items: [
+      { rank: 1, pair: "USDC/USDT", apr: 69.53 },
+      { rank: 2, pair: "USDC/yUSDC", apr: 23.07 },
+      { rank: 3, pair: "USDC/yUSDT", apr: 22.59 },
+      { rank: 4, pair: "USDT/yUSDC", apr: 18.73 },
+      { rank: 5, pair: "yUSDT/USDC", apr: 0.37 }
+    ]
   }
-}
+];
 
-export default function ExplorePage() {
-  const [hoveredRow, setHoveredRow] = useState<number | null>(null)
-  const [activeTab, setActiveTab] = useState('pools')
+const PERIODS = [
+  { value: '24h', label: '24H Period' },
+  { value: '7d', label: '7D Period' },
+  { value: '14d', label: '14D Period' },
+  { value: '30d', label: '30D Period' },
+  { value: '90d', label: '90D Period' },
+  { value: '180d', label: '180D Period' },
+  { value: '360d', label: '360D Period' }
+] as const;
+
+const PROTOCOLS = ['soroswap', 'phoenix', 'aquarius', 'blend'] as const;
+type Protocol = typeof PROTOCOLS[number];
+
+// Protocol mapping for display name to actual protocol value
+const PROTOCOL_MAPPING: Record<Protocol, string> = {
+  soroswap: 'soroswap',
+  phoenix: 'phoenix',
+  aquarius: 'aqua',
+  blend: 'blend'
+};
+
+type SortConfig = {
+  key: keyof PoolRiskApiResponseObject | null;
+  direction: 'asc' | 'desc' | null;
+};
+
+export default function PoolsPage() {
+  const [poolsData, setPoolsData] = useState<PoolRiskApiResponseObject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [period, setPeriod] = useState("24h");
+  const [selectedProtocols, setSelectedProtocols] = useState<Protocol[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    key: null,
+    direction: null
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch(`/api/pools?period=${period}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!Array.isArray(result)) {
+          throw new Error('API response is not an array');
+        }
+
+        setPoolsData(result);
+      } catch (error) {
+        console.error("Error fetching pools data:", error);
+        setError(error instanceof Error ? error.message : 'An unknown error occurred');
+        setPoolsData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [period]);
+
+  // Format percentage for APR and other metrics
+  const formatPercentage = (value: number) => {
+    return {
+      className: `percentage-value ${value >= 0 ? 'text-green-500' : 'text-red-500'}`,
+      text: `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
+    };
+  };
+
+  // Filter data based on protocols and search query
+  const filteredData = poolsData.filter(pool => {
+    const matchesSearch = searchQuery === '' || 
+      pool.market.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      pool.protocol.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesProtocol = selectedProtocols.length === 0 || 
+      selectedProtocols.some(protocol => 
+        pool.protocol.toLowerCase() === PROTOCOL_MAPPING[protocol].toLowerCase()
+      );
+
+    return matchesSearch && matchesProtocol;
+  });
+
+  // Sorting function
+  const handleSort = (key: keyof PoolRiskApiResponseObject) => {
+    setSortConfig(current => {
+      if (current.key === key) {
+        if (current.direction === 'asc') {
+          return { key, direction: 'desc' };
+        }
+        if (current.direction === 'desc') {
+          return { key: null, direction: null };
+        }
+      }
+      return { key, direction: 'asc' };
+    });
+  };
+
+  // Sort and filter data
+  const sortedAndFilteredData = useMemo(() => {
+    let filtered = poolsData.filter(pool => {
+      const matchesSearch = searchQuery === '' || 
+        pool.market.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        pool.protocol.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesProtocol = selectedProtocols.length === 0 || 
+        selectedProtocols.some(protocol => 
+          pool.protocol.toLowerCase() === PROTOCOL_MAPPING[protocol].toLowerCase()
+        );
+
+      return matchesSearch && matchesProtocol;
+    });
+
+    if (sortConfig.key && sortConfig.direction) {
+      filtered = [...filtered].sort((a, b) => {
+        const aValue = a[sortConfig.key!];
+        const bValue = b[sortConfig.key!];
+
+        // Convert values to comparable numbers if they're strings with numbers
+        const getComparableValue = (value: any) => {
+          if (typeof value === 'string') {
+            // Try to extract number from string (handles %, $, etc.)
+            const number = parseFloat(value.replace(/[^0-9.-]+/g, ''));
+            return isNaN(number) ? value : number;
+          }
+          return value;
+        };
+
+        const comparableA = getComparableValue(aValue);
+        const comparableB = getComparableValue(bValue);
+
+        if (comparableA < comparableB) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (comparableA > comparableB) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [poolsData, searchQuery, selectedProtocols, sortConfig]);
+
+  const totalPages = Math.ceil(sortedAndFilteredData.length / entriesPerPage);
+  const startIndex = (currentPage - 1) * entriesPerPage;
+  const paginatedData = sortedAndFilteredData.slice(startIndex, startIndex + entriesPerPage);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedProtocols]);
+
+  const handleProtocolClick = (protocol: Protocol) => {
+    if (protocol === 'soroswap') {
+      // If Soroswap is already selected and being clicked again, clear selection
+      if (selectedProtocols.includes('soroswap') && selectedProtocols.length === 1) {
+        setSelectedProtocols([]);
+      } else {
+        // Select only Soroswap
+        setSelectedProtocols(['soroswap']);
+      }
+    } else {
+      setSelectedProtocols(prev => {
+        // If protocol is already selected, remove it
+        if (prev.includes(protocol)) {
+          return prev.filter(p => p !== protocol);
+        }
+        // Add the protocol to selection
+        return [...prev, protocol];
+      });
+    }
+  };
+
+  // Column header component
+  const SortableHeader = ({ 
+    children, 
+    sortKey, 
+    align = 'left' 
+  }: { 
+    children: React.ReactNode; 
+    sortKey: keyof PoolRiskApiResponseObject; 
+    align?: 'left' | 'right';
+  }) => (
+    <TableHead 
+      className={`h-10 px-4 align-middle font-medium text-muted-foreground cursor-pointer select-none ${
+        align === 'right' ? 'text-right' : 'text-left'
+      }`}
+      onClick={() => handleSort(sortKey)}
+    >
+      <div className="flex items-center gap-1 justify-end">
+        <span>{children}</span>
+        <ArrowUpDown className={`h-4 w-4 ${
+          sortConfig.key === sortKey 
+            ? 'text-foreground' 
+            : 'text-muted-foreground/50'
+        }`} />
+      </div>
+    </TableHead>
+  );
 
   return (
-    <PageLayout>
-      <motion.div 
-        className="space-y-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+    <section className="relative">
+      <div className="container max-w-7xl mx-auto px-4 py-4 space-y-6">
+        {/* Page Title */}
         <motion.div 
-          className="space-y-1"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          className="space-y-0.5"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
         >
           <h1 className="text-2xl font-bold text-foreground">Explorer</h1>
           <p className="text-muted-foreground">Find the most profitable LPs across protocols</p>
         </motion.div>
 
+        {/* Top Pools Cards */}
         <div className="grid gap-6 md:grid-cols-3">
-          {[
-            { 
-              title: "Best APR Pairs",
-              icon: Flame,
-              items: [
-                { rank: 1, pair: "XLM/USDC", apr: 168.67 },
-                { rank: 2, pair: "yXLM/USDC", apr: 126.86 },
-                { rank: 3, pair: "yBTC/XLM", apr: 103.61 },
-                { rank: 4, pair: "USDC/yETH", apr: 64.48 },
-                { rank: 5, pair: "yUSDC/USDC", apr: -12.36 }
-              ]
-            },
-            {
-              title: "Best Blue-chip Pools",
-              icon: Diamond,
-              items: [
-                { rank: 1, pair: "XLM/USDC", apr: 168.67 },
-                { rank: 2, pair: "BTC/XLM", apr: 45.22 },
-                { rank: 3, pair: "ETH/USDC", apr: 27.46 },
-                { rank: 4, pair: "BTC/USDC", apr: 21.69 },
-                { rank: 5, pair: "ETH/XLM", apr: 18.88 }
-              ]
-            },
-            {
-              title: "Best Stable Coin Pools",
-              icon: Coins,
-              items: [
-                { rank: 1, pair: "USDC/USDT", apr: 69.53 },
-                { rank: 2, pair: "USDC/yUSDC", apr: 23.07 },
-                { rank: 3, pair: "USDC/yUSDT", apr: 22.59 },
-                { rank: 4, pair: "USDT/yUSDC", apr: 18.73 },
-                { rank: 5, pair: "yUSDT/USDC", apr: 0.37 }
-              ]
-            }
-          ].map((section, i) => (
+          {topPoolsData.map((section, i) => (
             <motion.div
               key={section.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+              transition={{ duration: 0.3, delay: i * 0.1 }}
               whileHover={{ scale: 1.02 }}
               className="transform-gpu"
             >
-              <Card className="bg-card border-border hover:shadow-md transition-all duration-300">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-card-foreground">
+                  <CardTitle className="flex items-center gap-2">
                     <section.icon className="h-5 w-5 text-primary" />
                     {section.title}
                   </CardTitle>
@@ -97,10 +310,11 @@ export default function ExplorePage() {
                       key={item.rank}
                       className="flex items-center justify-between group cursor-pointer"
                       whileHover={{ x: 4 }}
+                      transition={{ duration: 0.2 }}
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground">#{item.rank}</span>
-                        <span className="text-card-foreground font-medium group-hover:text-primary transition-colors duration-200">
+                        <span className="text-foreground font-medium group-hover:text-primary transition-colors duration-200">
                           {item.pair}
                         </span>
                       </div>
@@ -115,143 +329,245 @@ export default function ExplorePage() {
           ))}
         </div>
 
-        <Card className="border-border bg-card">
-          <motion.div 
-            className="p-4 space-y-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex gap-2">
-                <Button 
-                  variant={activeTab === 'pools' ? 'default' : 'secondary'}
-                  onClick={() => setActiveTab('pools')}
-                  className="transition-all duration-200"
-                >
-                  All Pools
-                </Button>
-                <Button 
-                  variant={activeTab === 'wallets' ? 'default' : 'secondary'}
-                  onClick={() => setActiveTab('wallets')}
-                  className="transition-all duration-200"
-                >
-                  Top Wallets
-                </Button>
-              </div>
-              <Button variant="outline" className="hover:bg-primary/10 transition-all duration-200">
-                How to add liquidity & earn fees
+        {/* Table Controls */}
+        <motion.div 
+          className="flex flex-col gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex flex-wrap gap-2">
+              <Button 
+                variant={selectedProtocols.length === 0 ? 'default' : 'secondary'}
+                onClick={() => setSelectedProtocols([])}
+                className="h-9"
+              >
+                All Pools
               </Button>
+              {PROTOCOLS.map(protocol => (
+                <Button 
+                  key={protocol}
+                  variant={selectedProtocols.includes(protocol) ? 'default' : 'secondary'}
+                  onClick={() => handleProtocolClick(protocol)}
+                  className="h-9 capitalize group"
+                >
+                  <span>{protocol}</span>
+                  {selectedProtocols.includes(protocol) && (
+                    <X className="ml-2 h-3 w-3 text-muted-foreground/60 group-hover:text-muted-foreground" />
+                  )}
+                </Button>
+              ))}
+            </div>
+            <Button 
+              variant="outline" 
+              className="h-9 gap-2"
+              onClick={() => window.open('https://api.hoops.finance', '_blank')}
+            >
+              <BookOpen className="h-4 w-4" />
+              Read the docs
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Select value={period} onValueChange={setPeriod}>
+              <SelectTrigger className="w-[180px] h-9">
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                {PERIODS.map(p => (
+                  <SelectItem key={p.value} value={p.value}>
+                    {p.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search by token/pair/pool address" 
+                className="pl-10 h-9"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
 
-            <div className="flex flex-wrap gap-4">
-              <Select defaultValue="stellar">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select chain" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="stellar">Stellar Network</SelectItem>
-                </SelectContent>
-              </Select>
+            <Button 
+              variant="secondary" 
+              className="h-9"
+              onClick={() => {
+                setSearchQuery('');
+                setPeriod('24h');
+              }}
+            >
+              Reset
+            </Button>
+          </div>
+        </motion.div>
 
-              <Select defaultValue="24h">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select period" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="24h">24H APR</SelectItem>
-                  <SelectItem value="7d">7D APR</SelectItem>
-                  <SelectItem value="30d">30D APR</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Button variant="secondary">Advanced Filter</Button>
-
-              <div className="flex-1 min-w-[200px]">
-                <Input placeholder="Search by token/pair/pool address" />
-              </div>
-
-              <Button variant="secondary">Reset</Button>
-            </div>
-          </motion.div>
-
-          <div className="overflow-x-auto">
+        {/* Pools Table */}
+        <motion.div 
+          className="rounded-lg border bg-card text-card-foreground shadow"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+        >
+          <div className="relative w-full overflow-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  {[
-                    "Protocol", "Pair/Pool", "24H APR(Est.)", "TVL",
-                    "24h Volume", "24h Fees", "Price Volatil", "Actions"
-                  ].map((header) => (
-                    <TableHead 
-                      key={header} 
-                      className="font-medium cursor-pointer hover:text-primary transition-colors duration-200"
-                    >
-                      <motion.div 
-                        className="flex items-center gap-2"
-                        whileHover={{ x: 2 }}
-                      >
-                        {header}
-                      </motion.div>
-                    </TableHead>
-                  ))}
+                <TableRow className="hover:bg-transparent border-b border-border">
+                  <SortableHeader sortKey="protocol">Protocol</SortableHeader>
+                  <SortableHeader sortKey="market">Pair/Pool</SortableHeader>
+                  <SortableHeader sortKey="apr" align="right">{PERIODS.find(p => p.value === period)?.label || '24H Period'}(Est.)</SortableHeader>
+                  <SortableHeader sortKey="totalValueLocked" align="right">TVL</SortableHeader>
+                  <SortableHeader sortKey="volume" align="right">{period} Volume</SortableHeader>
+                  <SortableHeader sortKey="fees" align="right">{period} Fees</SortableHeader>
+                  <SortableHeader sortKey="riskScore" align="right">Risk Score</SortableHeader>
+                  <TableHead className="h-10 px-4 text-right align-middle font-medium text-muted-foreground">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell className="text-muted-foreground">StellarDEX</TableCell>
-                  <TableCell className="text-foreground font-medium">XLM/USDC</TableCell>
-                  <TableCell className={formatPercentage(1683.67).className}>
-                    {formatPercentage(1683.67).text}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">$94.1K</TableCell>
-                  <TableCell className="text-muted-foreground">$4.7M</TableCell>
-                  <TableCell className="text-muted-foreground">$4.3K</TableCell>
-                  <TableCell className={formatPercentage(2.53).className}>
-                    {formatPercentage(2.53).text}
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="sm">Details</Button>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="text-muted-foreground">StellarSwap</TableCell>
-                  <TableCell className="text-foreground font-medium">BTC/XLM</TableCell>
-                  <TableCell className={formatPercentage(872.45).className}>
-                    {formatPercentage(872.45).text}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">$152.3K</TableCell>
-                  <TableCell className="text-muted-foreground">$2.9M</TableCell>
-                  <TableCell className="text-muted-foreground">$2.1K</TableCell>
-                  <TableCell className={formatPercentage(-1.12).className}>
-                    {formatPercentage(-1.12).text}
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="sm">Details</Button>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="text-muted-foreground">LumenLiquid</TableCell>
-                  <TableCell className="text-foreground font-medium">ETH/USDC</TableCell>
-                  <TableCell className={formatPercentage(534.19).className}>
-                    {formatPercentage(534.19).text}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">$78.6K</TableCell>
-                  <TableCell className="text-muted-foreground">$1.8M</TableCell>
-                  <TableCell className="text-muted-foreground">$1.5K</TableCell>
-                  <TableCell className={formatPercentage(2.87).className}>
-                    {formatPercentage(2.87).text}
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="sm">Details</Button>
-                  </TableCell>
-                </TableRow>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="h-10 px-4 text-center">
+                      Loading pools data...
+                    </TableCell>
+                  </TableRow>
+                ) : error ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="h-10 px-4 text-center text-red-500">
+                      {error}
+                    </TableCell>
+                  </TableRow>
+                ) : paginatedData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="h-10 px-4 text-center text-muted-foreground">
+                      No pools data available
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  paginatedData.map((pool, index) => (
+                    <TableRow 
+                      key={index} 
+                      className="group hover:bg-muted/50 cursor-pointer border-b border-border"
+                    >
+                      <TableCell className="h-10 px-4 align-middle font-medium">
+                        {pool.protocol}
+                      </TableCell>
+                      <TableCell className="h-10 px-4 align-middle font-medium">
+                        {pool.market}
+                      </TableCell>
+                      <TableCell className={`h-10 px-4 align-middle text-right font-medium ${Number(pool.apr.replace('%', '')) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {pool.apr}
+                      </TableCell>
+                      <TableCell className="h-10 px-4 align-middle text-right">
+                        ${Number(pool.totalValueLocked).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      </TableCell>
+                      <TableCell className="h-10 px-4 align-middle text-right">
+                        ${Number(pool.volume).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      </TableCell>
+                      <TableCell className="h-10 px-4 align-middle text-right">
+                        ${Number(pool.fees).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      </TableCell>
+                      <TableCell className="h-10 px-4 align-middle text-right">
+                        <span className={`font-medium ${Number(pool.riskScore) <= 50 ? 'text-green-500' : 'text-red-500'}`}>
+                          {Number(pool.riskScore).toFixed(2)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="h-10 px-4 align-middle text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-3 text-muted-foreground hover:text-foreground"
+                        >
+                          Details
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
+
+            {/* Table Footer with Pagination */}
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Show</span>
+                  <Select
+                    value={entriesPerPage.toString()}
+                    onValueChange={(value) => {
+                      setEntriesPerPage(Number(value));
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-[70px] h-8">
+                      <SelectValue placeholder="10" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span className="text-sm text-muted-foreground">entries</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, sortedAndFilteredData.length)} of {sortedAndFilteredData.length} entries
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => {
+                      return page === 1 || 
+                             page === totalPages || 
+                             Math.abs(page - currentPage) <= 1;
+                    })
+                    .map((page, index, array) => (
+                      <React.Fragment key={page}>
+                        {index > 0 && array[index - 1] !== page - 1 && (
+                          <span className="px-2 text-muted-foreground">...</span>
+                        )}
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => setCurrentPage(page)}
+                        >
+                          {page}
+                        </Button>
+                      </React.Fragment>
+                    ))}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
-        </Card>
-      </motion.div>
-    </PageLayout>
-  )
+        </motion.div>
+      </div>
+    </section>
+  );
 }
 
