@@ -249,12 +249,16 @@ export default function PoolsPage() {
     }
   };
 
+  // Helper function to get display name for protocol
+  const getProtocolDisplay = (protocol: string) => {
+    return protocol.toLowerCase() === 'aqua' ? 'Aquarius' : protocol;
+  };
+
   const handleViewDetails = (pool: PoolRiskApiResponseObject) => {
     // Format market pair for URL (replace '/' with '-')
     const urlSafePair = pool.market.replace(/\//g, '-');
-    const urlSafeProtocol = pool.protocol.toLowerCase();
-    // Navigate to the protocol/pair page with current period parameter
-    router.push(`/pools/${urlSafeProtocol}/${urlSafePair}?period=${period}`);
+    // Include protocol in the URL to differentiate between same pairs
+    router.push(`/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`);
   };
 
   // Column header component
@@ -428,15 +432,15 @@ export default function PoolsPage() {
           <div className="relative w-full overflow-auto">
             <Table>
               <TableHeader>
-                <TableRow className="hover:bg-transparent border-b border-border">
-                  <SortableHeader sortKey="protocol">Protocol</SortableHeader>
-                  <SortableHeader sortKey="market">Pair/Pool</SortableHeader>
-                  <SortableHeader sortKey="apr" align="right">{PERIODS.find(p => p.value === period)?.label || '24H Period'}(Est.)</SortableHeader>
-                  <SortableHeader sortKey="totalValueLocked" align="right">TVL</SortableHeader>
-                  <SortableHeader sortKey="volume" align="right">{period} Volume</SortableHeader>
-                  <SortableHeader sortKey="fees" align="right">{period} Fees</SortableHeader>
-                  <SortableHeader sortKey="riskScore" align="right">Risk Score</SortableHeader>
-                  <TableHead className="h-10 px-4 text-right align-middle font-medium text-muted-foreground">Actions</TableHead>
+                <TableRow>
+                  <TableHead>Protocol</TableHead>
+                  <TableHead>Pair/Pool</TableHead>
+                  <TableHead>Est. {PERIODS.find(p => p.value === period)?.label || '24H Period'} APR</TableHead>
+                  <TableHead>TVL</TableHead>
+                  <TableHead>{period} Volume</TableHead>
+                  <TableHead>{period} Fees</TableHead>
+                  <TableHead>Risk Score</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -465,7 +469,7 @@ export default function PoolsPage() {
                       className="group hover:bg-muted/50 cursor-pointer border-b border-border"
                       onClick={() => handleViewDetails(pool)}
                     >
-                      <TableCell className="h-10 px-4 align-middle font-medium">
+                      <TableCell className="h-10 px-4 align-middle">
                         <Badge 
                           variant="outline" 
                           className={cn(
@@ -476,7 +480,7 @@ export default function PoolsPage() {
                             pool.protocol === "aqua" && "bg-pink-500/10 text-pink-500 border-pink-500/20"
                           )}
                         >
-                          {pool.protocol === "aqua" ? "Aquarius" : pool.protocol}
+                          {getProtocolDisplay(pool.protocol)}
                         </Badge>
                       </TableCell>
                       <TableCell className="h-10 px-4 align-middle font-medium">
@@ -509,7 +513,8 @@ export default function PoolsPage() {
                             handleViewDetails(pool);
                           }}
                         >
-                          Details
+                          View Details
+                          <ChevronRight className="ml-2 h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>

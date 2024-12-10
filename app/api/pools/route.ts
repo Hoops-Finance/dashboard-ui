@@ -20,11 +20,12 @@ export async function GET(request: Request) {
     // Construct the API URL with filters
     const url = new URL(apiUrl);
     url.searchParams.append('period', period);
+    
     if (market) {
       url.searchParams.append('market', market);
     }
     if (protocol) {
-      url.searchParams.append('protocol', protocol);
+      url.searchParams.append('protocol', protocol.toLowerCase());
     }
 
     const response = await fetch(url.toString(), {
@@ -49,6 +50,13 @@ export async function GET(request: Request) {
         pool.market.toLowerCase() === market.toLowerCase() &&
         pool.protocol.toLowerCase() === protocol.toLowerCase()
       ) : [];
+      
+      if (filteredData.length === 0) {
+        return NextResponse.json(
+          { error: 'Pool not found' },
+          { status: 404 }
+        );
+      }
       
       return NextResponse.json(filteredData);
     }
