@@ -11,7 +11,7 @@ import { notFound } from "next/navigation";
 import { Fragment } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, ChevronRight } from "lucide-react";
+import { Search, ChevronRight, ChevronLeft } from "lucide-react";
 import { TabNavigation } from "./tab-navigation";
 
 const DEBUG_MODE = false;
@@ -239,37 +239,37 @@ export default async function ProtocolPage({
   const paginatedPools = protocolPools.slice(startIndex, endIndex);
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <main className="container mx-auto p-4 space-y-8">
       {/* Breadcrumbs */}
-      <nav className="flex items-center space-x-1 text-sm text-muted-foreground">
-        <Link href="/" className="flex items-center hover:text-foreground">
+      <nav aria-label="Breadcrumb" className="flex items-center space-x-1 text-sm text-muted-foreground">
+        <Link href="/" className="flex items-center hover:text-foreground" aria-label="Home">
           <HomeIcon className="h-4 w-4" />
         </Link>
-        <ChevronRightIcon className="h-4 w-4" />
+        <ChevronRightIcon className="h-4 w-4" aria-hidden="true" />
         <Link href="/pools" className="hover:text-foreground">
           Pools
         </Link>
-        <ChevronRightIcon className="h-4 w-4" />
-        <span className="text-foreground font-medium">
+        <ChevronRightIcon className="h-4 w-4" aria-hidden="true" />
+        <span className="text-foreground font-medium" aria-current="page">
           {protocolInfo.name}
         </span>
       </nav>
 
       {error && (
-        <Alert variant="destructive">
-          <ExclamationCircleIcon className="h-4 w-4" />
+        <Alert variant="destructive" role="alert">
+          <ExclamationCircleIcon className="h-4 w-4" aria-hidden="true" />
           <AlertDescription>
             {error}
           </AlertDescription>
         </Alert>
       )}
 
-      <div className="grid gap-6">
+      <div className="grid gap-8">
         {/* Protocol Info Card */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 flex items-center justify-center">
+              <div className="w-12 h-12 flex items-center justify-center" aria-hidden="true">
                 <ProtocolLogo 
                   logo={protocolInfo.logo} 
                   name={protocolInfo.name} 
@@ -277,30 +277,10 @@ export default async function ProtocolPage({
               </div>
               <div>
                 <CardTitle>{protocolInfo.name}</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
                   {protocolInfo.description}
                 </p>
               </div>
-            </div>
-            <div className="flex gap-2">
-              {protocolInfo.links.map((link) => (
-                <Button
-                  key={link.url}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2"
-                  asChild
-                >
-                  <a 
-                    href={link.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                  >
-                    {link.name}
-                    <ArrowTopRightOnSquareIcon className="h-4 w-4" />
-                  </a>
-                </Button>
-              ))}
             </div>
           </CardHeader>
         </Card>
@@ -367,198 +347,219 @@ export default async function ProtocolPage({
           </Card>
         </div>
 
-        {/* Pools Table */}
-        <Card>
-          <CardHeader className="space-y-4">
-            {/* Navigation Tabs */}
-            <div>
-              <div className="flex h-10 items-center space-x-4 text-muted-foreground">
-                <TabNavigation />
-              </div>
+        {/* Pools Table Section */}
+        <section aria-label="Pools data" className="space-y-4">
+          {/* Navigation Tabs */}
+          <div>
+            <div className="flex h-10 items-center space-x-4 text-muted-foreground">
+              <TabNavigation />
+            </div>
+          </div>
+
+          {/* Search Controls */}
+          <div className="flex items-center gap-4">
+            <Select
+              name="period"
+              defaultValue={period}
+              aria-label="Select time period"
+            >
+              <SelectTrigger className="w-[180px] h-9">
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                {PERIODS.map(period => (
+                  <SelectItem key={period.value} value={period.value}>
+                    {period.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              <Input
+                type="search"
+                name="search"
+                placeholder="Search by token/pair/pool address"
+                className="pl-10 h-9"
+                aria-label="Search pools"
+              />
             </div>
 
-            {/* Search Controls */}
-            <div className="flex items-center gap-4 mt-4">
-              <Select
-                name="period"
-                defaultValue={period}
-              >
-                <SelectTrigger className="w-[180px] h-9">
-                  <SelectValue placeholder="Select period" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PERIODS.map(period => (
-                    <SelectItem key={period.value} value={period.value}>
-                      {period.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <Button 
+              variant="secondary" 
+              className="h-9"
+              aria-label="Reset filters"
+            >
+              Reset
+            </Button>
+          </div>
 
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  name="search"
-                  placeholder="Search by token/pair/pool address"
-                  className="pl-10 h-9"
-                />
-              </div>
-
-              <Button 
-                variant="secondary" 
-                className="h-9"
-              >
-                Reset
-              </Button>
-            </div>
-
-            {/* Pools Table */}
-            <div className="rounded-lg border bg-card text-card-foreground shadow">
-              <div className="relative w-full overflow-auto">
-                <Table>
-                  <TableHeader>
+          {/* Pools Table */}
+          <div className="rounded-lg border bg-card text-card-foreground shadow">
+            <div className="relative w-full overflow-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground">Pair</TableHead>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">APR ({formatPeriodDisplay(period)})</TableHead>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">TVL</TableHead>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Volume ({formatPeriodDisplay(period)})</TableHead>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Fees ({formatPeriodDisplay(period)})</TableHead>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Risk Score</TableHead>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedPools.length === 0 ? (
                     <TableRow>
-                      <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground">Pair</TableHead>
-                      <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">APR ({formatPeriodDisplay(period)})</TableHead>
-                      <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">TVL</TableHead>
-                      <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Volume ({formatPeriodDisplay(period)})</TableHead>
-                      <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Fees ({formatPeriodDisplay(period)})</TableHead>
-                      <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Risk Score</TableHead>
-                      <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Actions</TableHead>
+                      <TableCell 
+                        colSpan={7} 
+                        className="h-10 px-4 text-center text-muted-foreground"
+                      >
+                        No pools found for {protocolInfo.name}
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedPools.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={7} className="h-10 px-4 text-center text-muted-foreground">
-                          No pools found for {protocolInfo.name}
+                  ) : (
+                    paginatedPools.map((pool: Pool) => (
+                      <TableRow 
+                        key={pool.pairId} 
+                        className="group hover:bg-muted/50 cursor-pointer border-b border-border"
+                      >
+                        <TableCell className="h-10 px-4 align-middle font-medium">
+                          {pool.market}
+                        </TableCell>
+                        <TableCell className="h-10 px-4 align-middle text-right">
+                          {pool.apr}
+                        </TableCell>
+                        <TableCell className="h-10 px-4 align-middle text-right">
+                          {formatDollarAmount(parseFloat(pool.totalValueLocked))}
+                        </TableCell>
+                        <TableCell className="h-10 px-4 align-middle text-right">
+                          {formatDollarAmount(parseFloat(pool.volume))}
+                        </TableCell>
+                        <TableCell className="h-10 px-4 align-middle text-right">
+                          {formatDollarAmount(parseFloat(pool.fees))}
+                        </TableCell>
+                        <TableCell className="h-10 px-4 align-middle text-right">
+                          <span className={`font-medium ${parseFloat(pool.riskScore) <= 50 ? 'text-green-500' : 'text-red-500'}`}>
+                            {pool.riskScore}
+                          </span>
+                        </TableCell>
+                        <TableCell className="h-10 px-4 align-middle text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-3 text-muted-foreground hover:text-foreground"
+                            asChild
+                          >
+                            <Link 
+                              href={`/pools/${protocol}/${pool.pairId}`}
+                              aria-label={`View details for ${pool.market} pool`}
+                            >
+                              View Details
+                              <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                            </Link>
+                          </Button>
                         </TableCell>
                       </TableRow>
-                    ) : (
-                      paginatedPools.map((pool: Pool) => (
-                        <TableRow key={pool.pairId} className="group hover:bg-muted/50 cursor-pointer border-b border-border">
-                          <TableCell className="h-10 px-4 align-middle font-medium">
-                            {pool.market}
-                          </TableCell>
-                          <TableCell className="h-10 px-4 align-middle text-right">
-                            {pool.apr}
-                          </TableCell>
-                          <TableCell className="h-10 px-4 align-middle text-right">
-                            {formatDollarAmount(parseFloat(pool.totalValueLocked))}
-                          </TableCell>
-                          <TableCell className="h-10 px-4 align-middle text-right">
-                            {formatDollarAmount(parseFloat(pool.volume))}
-                          </TableCell>
-                          <TableCell className="h-10 px-4 align-middle text-right">
-                            {formatDollarAmount(parseFloat(pool.fees))}
-                          </TableCell>
-                          <TableCell className="h-10 px-4 align-middle text-right">
-                            <span className={`font-medium ${parseFloat(pool.riskScore) <= 50 ? 'text-green-500' : 'text-red-500'}`}>
-                              {pool.riskScore}
-                            </span>
-                          </TableCell>
-                          <TableCell className="h-10 px-4 align-middle text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 px-3 text-muted-foreground hover:text-foreground"
-                              asChild
-                            >
-                              <Link href={`/pools/${protocol}/${pool.pairId}`}>
-                                View Details
-                                <ChevronRight className="ml-2 h-4 w-4" />
-                              </Link>
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-sm">
-                <form className="flex items-center space-x-2">
-                  <input type="hidden" name="period" value={period} />
-                  <p className="text-sm text-muted-foreground">Show</p>
-                  <Select name="limit" defaultValue={entriesPerPage.toString()}>
-                    <SelectTrigger className="h-8 w-[70px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ENTRIES_PER_PAGE_OPTIONS.map(value => (
-                        <SelectItem key={value} value={value.toString()}>
-                          {value}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button type="submit" variant="ghost" size="sm">
-                    entries
-                  </Button>
-                </form>
-                <p className="text-sm text-muted-foreground pl-4">
-                  Showing {startIndex + 1} to {endIndex} of {protocolPools.length} entries
-                </p>
-              </div>
-
-              {totalPages > 1 && (
-                <div className="flex items-center space-x-2">
-                  <form className="flex items-center space-x-2">
-                    <input type="hidden" name="period" value={period} />
-                    <input type="hidden" name="limit" value={entriesPerPage.toString()} />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      name="page"
-                      value={(currentPage - 1).toString()}
-                      disabled={currentPage === 1}
-                      type="submit"
+              {/* Pagination */}
+              <div className="flex items-center justify-between px-4 py-4 border-t border-border">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Show</span>
+                    <Select
+                      name="limit"
+                      defaultValue={entriesPerPage.toString()}
+                      aria-label="Number of entries per page"
                     >
-                      Previous
-                    </Button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter(page => {
-                        return page === 1 || 
-                               page === totalPages || 
-                               Math.abs(page - currentPage) <= 1;
-                      })
-                      .map((page, index, array) => (
-                        <Fragment key={page}>
-                          {index > 0 && array[index - 1] !== page - 1 && (
-                            <span className="text-sm text-muted-foreground px-2">...</span>
-                          )}
-                          <Button
-                            variant={currentPage === page ? "default" : "outline"}
-                            size="sm"
-                            name="page"
-                            value={page.toString()}
-                            type="submit"
-                          >
-                            {page}
-                          </Button>
-                        </Fragment>
-                      ))}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      name="page"
-                      value={(currentPage + 1).toString()}
-                      disabled={currentPage === totalPages}
-                      type="submit"
-                    >
-                      Next
-                    </Button>
-                  </form>
+                      <SelectTrigger className="w-[70px] h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ENTRIES_PER_PAGE_OPTIONS.map(value => (
+                          <SelectItem key={value} value={value.toString()}>
+                            {value}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <span className="text-sm text-muted-foreground">entries</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Showing {startIndex + 1} to {endIndex} of {protocolPools.length} entries
+                  </p>
                 </div>
-              )}
+
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-2">
+                    <form className="flex items-center gap-2">
+                      <input type="hidden" name="period" value={period} />
+                      <input type="hidden" name="limit" value={entriesPerPage.toString()} />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        name="page"
+                        value={(currentPage - 1).toString()}
+                        disabled={currentPage === 1}
+                        type="submit"
+                        className="h-8"
+                        aria-label="Previous page"
+                      >
+                        <ChevronLeft className="h-4 w-4 mr-2" aria-hidden="true" />
+                        Previous
+                      </Button>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .filter(page => {
+                          return page === 1 || 
+                                 page === totalPages || 
+                                 Math.abs(page - currentPage) <= 1;
+                        })
+                        .map((page, index, array) => (
+                          <Fragment key={page}>
+                            {index > 0 && array[index - 1] !== page - 1 && (
+                              <span className="text-sm text-muted-foreground px-2" aria-hidden="true">...</span>
+                            )}
+                            <Button
+                              variant={currentPage === page ? "default" : "outline"}
+                              size="sm"
+                              name="page"
+                              value={page.toString()}
+                              type="submit"
+                              className="h-8 w-8 p-0"
+                              aria-label={`Page ${page}`}
+                              aria-current={currentPage === page ? "page" : undefined}
+                            >
+                              {page}
+                            </Button>
+                          </Fragment>
+                        ))}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        name="page"
+                        value={(currentPage + 1).toString()}
+                        disabled={currentPage === totalPages}
+                        type="submit"
+                        className="h-8"
+                        aria-label="Next page"
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4 ml-2" aria-hidden="true" />
+                      </Button>
+                    </form>
+                  </div>
+                )}
+              </div>
             </div>
-          </CardHeader>
-        </Card>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
