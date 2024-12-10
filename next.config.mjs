@@ -15,7 +15,9 @@ const nextConfig = withPlausibleProxy({
     API_URL: process.env.API_URL,
     API_KEY: process.env.API_KEY,
     LITLX_ID: process.env.LITLX_ID,
-    SX_API_KEY: process.env.SX_API_KEY
+    SX_API_KEY: process.env.SX_API_KEY,
+    AUTH_API_URL: process.env.AUTH_API_URL,
+    AUTH_API_KEY: process.env.AUTH_API_KEY
   }
 });
 

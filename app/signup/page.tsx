@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { SunIcon, MoonIcon } from '@heroicons/react/24/outline'
 import { Checkbox } from "@/components/ui/checkbox"
 import { useTheme } from "@/components/ThemeContext"
+import { useSession } from "next-auth/react";
 
 export default function Component() {
   const router = useRouter()
@@ -14,10 +15,20 @@ export default function Component() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [agreed, setAgreed] = useState(false)
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const passwordLength: number = 6
+  const { data: session } = useSession();
 
   useEffect(() => {
     setIsLogin(searchParams.get('mode') === 'login')
+    if (session?.user?.accessToken) {
+      // Redirect to `/profile` if no access token or no session
+      router.push("/profile");
+    }
+
   }, [searchParams])
+
 
   const toggleMode = () => {
     const newMode = !isLogin
@@ -25,13 +36,53 @@ export default function Component() {
     router.push(newPath)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (isLogin) {
-      console.log('Login:', { email, password })
-    } else {
-      console.log('Signup:', { email, password, agreed })
+
+    if(isLogin){
+      try {
+        const res = await fetch(`/api/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({username: email, password: password, type: "credentials" }),
+        });
+
+        if (res.ok) {
+          window.location.href = '/profile';
+        } else {
+          setError("Invalid credentials");
+        }
+      } catch (error) {
+        setError("Internal server error");
+      }
+
+    }else{
+      if (password.length < passwordLength) {
+        setError("Passwords minimum length is 6 characters");
+        return;
+      }
+
+      const res = await fetch(
+        "/auth/signup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ username: email, password: password }),
+        },
+      )
+      if (res.ok) {
+        setError("");
+        setSuccess("Registration successful, please login");
+      } else {
+        setError(`Error: ${res.message}`);
+        throw new Error(`${res.message}`);
+      }
     }
+
   }
 
   return (
@@ -73,6 +124,9 @@ export default function Component() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          {success && <p style={{ color: "green" }}>{success}</p>}
 
           <button
             type="submit"
