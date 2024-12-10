@@ -273,25 +273,37 @@ export default function PoolPage({ params, searchParams }: PageProps) {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-background">
-      <div className="container max-w-7xl mx-auto px-4 py-6">
+    <div className="h-[calc(100vh-72px)] bg-background flex flex-col">
+      <div className="container max-w-7xl mx-auto px-4 flex-1 flex flex-col">
         {/* Header Section */}
-        <div className="sticky top-[4.5rem] z-20 bg-background/80 backdrop-blur-sm pb-4 border-b border-border">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4">
-              <Badge 
-                variant="outline" 
-                className={cn(
-                  "capitalize px-3 py-1",
-                  params.protocol === "soroswap" && "bg-purple-500/10 text-purple-500 border-purple-500/20",
-                  params.protocol === "blend" && "bg-green-500/10 text-green-500 border-green-500/20",
-                  params.protocol === "phoenix" && "bg-orange-500/10 text-orange-500 border-orange-500/20",
-                  params.protocol === "aqua" && "bg-pink-500/10 text-pink-500 border-pink-500/20"
-                )}
+        <div className="h-14 flex items-center border-b border-border">
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="gap-2 -ml-2 text-muted-foreground hover:text-foreground"
+                onClick={() => router.push('/pools')}
               >
-                {getProtocolDisplay(params.protocol)}
-              </Badge>
-              <h1 className="text-2xl font-bold tracking-tight">{poolData.market}</h1>
+                <ChevronRight className="h-4 w-4 rotate-180" />
+                Back to Pools
+              </Button>
+              <div className="h-4 w-[1px] bg-border" />
+              <div className="flex items-center gap-3">
+                <Badge 
+                  variant="outline" 
+                  className={cn(
+                    "capitalize px-3 py-1",
+                    params.protocol === "soroswap" && "bg-purple-500/10 text-purple-500 border-purple-500/20",
+                    params.protocol === "blend" && "bg-green-500/10 text-green-500 border-green-500/20",
+                    params.protocol === "phoenix" && "bg-orange-500/10 text-orange-500 border-orange-500/20",
+                    params.protocol === "aqua" && "bg-pink-500/10 text-pink-500 border-pink-500/20"
+                  )}
+                >
+                  {getProtocolDisplay(params.protocol)}
+                </Badge>
+                <h1 className="text-xl font-bold tracking-tight">{poolData.market}</h1>
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <Button variant="outline" size="sm" className="gap-2">
@@ -307,60 +319,50 @@ export default function PoolPage({ params, searchParams }: PageProps) {
         </div>
 
         {/* Main Content */}
-        <div className="mt-6 space-y-8">
-          {/* Chart Section */}
-          <div className="relative isolate">
-            <Card className="border-none shadow-md overflow-hidden">
-              <CardHeader className="pb-2 bg-muted/50 border-b border-border">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <LineChart className="h-5 w-5 text-primary" aria-hidden="true" />
-                    Volume Chart
-                  </CardTitle>
-                  <Select value={period} onValueChange={handlePeriodChange}>
-                    <SelectTrigger className="w-[100px]" aria-label="Select time period">
-                      <SelectValue placeholder="Select period" />
-                    </SelectTrigger>
-                    <SelectContent align="end">
-                      {PERIOD_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div 
-                  className="w-full h-[400px] relative bg-background pointer-events-auto" 
-                  ref={chartContainerRef}
-                >
-                  {chartError ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <AlertCircle className="h-5 w-5" />
-                        <p>{chartError}</p>
+        <div className="flex-1 flex flex-col min-h-0 py-4">
+          <div className="grid grid-rows-[auto_1fr] gap-4 h-full">
+            {/* Chart Section */}
+            <div className="h-[400px]">
+              <Card className="border-none shadow-md h-full">
+                <CardHeader className="pb-2 bg-muted/50 border-b border-border">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <LineChart className="h-5 w-5 text-primary" aria-hidden="true" />
+                      Volume Chart
+                    </CardTitle>
+                    <Select value={period} onValueChange={handlePeriodChange}>
+                      <SelectTrigger className="w-[100px]" aria-label="Select time period">
+                        <SelectValue placeholder="Select period" />
+                      </SelectTrigger>
+                      <SelectContent align="end">
+                        {PERIOD_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0 h-[calc(100%-57px)]">
+                  <div className="w-full h-full relative" ref={chartContainerRef}>
+                    {chartError ? (
+                      <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <AlertCircle className="h-5 w-5" />
+                          <p>{chartError}</p>
+                        </div>
                       </div>
-                    </div>
-                  ) : null}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-border" />
+                    ) : null}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </div>
 
-          {/* Tabs Section */}
-          <div className="relative">
-            <Tabs defaultValue="overview" className="space-y-6">
-              <div className="sticky top-[8rem] z-10 bg-background/80 backdrop-blur-sm pb-4">
-                <TabsList className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground">
+            {/* Tabs Section */}
+            <div className="min-h-0 flex flex-col">
+              <Tabs defaultValue="overview" className="flex-1 flex flex-col">
+                <TabsList className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground mb-4">
                   <TabsTrigger value="overview" className="rounded-md px-3 py-1.5 text-sm font-medium">
                     Overview
                   </TabsTrigger>
@@ -371,162 +373,161 @@ export default function PoolPage({ params, searchParams }: PageProps) {
                     Contract
                   </TabsTrigger>
                 </TabsList>
-              </div>
 
-              {/* Tab Content */}
-              <div className="space-y-6">
-                <TabsContent value="overview" className="mt-0 space-y-4">
-                  <Card className="border-none shadow-md">
-                    <CardHeader className="pb-2 bg-muted/50 border-b border-border">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <BarChart3 className="h-5 w-5 text-primary" aria-hidden="true" />
-                          Pool Overview
-                        </CardTitle>
-                        <Select value={period} onValueChange={handlePeriodChange}>
-                          <SelectTrigger className="w-[100px]" aria-label="Select time period">
-                            <SelectValue placeholder="Select period" />
-                          </SelectTrigger>
-                          <SelectContent align="end">
-                            {PERIOD_OPTIONS.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <div className="grid gap-6">
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <StatCard
-                            title="24h Volume"
-                            value={`$${Number(poolData.volume).toLocaleString()}`}
-                            tooltip="Total trading volume in the last 24 hours"
-                            icon={<BarChart3 className="h-4 w-4 text-primary" />}
-                          />
-                          <StatCard
-                            title="Total Value Locked"
-                            value={`$${Number(poolData.totalValueLocked).toLocaleString()}`}
-                            tooltip="Total value of assets locked in the pool"
-                            icon={<Lock className="h-4 w-4 text-primary" />}
-                          />
+                <div className="flex-1 overflow-auto">
+                  <TabsContent value="overview" className="mt-0">
+                    <Card className="border-none shadow-md">
+                      <CardHeader className="pb-2 bg-muted/50 border-b border-border">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <BarChart3 className="h-5 w-5 text-primary" aria-hidden="true" />
+                            Pool Overview
+                          </CardTitle>
+                          <Select value={period} onValueChange={handlePeriodChange}>
+                            <SelectTrigger className="w-[100px]" aria-label="Select time period">
+                              <SelectValue placeholder="Select period" />
+                            </SelectTrigger>
+                            <SelectContent align="end">
+                              {PERIOD_OPTIONS.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <StatCard
-                            title="Total Fees"
-                            value={`$${Number(poolData.fees).toLocaleString()}`}
-                            tooltip="Total fees earned by liquidity providers"
-                            icon={<Settings className="h-4 w-4 text-primary" />}
-                          />
-                          <StatCard
-                            title="Current APR"
-                            value={poolData.apr}
-                            tooltip="Estimated annual percentage rate"
-                            icon={<LineChart className="h-4 w-4 text-primary" />}
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="risk" className="mt-0 space-y-4">
-                  <Card className="border-none shadow-md">
-                    <CardHeader className="pb-2 bg-muted/50 border-b border-border">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
-                        Risk Analysis
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <div className="space-y-6">
-                        <div className="flex items-center justify-center p-8 bg-muted rounded-lg">
-                          <div className="text-center space-y-4">
-                            <Badge 
-                              variant={Number(poolData.riskScore) <= 50 ? "default" : "destructive"}
-                              className="px-6 py-3 text-xl font-semibold"
-                            >
-                              {Number(poolData.riskScore).toFixed(2)}
-                            </Badge>
-                            <p className="text-sm text-muted-foreground">
-                              {Number(poolData.riskScore) <= 50 ? "Low Risk Pool" : "High Risk Pool"}
-                            </p>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                        <div className="grid gap-6">
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <StatCard
+                              title="24h Volume"
+                              value={`$${Number(poolData.volume).toLocaleString()}`}
+                              tooltip="Total trading volume in the last 24 hours"
+                              icon={<BarChart3 className="h-4 w-4 text-primary" />}
+                            />
+                            <StatCard
+                              title="Total Value Locked"
+                              value={`$${Number(poolData.totalValueLocked).toLocaleString()}`}
+                              tooltip="Total value of assets locked in the pool"
+                              icon={<Lock className="h-4 w-4 text-primary" />}
+                            />
+                          </div>
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <StatCard
+                              title="Total Fees"
+                              value={`$${Number(poolData.fees).toLocaleString()}`}
+                              tooltip="Total fees earned by liquidity providers"
+                              icon={<Settings className="h-4 w-4 text-primary" />}
+                            />
+                            <StatCard
+                              title="Current APR"
+                              value={poolData.apr}
+                              tooltip="Estimated annual percentage rate"
+                              icon={<LineChart className="h-4 w-4 text-primary" />}
+                            />
                           </div>
                         </div>
-                        <div className="grid gap-4">
-                          <StatCard
-                            title="Volatility"
-                            value={`${(Number(poolData.volume) / Number(poolData.totalValueLocked) * 100).toFixed(2)}%`}
-                            tooltip="Price volatility indicator"
-                            icon={<LineChart className="h-4 w-4 text-primary" />}
-                          />
-                          <StatCard
-                            title="Liquidity Depth"
-                            value={`$${Number(poolData.totalValueLocked).toLocaleString()}`}
-                            tooltip="Measure of pool liquidity"
-                            icon={<Lock className="h-4 w-4 text-primary" />}
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-                <TabsContent value="contract" className="mt-0 space-y-4">
-                  <Card className="border-none shadow-md">
-                    <CardHeader className="pb-2 bg-muted/50 border-b border-border">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <FileCode className="h-5 w-5 text-primary" aria-hidden="true" />
-                        Contract Information
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <div className="space-y-6">
-                        <div className="flex items-center gap-2 bg-muted p-4 rounded-lg">
-                          <code className="text-sm flex-1 break-all font-mono">
-                            {poolData.market}
-                          </code>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => navigator.clipboard.writeText(poolData.market)}
-                          >
-                            <Copy className="h-4 w-4" />
-                            <span className="sr-only">Copy contract address</span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => window.open(`https://stellar.expert/explorer/public/contract/${poolData.market}`, '_blank')}
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                            <span className="sr-only">View on Explorer</span>
-                          </Button>
+                  <TabsContent value="risk" className="mt-0 space-y-4">
+                    <Card className="border-none shadow-md">
+                      <CardHeader className="pb-2 bg-muted/50 border-b border-border">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
+                          Risk Analysis
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                        <div className="space-y-6">
+                          <div className="flex items-center justify-center p-8 bg-muted rounded-lg">
+                            <div className="text-center space-y-4">
+                              <Badge 
+                                variant={Number(poolData.riskScore) <= 50 ? "default" : "destructive"}
+                                className="px-6 py-3 text-xl font-semibold"
+                              >
+                                {Number(poolData.riskScore).toFixed(2)}
+                              </Badge>
+                              <p className="text-sm text-muted-foreground">
+                                {Number(poolData.riskScore) <= 50 ? "Low Risk Pool" : "High Risk Pool"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="grid gap-4">
+                            <StatCard
+                              title="Volatility"
+                              value={`${(Number(poolData.volume) / Number(poolData.totalValueLocked) * 100).toFixed(2)}%`}
+                              tooltip="Price volatility indicator"
+                              icon={<LineChart className="h-4 w-4 text-primary" />}
+                            />
+                            <StatCard
+                              title="Liquidity Depth"
+                              value={`$${Number(poolData.totalValueLocked).toLocaleString()}`}
+                              tooltip="Measure of pool liquidity"
+                              icon={<Lock className="h-4 w-4 text-primary" />}
+                            />
+                          </div>
                         </div>
-                        <div className="grid gap-4">
-                          <StatCard
-                            title="Protocol Version"
-                            value={`${getProtocolDisplay(params.protocol)} V1`}
-                            tooltip="Current protocol version"
-                            icon={<Tag className="h-4 w-4 text-primary" />}
-                          />
-                          <StatCard
-                            title="Fee Model"
-                            value="Static"
-                            tooltip="Type of fee model used"
-                            icon={<Settings className="h-4 w-4 text-primary" />}
-                          />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="contract" className="mt-0 space-y-4">
+                    <Card className="border-none shadow-md">
+                      <CardHeader className="pb-2 bg-muted/50 border-b border-border">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileCode className="h-5 w-5 text-primary" aria-hidden="true" />
+                          Contract Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                        <div className="space-y-6">
+                          <div className="flex items-center gap-2 bg-muted p-4 rounded-lg">
+                            <code className="text-sm flex-1 break-all font-mono">
+                              {poolData.market}
+                            </code>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => navigator.clipboard.writeText(poolData.market)}
+                            >
+                              <Copy className="h-4 w-4" />
+                              <span className="sr-only">Copy contract address</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => window.open(`https://stellar.expert/explorer/public/contract/${poolData.market}`, '_blank')}
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              <span className="sr-only">View on Explorer</span>
+                            </Button>
+                          </div>
+                          <div className="grid gap-4">
+                            <StatCard
+                              title="Protocol Version"
+                              value={`${getProtocolDisplay(params.protocol)} V1`}
+                              tooltip="Current protocol version"
+                              icon={<Tag className="h-4 w-4 text-primary" />}
+                            />
+                            <StatCard
+                              title="Fee Model"
+                              value="Static"
+                              tooltip="Type of fee model used"
+                              icon={<Settings className="h-4 w-4 text-primary" />}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </div>
-            </Tabs>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </div>
+              </Tabs>
+            </div>
           </div>
         </div>
       </div>
