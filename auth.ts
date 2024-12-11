@@ -55,6 +55,9 @@ const authOptions = {
       name: "Custom Social Login",
       authorize: async (credentials) => {
         try {
+          const callbackUrl = (credentials.callbackUrl || "").toString();
+          const segments = new URL(callbackUrl).pathname.split('/');
+          const provider = segments.pop() || segments.pop();
 
           const oauth_link_request = await fetch(`${process.env.AUTH_API_URL}/auth/oauth/login`, {
             method: "POST",
@@ -62,7 +65,7 @@ const authOptions = {
               "Content-Type": "application/json",
               "x-api-key": `${process.env.AUTH_API_KEY}`,
             },
-            body: JSON.stringify({ provider: 'discord', code: credentials.authCode })
+            body: JSON.stringify({ provider: provider, code: credentials.authCode })
           });
 
           const user = await oauth_link_request.json();

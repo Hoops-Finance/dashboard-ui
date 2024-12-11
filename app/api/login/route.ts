@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
          ? await signIn("credentials", { redirect: false, username, password })
          : await signIn("social", { redirect: false, authCode: username });
 
-
     // handle the result of the sign-in attempt
     if (!result || result.error) {
       return NextResponse.json({ error: "Invalid credentials" });

@@ -85,7 +85,7 @@ export default function Component() {
 
   }
   const loginWithGoogle = async () => {
-    //TODO Google oauth login
+    router.push(process.env.GOOGLE_OAUTH_FLOW_URL || "");
   }
 
   const loginWithDiscord = async () => {

@@ -3,13 +3,26 @@
 // library imports
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 export default function SocialAuth() {
-  const socialLogin = process.env.DISCORD_OAUTH_FLOW_URL || "";
+  const searchParams = useSearchParams();
+  const currentUrl = usePathname();
+  const segments = currentUrl.split("/");
+  const provider = segments.pop() || segments.pop();
+
+  let socialLogin = process.env.GOOGLE_OAUTH_FLOW_URL || "";
+
+  switch (provider) {
+    case "google":
+      socialLogin = process.env.GOOGLE_OAUTH_FLOW_URL || "";
+      break;
+    case "discord":
+      socialLogin = process.env.DISCORD_OAUTH_FLOW_URL || "";
+      break;
+  }
 
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [authSuccess, setAuthSuccess] = useState(true);
   const [tokenStatus, setTokenStatus] = useState(false);
@@ -17,11 +30,11 @@ export default function SocialAuth() {
   useEffect(() => {
     // check query string for authentication code
     if (authSuccess || tokenStatus) {
-      const url = window.location.href;
-      const code = url.match(/\?code=(.*)/);
+      const code = searchParams.get("code");
       if (!tokenStatus && authSuccess) {
         if (code) {
-          authenticateUser(code[1]);
+          const decodeCode = decodeURIComponent(code);
+          authenticateUser(decodeCode);
         } else {
           router.push("/auth/login");
         }
@@ -40,46 +53,45 @@ export default function SocialAuth() {
       const res = await fetch("/api/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ username: code, type: "social" }),
+        body: JSON.stringify({ username: code, type: "social" })
       });
 
       if (res.ok) {
         setTokenStatus(true);
-        window.location.href = '/profile';
+        window.location.href = "/profile";
       } else {
         // handle error state here
         setAuthSuccess(false);
       }
     } catch (error) {
-      // handle error state here
       setAuthSuccess(false);
     }
   };
 
   return (
     <>
-      <div>
-        {authSuccess ? (
-          <div>
-            <h1>Authenticating...</h1>
-          </div>
-        ) : (
-          <div>
-            <h1>
-              {" "}
-              An error occurred while attempting to authenticate your account
-              with Google or Discord{" "}
-            </h1>
-
-            <div>
+      <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
+        <div className="grid gap-6">
+          <div className="rounded-xl border bg-card text-card-foreground shadow">
+            {authSuccess ? (
               <div>
-                <Link href={socialLogin}>Please try again</Link>
+                <h1>Authenticating...</h1>
               </div>
-            </div>
+            ) : (
+              <div>
+                <h1> An error occurred while attempting to authenticate your account with Google or Discord </h1>
+
+                <div>
+                  <div>
+                    <Link href={socialLogin}>Please try again</Link>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </>
   );
