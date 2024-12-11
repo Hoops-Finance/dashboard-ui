@@ -32,7 +32,7 @@ function Layout({ children }: RootLayoutProps) {
         <PlausibleProvider domain="app.hoops.finance" customDomain="analytics.hoops.finance" selfHosted />
       </head>
       <body>
-        <script type="text/javascript" src="https://app.hoops.finance/charting_library/charting_library.js"></script>
+        <script defer type="text/javascript" src="https://app.hoops.finance/charting_library/charting_library.js"></script>
         <ClientWalletProvider>
           <Navbar />
           <main className="pt-16">{children}</main>

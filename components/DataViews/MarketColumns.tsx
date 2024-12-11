@@ -1,5 +1,6 @@
 import { TableColumn } from "react-data-table-component";
 import { Market } from "../../utils/newTypes";
+import Image from 'next/image';
 
 const protocolIcons: Record<string, string> = {
   phoenix: "/icons/protocol/phoenix.svg",
@@ -35,7 +36,7 @@ export const marketColumns: TableColumn<Market>[] = [
       return (
         <div className="flex justify-center items-center space-x-2">
           {uniqueProtocols.map((protocol) => (
-            <img key={protocol} src={protocolIcons[protocol]} alt={protocol} className="h-6 w-6" />
+            <Image key={protocol} src={protocolIcons[protocol]} alt={protocol} width={24} height={24} />
           ))}
         </div>
       );

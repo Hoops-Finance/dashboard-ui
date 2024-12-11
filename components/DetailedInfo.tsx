@@ -87,7 +87,7 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
     };
 
     fetchChartAndTokenData();
-  }, [pairData.token0, pairData.token1]);
+  }, [pairData.token0, pairData.token1, getTokenName]);
 
   // Set Client-Side Date
   useEffect(() => {

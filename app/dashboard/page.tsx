@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { WalletConnection } from "../../components/Dashboard/WalletConnection";
 import { Metrics } from "../../components/Dashboard/Metrics";
 import { TableComponent } from "../../components/Dashboard/TableComponent";
@@ -19,23 +19,23 @@ export default function Dashboard() {
   const [globalMetrics, setGlobalMetrics] = useState<GlobalMetrics | null>(null);
   const [period, setPeriod] = useState<"24h" | "7d" | "14d" | "30d" | "90d" | "180d" | "360d">("14d");
 
-  const fetchMetrics = (selectedPeriod: typeof period) => {
+  const fetchMetrics = useCallback( (selectedPeriod: typeof period) => {
     fetch(`https://api.hoops.finance/getmetrics?period=${selectedPeriod}`)
       .then((response) => response.json())
       .then((data: GlobalMetrics) => {
         setGlobalMetrics(data);
       })
       .catch((error) => console.error("Failed to fetch global metrics", error));
-  };
+  }, []);
 
   useEffect(() => {
     fetchData(setExplorerTableData, setProcessedTokens, setLoading);
     fetchMetrics(period); // Fetch metrics for the initial period
-  }, []);
+  }, [fetchMetrics, period]);
 
   useEffect(() => {
     fetchMetrics(period); // Fetch metrics when the period changes
-  }, [period]);
+  }, [fetchMetrics, period]);
 
   return (
     <div className="app">
