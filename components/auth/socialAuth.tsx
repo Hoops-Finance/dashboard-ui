@@ -6,8 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SocialAuth() {
-  const googleLogin =
-    "Your google login url which will contain your client id and redirectURI";
+  const socialLogin = process.env.DISCORD_OAUTH_FLOW_URL || "";
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -48,6 +47,7 @@ export default function SocialAuth() {
 
       if (res.ok) {
         setTokenStatus(true);
+        window.location.href = '/profile';
       } else {
         // handle error state here
         setAuthSuccess(false);
@@ -70,12 +70,12 @@ export default function SocialAuth() {
             <h1>
               {" "}
               An error occurred while attempting to authenticate your account
-              with Google{" "}
+              with Google or Discord{" "}
             </h1>
 
             <div>
               <div>
-                <Link href={googleLogin}>Please try again</Link>
+                <Link href={socialLogin}>Please try again</Link>
               </div>
             </div>
           </div>

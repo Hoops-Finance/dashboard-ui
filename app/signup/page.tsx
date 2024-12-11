@@ -23,7 +23,6 @@ export default function Component() {
   useEffect(() => {
     setIsLogin(searchParams.get('mode') === 'login')
     if (session?.user?.accessToken) {
-      // Redirect to `/profile` if no access token or no session
       router.push("/profile");
     }
 
@@ -52,6 +51,7 @@ export default function Component() {
         if (res.ok) {
           window.location.href = '/profile';
         } else {
+          setSuccess("");
           setError("Invalid credentials");
         }
       } catch (error) {
@@ -64,25 +64,32 @@ export default function Component() {
         return;
       }
 
-      const res = await fetch(
-        "/auth/signup",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ username: email, password: password }),
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      )
+        body: JSON.stringify({ email: email, password: password })
+      });
       if (res.ok) {
+        setEmail("");
+        setPassword("");
         setError("");
         setSuccess("Registration successful, please login");
+        setIsLogin(true);
       } else {
         setError(`Error: ${res.message}`);
         throw new Error(`${res.message}`);
       }
     }
 
+  }
+  const loginWithGoogle = async () => {
+    //TODO Google oauth login
+  }
+
+  const loginWithDiscord = async () => {
+    router.push(process.env.DISCORD_OAUTH_FLOW_URL || "");
   }
 
   return (
@@ -164,6 +171,7 @@ export default function Component() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
+              onClick={loginWithGoogle}
               className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-input rounded-[var(--radius)] text-foreground bg-background hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
               <svg viewBox="0 0 24 24" className="w-5 h-5">
@@ -188,6 +196,7 @@ export default function Component() {
             </button>
             <button
               type="button"
+              onClick={loginWithDiscord}
               className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-input rounded-[var(--radius)] text-foreground bg-background hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

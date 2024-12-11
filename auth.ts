@@ -55,17 +55,22 @@ const authOptions = {
       name: "Custom Social Login",
       authorize: async (credentials) => {
         try {
-          const user = await fetchUser(
-            `/auth/social_login`,
-            {
-              auth_code:
-                typeof credentials.authCode === "string"
-                  ? credentials.authCode
-                  : "",
-            }
-          );
 
-          return user ? createUser(user) : null;
+          const oauth_link_request = await fetch(`${process.env.AUTH_API_URL}/auth/oauth/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-api-key": `${process.env.AUTH_API_KEY}`,
+            },
+            body: JSON.stringify({ provider: 'discord', code: credentials.authCode })
+          });
+
+          const user = await oauth_link_request.json();
+
+          if (oauth_link_request.ok && user) {
+            return user ? createUser(user) : null;
+          }
+          return null
         } catch (error) {
           console.error("Error during authentication", error);
           return null;
