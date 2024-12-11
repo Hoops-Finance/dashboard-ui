@@ -17,7 +17,10 @@ const nextConfig = withPlausibleProxy({
     LITLX_ID: process.env.LITLX_ID,
     SX_API_KEY: process.env.SX_API_KEY,
     AUTH_API_URL: process.env.AUTH_API_URL,
-    AUTH_API_KEY: process.env.AUTH_API_KEY
+    AUTH_API_KEY: process.env.AUTH_API_KEY,
+    DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
+    DISCORD_OAUTH_REDIRECT_URI: process.env.DISCORD_OAUTH_REDIRECT_URI,
+    DISCORD_OAUTH_FLOW_URL: `https://discord.com/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${process.env.DISCORD_OAUTH_REDIRECT_URI}&scope=identify`
   }
 });
 
