@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { SunIcon, MoonIcon } from '@heroicons/react/24/outline'
 import { Checkbox } from "@/components/ui/checkbox"
 import { useTheme } from "@/components/ThemeContext"
+import { useSession } from "next-auth/react";
 
 function SignupForm() {
   const router = useRouter()
@@ -14,10 +15,18 @@ function SignupForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [agreed, setAgreed] = useState(false)
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const passwordLength: number = 6
+  const { data: session } = useSession();
 
   useEffect(() => {
     setIsLogin(searchParams.get('mode') === 'login')
-  }, [searchParams])
+    if (session?.user?.accessToken) {
+      router.push("/profile");
+    }
+
+  }, [searchParams, router, session]);
 
   const toggleMode = () => {
     const newMode = !isLogin
@@ -25,13 +34,61 @@ function SignupForm() {
     router.push(newPath)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (isLogin) {
-      console.log('Login:', { email, password })
-    } else {
-      console.log('Signup:', { email, password, agreed })
+
+    if(isLogin){
+      try {
+        const res = await fetch(`/api/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({username: email, password: password, type: "credentials" }),
+        });
+
+        if (res.ok) {
+          window.location.href = '/profile';
+        } else {
+          setSuccess("");
+          setError("Invalid credentials");
+        }
+      } catch (error) {
+        setError("Internal server error");
+      }
+
+    }else{
+      if (password.length < passwordLength) {
+        setError("Passwords minimum length is 6 characters");
+        return;
+      }
+
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: email, password: password })
+      });
+      if (res.ok) {
+        setEmail("");
+        setPassword("");
+        setError("");
+        setSuccess("Registration successful, please login");
+        setIsLogin(true);
+      } else {
+        setError(`Registration error`);
+        throw new Error('Registration error');
+      }
     }
+
+  }
+  const loginWithGoogle = async () => {
+    router.push(process.env.GOOGLE_OAUTH_FLOW_URL || "");
+  }
+
+  const loginWithDiscord = async () => {
+    router.push(process.env.DISCORD_OAUTH_FLOW_URL || "");
   }
 
   return (
@@ -74,6 +131,9 @@ function SignupForm() {
             />
           </div>
 
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          {success && <p style={{ color: "green" }}>{success}</p>}
+
           <button
             type="submit"
             className="w-full py-3 px-4 rounded-[var(--radius)] text-primary-foreground text-sm font-semibold bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -110,6 +170,7 @@ function SignupForm() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
+              onClick={loginWithGoogle}
               className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-input rounded-[var(--radius)] text-foreground bg-background hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
               <svg viewBox="0 0 24 24" className="w-5 h-5">
@@ -134,6 +195,7 @@ function SignupForm() {
             </button>
             <button
               type="button"
+              onClick={loginWithDiscord}
               className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-input rounded-[var(--radius)] text-foreground bg-background hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

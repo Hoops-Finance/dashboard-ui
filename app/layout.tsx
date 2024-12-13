@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/ThemeContext";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils"
+import { SessionProvider } from "next-auth/react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,11 +27,11 @@ export default function RootLayout({
       <body className={cn("min-h-screen bg-background antialiased")}>
         <ThemeProvider defaultTheme="dark">
           <ClientWalletProvider>
-            <Navbar />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
+            <SessionProvider>
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </SessionProvider>
           </ClientWalletProvider>
         </ThemeProvider>
       </body>
