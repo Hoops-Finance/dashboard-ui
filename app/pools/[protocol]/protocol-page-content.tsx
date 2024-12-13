@@ -10,7 +10,7 @@ import { ProtocolLogo } from "@/components/protocol-logo";
 import { formatDollarAmount, formatPercentage } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/ThemeContext";
 
 const PERIODS = [
   { value: '24h', label: '24H Period' },

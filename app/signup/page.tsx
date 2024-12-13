@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { SunIcon, MoonIcon } from '@heroicons/react/24/outline'
 import { Checkbox } from "@/components/ui/checkbox"
 import { useTheme } from "@/components/ThemeContext"
 
-export default function Component() {
+function SignupForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { theme, toggleTheme } = useTheme()
@@ -154,5 +154,13 @@ export default function Component() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SuspenseWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignupForm />
+    </Suspense>
   )
 }

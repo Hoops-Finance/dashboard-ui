@@ -8,13 +8,15 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 
 interface Strategy {
-  id: string
-  name: string
-  tokens: Array<{ symbol: string }>
-  apr: string
-  totalValue: string
-  description: string
+  id: string;
+  name: string;
+  tokens: Array<{ symbol: string }>;
+  apr: string;
+  totalValue: string;
+  description: string;
+  riskLevel?: 'Low' | 'Medium' | 'High';
 }
+
 
 const strategies: Strategy[] = [
   {
@@ -23,7 +25,8 @@ const strategies: Strategy[] = [
     tokens: [{ symbol: "🌟" }, { symbol: "💎" }],
     apr: "10,872.27%",
     totalValue: "$317.75",
-    description: "High-yield liquidity provision strategy for XLM/USDC pair"
+    description: "High-yield liquidity provision strategy for XLM/USDC pair",
+    riskLevel: 'Low'
   },
   {
     id: "8932821",
@@ -31,7 +34,8 @@ const strategies: Strategy[] = [
     tokens: [{ symbol: "💫" }, { symbol: "💰" }],
     apr: "10,706.23%",
     totalValue: "$534.63",
-    description: "Conservative yield farming with stablecoin pairs"
+    description: "Conservative yield farming with stablecoin pairs",
+    riskLevel: 'Medium'
   },
   {
     id: "9005358",
@@ -39,7 +43,8 @@ const strategies: Strategy[] = [
     tokens: [{ symbol: "🌟" }, { symbol: "💎" }],
     apr: "10,257.25%",
     totalValue: "$196.14",
-    description: "Diversified portfolio of blue-chip crypto assets"
+    description: "Diversified portfolio of blue-chip crypto assets",
+    riskLevel: 'Medium'
   }
 ]
 

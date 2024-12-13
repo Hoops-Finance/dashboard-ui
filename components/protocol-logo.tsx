@@ -1,6 +1,7 @@
 'use client'
 
 import { CircleDashed } from "lucide-react"
+import Image from 'next/image'
 
 interface ProtocolLogoProps {
   logo?: string;
@@ -21,10 +22,12 @@ export function ProtocolLogo({ logo, name }: ProtocolLogoProps) {
   }
 
   return (
-    <div className="relative w-12 h-12">
-      <img 
-        src={logo} 
-        alt={`${name} logo`} 
+    <div>
+      <Image
+        src={logo}
+        alt={`${name} logo`}
+        width={48}
+        height={48}
         className="w-12 h-12"
         onError={(e) => {
           e.currentTarget.style.display = 'none';

@@ -29,7 +29,7 @@ const navigationItems = [
 const Navbar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme }: { theme: 'light' | 'dark'; toggleTheme: () => void } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -172,7 +172,7 @@ const Navbar: React.FC = () => {
           >
             {theme === "light" ? (
               <MoonIcon className={`w-5 h-5 ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                'text-gray-600'
               }`} />
             ) : (
               <SunIcon className={`w-5 h-5 ${

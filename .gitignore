@@ -60,3 +60,6 @@ yarn-error.log*
 next-env.d.ts
 app/app.tsx.old
 .env
+!.env.example
+log.txt
+.eslintrc.json.old

@@ -1,5 +1,5 @@
 "use client"
-
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -344,10 +344,11 @@ export default function TokensPage() {
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
                             {token.image ? (
-                              <img 
+                              <Image 
                                 src={token.image} 
                                 alt={token.symbol}
-                                className="w-full h-full object-cover"
+                                layout="fill"
+                                objectFit="cover"
                               />
                             ) : (
                               token.symbol.slice(0, 1)

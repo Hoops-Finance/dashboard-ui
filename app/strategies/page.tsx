@@ -203,7 +203,7 @@ export default function StrategiesPage() {
   )
 }
 
-const strategies = [
+const strategies: Strategy[] = [
   {
     id: "8608556",
     name: "XLM/USDC Yield",

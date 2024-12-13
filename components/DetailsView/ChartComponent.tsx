@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { createChart, IChartApi, ISeriesApi, TimeScaleOptions, ChartOptions, DeepPartial, HorzAlign, VertAlign } from "lightweight-charts";
+import { createChart, IChartApi, ISeriesApi, TimeScaleOptions, ChartOptions, DeepPartial } from "lightweight-charts";
 import { useTheme } from "../ThemeContext"; // Import the theme context
 import { CandleData } from "utils/newTypes";
 
