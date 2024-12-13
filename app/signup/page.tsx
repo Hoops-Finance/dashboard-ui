@@ -26,7 +26,7 @@ function SignupForm() {
       router.push("/profile");
     }
 
-  }, [searchParams])
+  }, [searchParams, router, session]);
 
   const toggleMode = () => {
     const newMode = !isLogin

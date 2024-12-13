@@ -30,7 +30,7 @@ export default function Profile() {
       // Redirect to `/login` if no access token or no session
       router.push("/signup?mode=login&next=" + pathname);
     }
-  }, [session]);
+  }, [session, router, pathname]);
 
   const getUserProfile = (token: string) => {
     setLoadingProfile(true);

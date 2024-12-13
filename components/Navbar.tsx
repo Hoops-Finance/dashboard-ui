@@ -43,7 +43,7 @@ const Navbar: React.FC = () => {
         setIsLoggedIn(true);
       }
     }
-  }, [status]);
+  }, [status, session]);
 
   const handleLogin = () => {
     router.push("/signup?mode=login");

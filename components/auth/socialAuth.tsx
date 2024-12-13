@@ -46,7 +46,7 @@ export default function SocialAuth() {
         router.push("/auth/login");
       }
     }
-  }, [tokenStatus, authSuccess]);
+  }, [tokenStatus, authSuccess, router, searchParams]);
 
   const authenticateUser = async (code: string) => {
     try {
