@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTheme } from "./ThemeContext";
+import { useTheme } from "../ThemeContext";
 
 export const SignInButton: React.FC = () => {
   const router = useRouter();

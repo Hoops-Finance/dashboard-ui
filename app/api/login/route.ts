@@ -2,7 +2,7 @@
 import { NextResponse, NextRequest } from "next/server";
 
 // internal imports
-import { signIn } from "@/auth";
+import { signIn } from "@/utils/auth";
 
 export async function POST(req: NextRequest) {
 
