@@ -30,10 +30,10 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
   const [tokenMetadata, setTokenMetadata] = useState<{ [key: string]: AssetDetails }>({});
 
   // Helper function to get token name from processed tokens
-  const getTokenName = (tokenId: string): string => {
+  const getTokenName = React.useCallback((tokenId: string): string => {
     const token = processedTokens.find((t) => t.token.id === tokenId);
     return token ? token.token.name : "Unknown Token";
-  };
+  }, [processedTokens]);
 
   // Fetch token metadata (AssetDetails)
   const getTokenDetails = async (tokenId: string): Promise<AssetDetails | null> => {
@@ -87,7 +87,7 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
     };
 
     fetchChartAndTokenData();
-  }, [pairData.token0, pairData.token1]);
+  }, [pairData.token0, pairData.token1, getTokenName]);
 
   // Set Client-Side Date
   useEffect(() => {

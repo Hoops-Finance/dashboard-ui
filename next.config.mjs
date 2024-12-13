@@ -7,7 +7,7 @@ dotenv.config();
 
 // Apply Plausible proxy and retain your existing Next.js config
 const nextConfig = withPlausibleProxy({
-  customDomain: "https://hoops-analytics.stellar.red" // Plausible instance
+  customDomain: "https://hoops-analytics.hoops.finance" // Plausible instance
   // subdirectory: "plausible", // Optional, to customize the script URL
   //scriptName: "plausible-script" // Optional, customize the script name if needed
 })({

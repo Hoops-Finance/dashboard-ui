@@ -1,4 +1,5 @@
 "use client"
+import { UTCTimestamp } from 'lightweight-charts';
 
 import { useEffect, useRef } from 'react'
 import { createChart, ColorType } from 'lightweight-charts'
@@ -57,31 +58,32 @@ export function TradingViewChart() {
 
     // Generate 90 days of realistic-looking data
     const generateData = () => {
-      const data = []
-      let currentPrice = 1.25
-      const volatility = 0.02
-      const baseTimestamp = Math.floor(new Date('2024-01-01').getTime() / 1000)
-
+      const data = [];
+      let currentPrice = 1.25;
+      const volatility = 0.02;
+      const baseTimestamp = Math.floor(new Date('2024-01-01').getTime() / 1000);
+    
       for (let i = 0; i < 90; i++) {
-        const timestamp = baseTimestamp + (i * 86400)
-        const change = (Math.random() - 0.5) * volatility
-        const open = currentPrice
-        const close = currentPrice * (1 + change)
-        const high = Math.max(open, close) * (1 + Math.random() * 0.01)
-        const low = Math.min(open, close) * (1 - Math.random() * 0.01)
-
+        const timestamp = (baseTimestamp + i * 86400) as UTCTimestamp;
+        const change = (Math.random() - 0.5) * volatility;
+        const open = currentPrice;
+        const close = currentPrice * (1 + change);
+        const high = Math.max(open, close) * (1 + Math.random() * 0.01);
+        const low = Math.min(open, close) * (1 - Math.random() * 0.01);
+    
         data.push({
           time: timestamp,
           open: parseFloat(open.toFixed(4)),
           high: parseFloat(high.toFixed(4)),
           low: parseFloat(low.toFixed(4)),
           close: parseFloat(close.toFixed(4)),
-        })
-
-        currentPrice = close
+        });
+    
+        currentPrice = close;
       }
-      return data.sort((a, b) => a.time - b.time)
-    }
+      return data.sort((a, b) => a.time - b.time);
+    };
+    
 
     // Add volume series
     const volumeSeries = chart.addHistogramSeries({
@@ -89,23 +91,26 @@ export function TradingViewChart() {
       priceFormat: {
         type: 'volume',
       },
-      priceScaleId: '',
-      scaleMargins: {
+      priceScaleId: ''
+      /*
+      ,
+      priceScaleMargins: {
         top: 0.8,
         bottom: 0,
       },
+      */
     })
 
     const data = generateData()
     
     // Generate matching volume data
     const volumeData = data.map(item => ({
-      time: item.time,
+      time: item.time as UTCTimestamp,
       value: Math.random() * 100000 + 50000,
       color: item.close >= item.open 
         ? '#22C55E44' // Emerald-400 with opacity
         : '#EF444444'  // Red-400 with opacity
-    }))
+    }));    
 
     candlestickSeries.setData(data)
     volumeSeries.setData(volumeData)
@@ -124,7 +129,15 @@ export function TradingViewChart() {
     })
 
     // Calculate and set moving averages
-    const calculateMA = (data: any[], period: number) => {
+    interface CandleData {
+      time: UTCTimestamp;
+      open: number;
+      high: number;
+      low: number;
+      close: number;
+    }
+
+    const calculateMA = (data: CandleData[], period: number) => {
       const maData = []
       for (let i = period - 1; i < data.length; i++) {
         const sum = data.slice(i - period + 1, i + 1).reduce((acc, val) => acc + val.close, 0)
@@ -140,17 +153,17 @@ export function TradingViewChart() {
     ma50Series.setData(calculateMA(data, 50))
 
     // Handle resize
-    const handleResize = (container: HTMLElement) => {
+    const handleResize = () => {
       if (chartContainerRef.current) {
-        chart.resize(container.clientWidth, container.clientHeight)
+        chart.resize(chartContainerRef.current.clientWidth, chartContainerRef.current.clientHeight);
       }
-    }
+    };    
 
-    window.addEventListener('resize', handleResize)
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      chart.remove()
-      window.removeEventListener('resize', handleResize)
+      chart.remove();
+      window.removeEventListener('resize', handleResize);
     }
   }, [theme]) // Re-create chart when theme changes
 

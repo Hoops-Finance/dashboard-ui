@@ -63,3 +63,6 @@ app/app.tsx.old
 #IDE
 .idea
 .env
+!.env.example
+log.txt
+.eslintrc.json.old

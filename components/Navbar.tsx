@@ -32,7 +32,7 @@ const navigationItems = [
 const Navbar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme }: { theme: 'light' | 'dark'; toggleTheme: () => void } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { data: session, status } = useSession(); // get the client session
@@ -154,9 +154,13 @@ const Navbar: React.FC = () => {
             aria-label="Toggle theme"
           >
             {theme === "light" ? (
-              <MoonIcon className={"w-5 h-5 text-gray-600"} />
+              <MoonIcon className={`w-5 h-5 ${
+                'text-gray-600'
+              }`} />
             ) : (
-              <SunIcon className={"w-5 h-5 text-gray-400"} />
+              <SunIcon className={`w-5 h-5 ${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+              }`} />
             )}
           </button>
         </div>
