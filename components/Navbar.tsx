@@ -5,8 +5,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Bars4Icon, XMarkIcon, SunIcon, MoonIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "./ThemeContext";
-
 import Image from "next/image";
+import "./Navbar.css";
+
 
 import {
   DropdownMenu,
@@ -95,9 +96,8 @@ const Navbar: React.FC = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src="/images/avatar-test.png" alt="User" />
-                      <AvatarFallback>
-                        <UserCircleIcon className="h-6 w-6" />
+                      <AvatarFallback className="AvatarFallback">
+                        {(session?.user?.email || "Hoop").charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>

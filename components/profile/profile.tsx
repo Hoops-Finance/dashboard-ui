@@ -115,9 +115,8 @@ export default function Profile() {
                 <CardContent>
                   <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
                     <Avatar className="h-24 w-24">
-                      <AvatarImage src="/images/avatar-test.png" alt="Profile picture" className="object-cover" />
-                      <AvatarFallback>
-                        <UserCircleIcon className="h-12 w-12" aria-hidden="true" />
+                      <AvatarFallback className="AvatarFallback">
+                        {(session?.user?.email || "Hoop").charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="space-y-1 text-center sm:text-left">
