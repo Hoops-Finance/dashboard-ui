@@ -77,8 +77,8 @@ function SignupForm() {
         setSuccess("Registration successful, please login");
         setIsLogin(true);
       } else {
-        setError(`Error: ${res.message}`);
-        throw new Error(`${res.message}`);
+        setError(`Registration error`);
+        throw new Error('Registration error');
       }
     }
 
