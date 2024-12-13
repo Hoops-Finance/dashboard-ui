@@ -198,7 +198,7 @@ export default function PoolPage({ params, searchParams }: PageProps) {
                   <LineChart className="h-5 w-5 text-primary" aria-hidden="true" />
                   Volume Chart
                 </CardTitle>
-                <Select value={period} onValueChange={setPeriod}>
+                <Select value={period} onValueChange={(value) => setPeriod(value as PeriodOption)}>
                   <SelectTrigger className="w-[100px]" aria-label="Select time period">
                     <SelectValue placeholder="Select period" />
                   </SelectTrigger>

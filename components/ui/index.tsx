@@ -26,7 +26,7 @@ export const Card: FC<CardProps> = ({ children, className = "" }) => <div classN
 
 // New MetricCard component for hover explanation text
 interface MetricCardProps extends CardProps {
-  title: string; // Explanation for the metric
+  title?: string; // Explanation for the metric
 }
 
 export const MetricCard: FC<MetricCardProps> = ({ children, className = "", title }) => (
