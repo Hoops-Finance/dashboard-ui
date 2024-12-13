@@ -194,7 +194,7 @@ export default function PoolsPage() {
         const bValue = b[sortConfig.key!];
 
         // Convert values to comparable numbers if they're strings with numbers
-        const getComparableValue = (value: any) => {
+        const getComparableValue = (value: string | number) => {
           if (typeof value === 'string') {
             // Try to extract number from string (handles %, $, etc.)
             const number = parseFloat(value.replace(/[^0-9.-]+/g, ''));
@@ -203,8 +203,8 @@ export default function PoolsPage() {
           return value;
         };
 
-        const comparableA = getComparableValue(aValue);
-        const comparableB = getComparableValue(bValue);
+        const comparableA = getComparableValue(aValue as string | number);
+        const comparableB = getComparableValue(bValue as string | number);
 
         if (comparableA < comparableB) {
           return sortConfig.direction === 'asc' ? -1 : 1;

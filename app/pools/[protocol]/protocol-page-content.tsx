@@ -26,17 +26,43 @@ const ENTRIES_PER_PAGE_OPTIONS = [10, 25, 50, 100] as const;
 
 interface ProtocolPageContentProps {
   protocol: string;
-  protocolInfo: any;
-  pools: any[];
-  paginatedPools: any[];
+  protocolInfo: {
+    name: string;
+    logo: string;
+    description: string;
+    links: { url: string; name: string }[];
+  };
+  pools: {
+    pairId: string;
+    market: string;
+    apr: string;
+    totalValueLocked: string;
+    volume: string;
+    fees: string;
+    riskScore: string;
+  }[];
+  paginatedPools: {
+    pairId: string;
+    market: string;
+    apr: string;
+    totalValueLocked: string;
+    volume: string;
+    fees: string;
+    riskScore: string;
+  }[];
   currentPage: number;
   totalPages: number;
   entriesPerPage: number;
   startIndex: number;
   currentPeriod: string;
   error: string | null;
-  debugInfo: any;
-  stats: any;
+  debugInfo: Record<string, unknown>;
+  stats: {
+    tvl: number;
+    volume24h: number;
+    poolCount: number;
+    averageApy: number;
+  };
 }
 
 export function ProtocolPageContent({
@@ -98,7 +124,7 @@ export function ProtocolPageContent({
               </div>
             </div>
             <div className="flex gap-2">
-              {protocolInfo.links.map((link: any) => (
+              {protocolInfo.links.map((link: { url: string; name: string }) => (
                 <Button
                   key={link.url}
                   variant="outline"
@@ -234,7 +260,7 @@ export function ProtocolPageContent({
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedPools.map((pool: any) => (
+                  paginatedPools.map((pool: { pairId: string; market: string; apr: string; totalValueLocked: string; volume: string; fees: string; riskScore: string }) => (
                     <TableRow key={pool.pairId}>
                       <TableCell className="font-medium">
                         {pool.market}

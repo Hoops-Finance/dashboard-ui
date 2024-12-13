@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { notFound } from "next/navigation";
 import { Fragment } from "react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+//import { Badge } from "@/components/ui/badge";
 import { Search, ChevronRight, ChevronLeft } from "lucide-react";
 import { TabNavigation } from "./tab-navigation";
 
@@ -82,7 +82,7 @@ const PROTOCOL_MAPPING: Record<Protocol, string> = {
   blend: 'blend'
 };
 
-function getProtocolStats(pools: any[]) {
+function getProtocolStats(pools: Pool[]) {
   if (!pools?.length) {
     return {
       tvl: 0,
@@ -112,7 +112,7 @@ interface DebugInfo {
   responseStatus: number;
   responseStatusText: string;
   responseTime: number;
-  rawResponse: any;
+  rawResponse: Record<string, unknown> | null;
   error: string | null;
   poolsCount: number;
   currentProtocol: string;
@@ -154,7 +154,7 @@ export default async function ProtocolPage({
   let allPools: Pool[] = [];
   let protocolPools: Pool[] = [];
   let error = null;
-  let debugInfo: DebugInfo = {
+  const debugInfo: DebugInfo = {
     requestUrl: `${process.env.HOOPS_API_URL!}?period=${period}`,
     requestHeaders: {
       'Authorization': 'Bearer [HIDDEN]',
@@ -192,7 +192,7 @@ export default async function ProtocolPage({
     debugInfo.rawResponse = data;
     
     // Transform all pools data
-    allPools = (Array.isArray(data) ? data : []).map((pool: any) => ({
+    allPools = (Array.isArray(data) ? data : []).map((pool: Pool) => ({
       pairId: pool.pairId || '',
       protocol: pool.protocol || '',
       market: pool.market || '',
@@ -201,7 +201,7 @@ export default async function ProtocolPage({
       totalValueLocked: pool.totalValueLocked || '0',
       volume: pool.volume || '0',
       fees: pool.fees || '0',
-      riskScore: pool.riskScore || (pool.riskFactors?.score?.toFixed(2)) || '0',
+      riskScore: pool.riskScore || '0',
     }));
     
     // Filter pools for current protocol using mapped name

@@ -129,7 +129,15 @@ export function TradingViewChart() {
     })
 
     // Calculate and set moving averages
-    const calculateMA = (data: any[], period: number) => {
+    interface CandleData {
+      time: UTCTimestamp;
+      open: number;
+      high: number;
+      low: number;
+      close: number;
+    }
+
+    const calculateMA = (data: CandleData[], period: number) => {
       const maData = []
       for (let i = period - 1; i < data.length; i++) {
         const sum = data.slice(i - period + 1, i + 1).reduce((acc, val) => acc + val.close, 0)

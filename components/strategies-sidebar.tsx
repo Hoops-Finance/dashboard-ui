@@ -51,6 +51,7 @@ const strategies: Strategy[] = [
 export function StrategiesSidebar() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getRiskColor = (level: Strategy['riskLevel']) => {
     switch (level) {
       case 'Low': return 'text-emerald-400'

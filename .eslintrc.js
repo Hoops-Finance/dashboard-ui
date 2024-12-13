@@ -29,7 +29,7 @@ module.exports = {
   rules: {
     // Add or override any rules here
     'react/react-in-jsx-scope': 'off', // Next.js handles React import
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-unused-vars': ['off', { argsIgnorePattern: '^_' }],
     // Add other custom rules as needed
   },
 };

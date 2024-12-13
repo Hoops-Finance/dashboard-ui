@@ -118,7 +118,18 @@ export default function TokensPage() {
         const data = await response.json();
         
         // Transform API data to match our TokenType
-        const transformedData: TokenType[] = data.map((token: any) => ({
+        const transformedData: TokenType[] = data.map((token: {
+          id?: string;
+          name: string;
+          symbol: string;
+          price: string;
+          price_change_24h: string;
+          price_change_7d: string;
+          price_change_30d: string;
+          market_cap: string;
+          volume_24h: string;
+          image?: string;
+        }) => ({
           id: token.id || token.symbol,
           name: token.name,
           symbol: token.symbol,
