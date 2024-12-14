@@ -3,10 +3,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import Image from "next/image";
 import { Bars4Icon, XMarkIcon, SunIcon, MoonIcon, UserCircleIcon } from "@heroicons/react/24/outline";
-
 import { useTheme } from "@/contexts/ThemeContext";
+import Image from "next/image";
+import "./Navbar.css";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,7 +25,7 @@ const navigationItems = [
 const Navbar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme }: { theme: 'light' | 'dark'; toggleTheme: () => void } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(true);
 
   const { session, signOut } = useAuth();  
@@ -79,9 +79,8 @@ const Navbar: React.FC = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src="/images/avatar-test.png" alt="User" />
-                      <AvatarFallback>
-                        <UserCircleIcon className="h-6 w-6" />
+                      <AvatarFallback className="AvatarFallback">
+                        {(session?.user?.email || "Hoop").charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -138,9 +137,13 @@ const Navbar: React.FC = () => {
             aria-label="Toggle theme"
           >
             {theme === "light" ? (
-              <MoonIcon className={"w-5 h-5 text-gray-600"} />
+              <MoonIcon className={`w-5 h-5 ${
+                'text-gray-600'
+              }`} />
             ) : (
-              <SunIcon className={"w-5 h-5 text-gray-400"} />
+              <SunIcon className={`w-5 h-5 ${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+              }`} />
             )}
           </button>
         </div>

@@ -1,301 +1,290 @@
-"use client"
+// caution this page is not finished. It is a work in progress.
 
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, ArrowUpDown, TrendingUp, DollarSign, LineChart, Sparkles, Info } from 'lucide-react'
-import { PageLayout } from "@/components/ui/PageLayout"
-import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+"use client";
+
+import React, { useState, useMemo } from "react";
+import Image from "next/image";
+import { useDataContext } from "@/contexts/DataContext";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { motion } from "framer-motion";
+import { 
+  Search,  
+  ChevronLeft,
+  ChevronRight,
+  BookOpen
+} from "lucide-react";
+import type { AssetDetails, Token, Pair } from "@/utils/newTypes";
+
+const PERIOD_OPTIONS = [
+  { value: "24h", label: "24H" },
+  { value: "7d", label: "7D" },
+  { value: "30d", label: "30D" },
+] as const;
 
 export default function TokensPage() {
-  const [activeTab, setActiveTab] = useState<'hot' | 'real'>('hot')
-  const [hoveredRow, setHoveredRow] = useState<number | null>(null)
+  const { tokens, pairs, poolRiskData, loading, fetchTokenDetails, period, setPeriod } = useDataContext();
 
-  const metrics = [
-    {
-      title: "Total Market Cap",
-      value: "$2.89T",
-      change: "+5.67%",
-      icon: DollarSign,
-      trend: "up"
-    },
-    {
-      title: "24h Volume",
-      value: "$89.4B",
-      change: "-2.34%",
-      icon: TrendingUp,
-      trend: "down"
-    },
-    {
-      title: "Market Sentiment",
-      value: "Bullish",
-      change: "Fear & Greed: 75",
-      icon: LineChart,
-      trend: "up"
-    },
-    {
-      title: "Altcoin Season",
-      value: "85/100",
-      change: "Strong Alt Season",
-      icon: Sparkles,
-      trend: "up"
-    }
-  ]
+  // Tabs: all, stablecoins, hot
+  const [selectedTab, setSelectedTab] = useState<"all" | "stablecoins" | "hot">("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const hotTokens = [
-    {
-      id: 1,
-      name: "Stellar Lumens",
-      symbol: "XLM",
-      price: 0.12,
-      change24h: 5.2,
-      change7d: 8.7,
-      marketCap: 3200000000,
-      volume: 125000000
-    },
-    {
-      id: 2,
-      name: "Wrapped Bitcoin",
-      symbol: "yBTC",
-      price: 52345.67,
-      change24h: 3.8,
-      change7d: 12.3,
-      marketCap: 980000000,
-      volume: 85000000
-    },
-    {
-      id: 3,
-      name: "Wrapped Ethereum",
-      symbol: "yETH",
-      price: 2845.32,
-      change24h: 2.5,
-      change7d: 6.8,
-      marketCap: 745000000,
-      volume: 65000000
-    },
-    {
-      id: 4,
-      name: "Yield XLM",
-      symbol: "yXLM",
-      price: 0.13,
-      change24h: 7.2,
-      change7d: 15.4,
-      marketCap: 420000000,
-      volume: 45000000
-    },
-    {
-      id: 5,
-      name: "Soroban Token",
-      symbol: "SBN",
-      price: 2.45,
-      change24h: 12.3,
-      change7d: 22.1,
-      marketCap: 245000000,
-      volume: 28000000
-    }
-  ]
+  // Modal state for token details
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
+  const [tokenDetails, setTokenDetails] = useState<AssetDetails | null>(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
-  const realWorldAssets = [
-    {
-      id: 1,
-      name: "Tesla Stock",
-      symbol: "xTSLA",
-      price: 242.15,
-      change24h: 3.2,
-      change7d: 8.7,
-      marketCap: 780000000,
-      volume: 92000000
-    },
-    {
-      id: 2,
-      name: "S&P 500 Index",
-      symbol: "xSPY",
-      price: 478.32,
-      change24h: 1.2,
-      change7d: 3.4,
-      marketCap: 650000000,
-      volume: 78000000
-    },
-    {
-      id: 3,
-      name: "Gold Token",
-      symbol: "xGLD",
-      price: 2023.45,
-      change24h: 0.8,
-      change7d: 2.3,
-      marketCap: 560000000,
-      volume: 45000000
-    },
-    {
-      id: 4,
-      name: "Real Estate Fund",
-      symbol: "xREIT",
-      price: 105.67,
-      change24h: 1.5,
-      change7d: 4.2,
-      marketCap: 340000000,
-      volume: 32000000
-    },
-    {
-      id: 5,
-      name: "US Treasury Bond",
-      symbol: "xBOND",
-      price: 98.75,
-      change24h: -0.3,
-      change7d: 0.8,
-      marketCap: 890000000,
-      volume: 123000000
+  // Determine if token is stablecoin: symbol includes "usd" and length ≤ 4
+  const isStablecoin = (symbol: string) => {
+    const sym = symbol.toLowerCase();
+    return sym.includes("usd") && sym.length <= 4;
+  };
+
+  // Determine "hot" tokens:
+  // Sort poolRiskData by volume (descending), take top 10 pairs by volume, find tokens in these pairs
+  const hotTokens = useMemo(() => {
+    if (!poolRiskData || poolRiskData.length === 0) return new Set<string>();
+
+    const sortedByVolume = [...poolRiskData].sort((a, b) => {
+      const volA = parseFloat(a.volume);
+      const volB = parseFloat(b.volume);
+      return volB - volA; 
+    });
+
+    const topPools = sortedByVolume.slice(0, 10);
+    // topPools have pairId and protocol, we have pairs array to map pairId -> pair -> tokens
+    const topTokenIds = new Set<string>();
+    for (const pool of topPools) {
+      const pair = pairs.find(p => p.id === pool.pairId);
+      if (pair) {
+        // Add token0 and token1 to hot set
+        topTokenIds.add(pair.token0);
+        topTokenIds.add(pair.token1);
+      }
     }
-  ]
+
+    return topTokenIds;
+  }, [poolRiskData, pairs]);
+
+  // Filtering tokens based on tab
+  const filteredTokens = useMemo(() => {
+    return tokens.filter(token => {
+      const matchesSearch =
+        token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        token.symbol.toLowerCase().includes(searchQuery.toLowerCase());
+
+      if (!matchesSearch) return false;
+
+      if (selectedTab === "stablecoins") {
+        return isStablecoin(token.symbol);
+      } else if (selectedTab === "hot") {
+        return hotTokens.has(token.id);
+      }
+
+      return true; // all tab
+    });
+  }, [tokens, searchQuery, selectedTab, hotTokens]);
+
+  const totalPages = Math.ceil(filteredTokens.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const displayedTokens = filteredTokens.slice(startIndex, startIndex + rowsPerPage);
+
+  const handleViewDetails = async (token: Token) => {
+    setSelectedToken(token);
+    setDetailsLoading(true);
+    setTokenDetails(null);
+    setShowDialog(true);
+    try {
+      // We need a correct way to form asset string. 
+      // If token.id has issuer info, we assume token.id as the asset.
+      // If not, we must guess. If token is XLM, asset = "XLM".
+      // If not XLM, maybe token.id or token.name:token.symbol. Without issuer info, we guess token.id.
+      const assetId = token.id;
+      const details = await fetchTokenDetails(assetId);
+      setTokenDetails(details);
+    } catch (error) {
+      console.error("Failed to fetch token details:", error);
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+  // Find pairs that involve this token
+  const getPairsForToken = (token: Token) => {
+    const pairIds = token.pairs.map(tp => tp.pairId);
+    const tokenPairs = pairs.filter(p => pairIds.includes(p.id));
+    return tokenPairs;
+  };
 
   return (
-    <PageLayout>
-      <motion.div 
-        className="space-y-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <motion.div 
-          className="space-y-1"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+    <div className="relative">
+      <div className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
+        {/* Title Section */}
+        <motion.div
+          className="space-y-0.5"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
         >
           <h1 className="text-2xl font-bold text-foreground">Tokens</h1>
           <p className="text-muted-foreground">Track and analyze token performance</p>
         </motion.div>
 
+        {/* Simple Metrics Card */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {metrics.map((metric, i) => (
-            <motion.div
-              key={metric.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              whileHover={{ scale: 1.02 }}
-              className="transform-gpu"
-            >
-              <Card className="p-6 bg-card border-border hover:shadow-md transition-all duration-300">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{metric.title}</p>
-                    <h3 className="text-2xl font-bold text-foreground mt-1">{metric.value}</h3>
-                    <p className={`text-sm mt-1 ${
-                      metric.trend === 'up' ? 'text-emerald-400' : 'text-red-400'
-                    }`}>
-                      {metric.change}
-                    </p>
-                  </div>
-                  <div className={`p-3 rounded-full ${
-                    metric.trend === 'up' ? 'bg-emerald-400/10' : 'bg-red-400/10'
-                  }`}>
-                    <metric.icon className={`h-5 w-5 ${
-                      metric.trend === 'up' ? 'text-emerald-400' : 'text-red-400'
-                    }`} />
-                  </div>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
+          <Card className="p-6 bg-card border-border hover:shadow-md transition-all duration-300">
+            <div>
+              <p className="text-sm text-muted-foreground">Total Tokens Indexed</p>
+              <h3 className="text-2xl font-bold text-foreground mt-1">{tokens.length}</h3>
+              <p className="text-sm mt-1 text-emerald-400">---</p>
+            </div>
+          </Card>
         </div>
 
-        <motion.div 
-          className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        {/* Table Controls */}
+        <motion.div
+          className="flex flex-col gap-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
         >
-          <div className="flex gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={selectedTab === "all" ? "default" : "secondary"}
+                onClick={() => setSelectedTab("all")}
+                className="h-9"
+              >
+                All Tokens
+              </Button>
+              <Button
+                variant={selectedTab === "stablecoins" ? "default" : "secondary"}
+                onClick={() => setSelectedTab("stablecoins")}
+                className="h-9"
+              >
+                Stablecoins
+              </Button>
+              <Button
+                variant={selectedTab === "hot" ? "default" : "secondary"}
+                onClick={() => setSelectedTab("hot")}
+                className="h-9"
+              >
+                Hot Tokens
+              </Button>
+            </div>
             <Button
-              variant={activeTab === 'hot' ? 'default' : 'outline'}
-              onClick={() => setActiveTab('hot')}
-              className="transition-all duration-300"
+              variant="outline"
+              className="h-9 gap-2"
+              onClick={() => window.open('https://api.hoops.finance', '_blank')}
             >
-              Hot Tokens
-            </Button>
-            <Button
-              variant={activeTab === 'real' ? 'default' : 'outline'}
-              onClick={() => setActiveTab('real')}
-              className="transition-all duration-300"
-            >
-              Real World Assets
+              <BookOpen className="h-4 w-4" />
+              Read the docs
             </Button>
           </div>
 
-          <div className="flex gap-2">
-            <div className="relative flex-1 md:w-[300px] group">
-              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
-              <Input
-                placeholder="Search tokens..."
-                className="pl-8 transition-all duration-200 focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <Select defaultValue="24h">
-              <SelectTrigger className="w-[180px]">
+          <div className="flex items-center gap-4">
+            <Select
+              value={period as "24h"|"7d"|"30d"} // since period in context could be any string, cast here for the demo
+              onValueChange={(value: "24h" | "7d" | "30d") => setPeriod(value)}
+            >
+              <SelectTrigger className="w-[180px] h-9">
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="24h">24H Change</SelectItem>
-                <SelectItem value="7d">7D Change</SelectItem>
-                <SelectItem value="30d">30D Change</SelectItem>
+                {PERIOD_OPTIONS.map(p => (
+                  <SelectItem key={p.value} value={p.value}>
+                    {p.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by token name or symbol"
+                className="pl-10 h-9"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <Button
+              variant="secondary"
+              className="h-9"
+              onClick={() => {
+                setSearchQuery('');
+                setPeriod('24h'); // reset period to default
+                setSelectedTab('all');
+              }}
+            >
+              Reset
+            </Button>
           </div>
         </motion.div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card className="border-border overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    {[
-                      "Token", "Price", "24h Change", "7d Change",
-                      "Market Cap", "Volume", "Actions"
-                    ].map((header, i) => (
-                      <TableHead 
-                        key={header}
-                        className="font-medium cursor-pointer hover:text-primary transition-colors duration-200"
-                      >
-                        <motion.div 
-                          className="flex items-center gap-2"
-                          whileHover={{ x: 2 }}
-                        >
-                          {header}
-                          <ArrowUpDown className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                        </motion.div>
-                      </TableHead>
-                    ))}
+        {/* Tokens Table */}
+        <motion.div
+          className="rounded-lg border bg-card text-card-foreground shadow"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+        >
+          <div className="relative w-full overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Token</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                  <TableHead className="text-right">Last Updated</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-10 px-4 text-center">
+                      Loading tokens data...
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {(activeTab === 'hot' ? hotTokens : realWorldAssets).map((token, index) => (
-                    <motion.tr
-                      key={token.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.05 }}
-                      onHoverStart={() => setHoveredRow(index)}
-                      onHoverEnd={() => setHoveredRow(null)}
-                      className={`
-                        group cursor-pointer transition-colors duration-200
-                        ${hoveredRow === index ? 'bg-muted/50' : ''}
-                      `}
-                    >
-                      <TableCell>
+                ) : displayedTokens.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-10 px-4 text-center text-muted-foreground">
+                      No tokens found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  displayedTokens.map((token) => (
+                    <TableRow key={token.id} className="group hover:bg-muted/50">
+                      <TableCell className="h-10 px-4 align-middle">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                            {token.symbol.slice(0, 1)}
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden relative">
+                            {token.symbol.slice(0,1).toUpperCase()}
                           </div>
                           <div>
                             <div className="font-medium">{token.name}</div>
@@ -303,35 +292,165 @@ export default function TokensPage() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>${token.price.toLocaleString()}</TableCell>
-                      <TableCell className={token.change24h >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-                        {token.change24h >= 0 ? '+' : ''}{token.change24h}%
+                      <TableCell className="h-10 px-4 align-middle text-right">
+                        ${token.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
                       </TableCell>
-                      <TableCell className={token.change7d >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-                        {token.change7d >= 0 ? '+' : ''}{token.change7d}%
+                      <TableCell className="h-10 px-4 align-middle text-right text-sm text-muted-foreground">
+                        {new Date(token.lastUpdated).toLocaleString()}
                       </TableCell>
-                      <TableCell>${(token.marketCap / 1000000).toFixed(1)}M</TableCell>
-                      <TableCell>${(token.volume / 1000000).toFixed(1)}M</TableCell>
-                      <TableCell className="text-right">
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: hoveredRow === index ? 1 : 0 }}
-                          transition={{ duration: 0.2 }}
+                      <TableCell className="h-10 px-4 align-middle text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-3 text-muted-foreground hover:text-foreground"
+                          onClick={() => handleViewDetails(token)}
                         >
-                          <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-                            <Info className="h-4 w-4" />
-                          </Button>
-                        </motion.div>
+                          View Details
+                        </Button>
                       </TableCell>
-                    </motion.tr>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-          </motion.div>
-        </AnimatePresence>
-      </motion.div>
-    </PageLayout>
-  )
-}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
 
+            {/* Table Footer with Pagination */}
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Show</span>
+                  <Select
+                    value={rowsPerPage.toString()}
+                    onValueChange={(value) => {
+                      setRowsPerPage(Number(value));
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-[70px] h-8">
+                      <SelectValue placeholder="10" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <span className="text-sm text-muted-foreground">entries</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Showing {(currentPage - 1) * rowsPerPage + 1} to {Math.min((currentPage - 1) * rowsPerPage + rowsPerPage, filteredTokens.length)} of {filteredTokens.length} entries
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => {
+                      return page === 1 || 
+                             page === totalPages || 
+                             Math.abs(page - currentPage) <= 1;
+                    })
+                    .map((page, index, array) => (
+                      <React.Fragment key={page}>
+                        {index > 0 && array[index - 1] !== page - 1 && (
+                          <span className="px-2 text-muted-foreground">...</span>
+                        )}
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => setCurrentPage(page)}
+                        >
+                          {page}
+                        </Button>
+                      </React.Fragment>
+                    ))}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Details Modal */}
+      {selectedToken && (
+        <Dialog open={showDialog} onOpenChange={setShowDialog}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>{selectedToken.name} ({selectedToken.symbol}) Details</DialogTitle>
+              <DialogDescription>
+                {detailsLoading ? "Loading token details..." : 
+                  tokenDetails ? "Detailed info from AssetDetails:" : "Failed to load details or no details available."}
+              </DialogDescription>
+            </DialogHeader>
+            {tokenDetails && !detailsLoading && (
+              <div className="space-y-4 mt-4">
+                {tokenDetails.toml_info.image && (
+                  <div className="flex items-center justify-start">
+                    <Image
+                      src={tokenDetails.toml_info.image}
+                      alt={selectedToken.symbol}
+                      width={48}
+                      height={48}
+                      className="rounded-full"
+                    />
+                  </div>
+                )}
+                <p><strong>Asset:</strong> {tokenDetails.asset}</p>
+                <p><strong>Home Domain:</strong> {tokenDetails.home_domain}</p>
+                <p><strong>Supply:</strong> {tokenDetails.supply.toLocaleString()}</p>
+                <p><strong>Price:</strong> ${tokenDetails.price.toLocaleString(undefined, {minimumFractionDigits:2})}</p>
+                <p><strong>Volume (7d):</strong> ${tokenDetails.volume7d.toLocaleString()}</p>
+                <p><strong>Number of Trades:</strong> {tokenDetails.trades.toLocaleString()}</p>
+                <p><strong>Rating (avg):</strong> {tokenDetails.rating.average.toFixed(2)}</p>
+
+                <div>
+                  <h3 className="font-semibold mb-2">Pairs:</h3>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {getPairsForToken(selectedToken).map(pair => {
+                      const t0 = tokens.find(t=>t.id===pair.token0);
+                      const t1 = tokens.find(t=>t.id===pair.token1);
+                      const pairLabel = t0 && t1 ? `${t0.symbol}/${t1.symbol}` : pair.id;
+                      const proto = pair.protocol.toLowerCase();
+                      const pairUrl = `/pools/${proto}/${pairLabel.replace('/','-')}`;
+                      return (
+                        <li key={pair.id}>
+                          <a href={pairUrl} className="text-primary hover:underline">{pairLabel}</a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Close</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+}

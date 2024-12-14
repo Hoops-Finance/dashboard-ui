@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { useDataContext } from "@/contexts/DataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import {
@@ -20,13 +21,13 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Flame, Diamond, Coins, Search, ChevronLeft, ChevronRight, X, ChevronUp, ChevronDown, ArrowUpDown, BookOpen } from 'lucide-react';
-import { PoolRiskApiResponseObject, RankingFactors, RiskFactors } from "@/utils/newTypes";
+import { Flame, Diamond, Coins, Search, ChevronLeft, ChevronRight, X, ArrowUpDown, BookOpen } from 'lucide-react';
+import { PoolRiskApiResponseObject } from "@/utils/newTypes";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-// Top pools dummy data
+// Top pools dummy data (unchanged)
 const topPoolsData = [
   { 
     title: "Best APR Pairs",
@@ -76,7 +77,6 @@ const PERIODS = [
 const PROTOCOLS = ['soroswap', 'phoenix', 'aquarius', 'blend'] as const;
 type Protocol = typeof PROTOCOLS[number];
 
-// Protocol mapping for display name to actual protocol value
 const PROTOCOL_MAPPING: Record<Protocol, string> = {
   soroswap: 'soroswap',
   phoenix: 'phoenix',
@@ -91,10 +91,8 @@ type SortConfig = {
 
 export default function PoolsPage() {
   const router = useRouter();
-  const [period, setPeriod] = useState<string>('7d');
-  const [poolsData, setPoolsData] = useState<PoolRiskApiResponseObject[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { poolRiskData, period, setPeriod, loading } = useDataContext();
+
   const [selectedProtocols, setSelectedProtocols] = useState<Protocol[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -104,39 +102,17 @@ export default function PoolsPage() {
     direction: null
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const response = await fetch(`/api/pools?period=${period}`);
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        if (!Array.isArray(result)) {
-          throw new Error('API response is not an array');
-        }
+  // Show loading state from data context
+  if (loading) {
+    return (
+      <section className="relative">
+        <div className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
+          Loading pools data...
+        </div>
+      </section>
+    );
+  }
 
-        setPoolsData(result);
-      } catch (error) {
-        console.error("Error fetching pools data:", error);
-        setError(error instanceof Error ? error.message : 'An unknown error occurred');
-        setPoolsData([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [period]);
-
-  // Format percentage for APR and other metrics
   const formatPercentage = (value: number) => {
     return {
       className: `percentage-value ${value >= 0 ? 'text-green-500' : 'text-red-500'}`,
@@ -144,21 +120,22 @@ export default function PoolsPage() {
     };
   };
 
-  // Filter data based on protocols and search query
-  const filteredData = poolsData.filter(pool => {
-    const matchesSearch = searchQuery === '' || 
-      pool.market.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      pool.protocol.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesProtocol = selectedProtocols.length === 0 || 
-      selectedProtocols.some(protocol => 
-        pool.protocol.toLowerCase() === PROTOCOL_MAPPING[protocol].toLowerCase()
-      );
+  // Filter based on search and protocol
+  const filteredData = useMemo(() => {
+    return poolRiskData.filter(pool => {
+      const matchesSearch = searchQuery === '' || 
+        pool.market.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        pool.protocol.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesProtocol = selectedProtocols.length === 0 || 
+        selectedProtocols.some(protocol => 
+          pool.protocol.toLowerCase() === PROTOCOL_MAPPING[protocol].toLowerCase()
+        );
 
-    return matchesSearch && matchesProtocol;
-  });
+      return matchesSearch && matchesProtocol;
+    });
+  }, [poolRiskData, searchQuery, selectedProtocols]);
 
-  // Sorting function
   const handleSort = (key: keyof PoolRiskApiResponseObject) => {
     setSortConfig(current => {
       if (current.key === key) {
@@ -173,55 +150,41 @@ export default function PoolsPage() {
     });
   };
 
-  // Sort and filter data
   const sortedAndFilteredData = useMemo(() => {
-    let filtered = poolsData.filter(pool => {
-      const matchesSearch = searchQuery === '' || 
-        pool.market.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        pool.protocol.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesProtocol = selectedProtocols.length === 0 || 
-        selectedProtocols.some(protocol => 
-          pool.protocol.toLowerCase() === PROTOCOL_MAPPING[protocol].toLowerCase()
-        );
-
-      return matchesSearch && matchesProtocol;
-    });
-
+    let data = [...filteredData];
     if (sortConfig.key && sortConfig.direction) {
-      filtered = [...filtered].sort((a, b) => {
+      data.sort((a, b) => {
         const aValue = a[sortConfig.key!];
         const bValue = b[sortConfig.key!];
-
-        // Convert values to comparable numbers if they're strings with numbers
-        const getComparableValue = (value: string | number | RiskFactors | RankingFactors) => {
-          if (typeof value === 'object') {
-            // Handle RiskFactors and RankingFactors types
-            return JSON.stringify(value);
+  
+        const getComparableValue = (
+          value: string | number | RiskFactors | RankingFactors
+        ): number => {
+          if (typeof value === 'number') {
+            // Already a number
+            return value;
+          } else if (typeof value === 'string') {
+            // Attempt to parse a number from the string (e.g. "24.09%" -> 24.09)
+            const parsed = parseFloat(value.replace(/[^0-9.-]+/g, ''));
+            return isNaN(parsed) ? 0 : parsed;
+          } else {
+            // It's either RiskFactors or RankingFactors.
+            // Both have a numeric 'score' field we can rely on.
+            return value.score;
           }
-          if (typeof value === 'string') {
-            // Try to extract number from string (handles %, $, etc.)
-            const number = parseFloat(value.replace(/[^0-9.-]+/g, ''));
-            return isNaN(number) ? value : number;
-          }
-          return value;
         };
-
+  
         const comparableA = getComparableValue(aValue);
         const comparableB = getComparableValue(bValue);
-
-        if (comparableA < comparableB) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (comparableA > comparableB) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
+  
+        if (comparableA < comparableB) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (comparableA > comparableB) return sortConfig.direction === 'asc' ? 1 : -1;
         return 0;
       });
     }
-
-    return filtered;
-  }, [poolsData, searchQuery, selectedProtocols, sortConfig]);
+    return data;
+  }, [filteredData, sortConfig]);
+  
 
   const totalPages = Math.ceil(sortedAndFilteredData.length / entriesPerPage);
   const startIndex = (currentPage - 1) * entriesPerPage;
@@ -234,38 +197,30 @@ export default function PoolsPage() {
 
   const handleProtocolClick = (protocol: Protocol) => {
     if (protocol === 'soroswap') {
-      // If Soroswap is already selected and being clicked again, clear selection
       if (selectedProtocols.includes('soroswap') && selectedProtocols.length === 1) {
         setSelectedProtocols([]);
       } else {
-        // Select only Soroswap
         setSelectedProtocols(['soroswap']);
       }
     } else {
       setSelectedProtocols(prev => {
-        // If protocol is already selected, remove it
         if (prev.includes(protocol)) {
           return prev.filter(p => p !== protocol);
         }
-        // Add the protocol to selection
         return [...prev, protocol];
       });
     }
   };
 
-  // Helper function to get display name for protocol
   const getProtocolDisplay = (protocol: string) => {
     return protocol.toLowerCase() === 'aqua' ? 'Aquarius' : protocol;
   };
 
   const handleViewDetails = (pool: PoolRiskApiResponseObject) => {
-    // Format market pair for URL (replace '/' with '-')
     const urlSafePair = pool.market.replace(/\//g, '-');
-    // Include protocol in the URL to differentiate between same pairs
     router.push(`/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`);
   };
 
-  // Column header component
   const SortableHeader = ({ 
     children, 
     sortKey, 
@@ -294,7 +249,7 @@ export default function PoolsPage() {
 
   return (
     <section className="relative">
-      <div className="container max-w-7xl mx-auto px-4 py-4 space-y-6">
+      <div className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Page Title */}
         <motion.div 
           className="space-y-0.5"
@@ -390,7 +345,7 @@ export default function PoolsPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Select value={period} onValueChange={setPeriod}>
+            <Select value={period} onValueChange={(v) => { setPeriod(v); setCurrentPage(1); }}>
               <SelectTrigger className="w-[180px] h-9">
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
@@ -409,7 +364,7 @@ export default function PoolsPage() {
                 placeholder="Search by token/pair/pool address" 
                 className="pl-10 h-9"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               />
             </div>
 
@@ -419,6 +374,7 @@ export default function PoolsPage() {
               onClick={() => {
                 setSearchQuery('');
                 setPeriod('24h');
+                setCurrentPage(1);
               }}
             >
               Reset
@@ -448,19 +404,7 @@ export default function PoolsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="h-10 px-4 text-center">
-                      Loading pools data...
-                    </TableCell>
-                  </TableRow>
-                ) : error ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="h-10 px-4 text-center text-red-500">
-                      {error}
-                    </TableCell>
-                  </TableRow>
-                ) : paginatedData.length === 0 ? (
+                {paginatedData.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="h-10 px-4 text-center text-muted-foreground">
                       No pools data available
@@ -477,7 +421,7 @@ export default function PoolsPage() {
                         <Badge 
                           variant="outline" 
                           className={cn(
-                            "capitalize",
+                            "capitalize px-3 py-1",
                             pool.protocol === "soroswap" && "bg-purple-500/10 text-purple-500 border-purple-500/20",
                             pool.protocol === "blend" && "bg-green-500/10 text-green-500 border-green-500/20",
                             pool.protocol === "phoenix" && "bg-orange-500/10 text-orange-500 border-orange-500/20",
@@ -490,7 +434,7 @@ export default function PoolsPage() {
                       <TableCell className="h-10 px-4 align-middle font-medium">
                         {pool.market}
                       </TableCell>
-                      <TableCell className={`h-10 px-4 align-middle text-right font-medium ${Number(pool.apr) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      <TableCell className="h-10 px-4 align-middle text-right font-medium">
                         {pool.apr}
                       </TableCell>
                       <TableCell className="h-10 px-4 align-middle text-right">
@@ -528,83 +472,84 @@ export default function PoolsPage() {
             </Table>
 
             {/* Table Footer with Pagination */}
-            <div className="flex items-center justify-between px-4 py-3 border-t border-border">
-              <div className="flex items-center gap-4">
+            {sortedAndFilteredData.length > 0 && (
+              <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Show</span>
+                    <Select
+                      value={entriesPerPage.toString()}
+                      onValueChange={(value) => {
+                        setEntriesPerPage(Number(value));
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="w-[70px] h-8">
+                        <SelectValue placeholder="10" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <span className="text-sm text-muted-foreground">entries</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, sortedAndFilteredData.length)} of {sortedAndFilteredData.length} entries
+                  </div>
+                </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Show</span>
-                  <Select
-                    value={entriesPerPage.toString()}
-                    onValueChange={(value) => {
-                      setEntriesPerPage(Number(value));
-                      setCurrentPage(1);
-                    }}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8"
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
                   >
-                    <SelectTrigger className="w-[70px] h-8">
-                      <SelectValue placeholder="10" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="10">10</SelectItem>
-                      <SelectItem value="25">25</SelectItem>
-                      <SelectItem value="50">50</SelectItem>
-                      <SelectItem value="100">100</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <span className="text-sm text-muted-foreground">entries</span>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, sortedAndFilteredData.length)} of {sortedAndFilteredData.length} entries
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(page => {
+                        return page === 1 || 
+                               page === totalPages || 
+                               Math.abs(page - currentPage) <= 1;
+                      })
+                      .map((page, index, array) => (
+                        <React.Fragment key={page}>
+                          {index > 0 && array[index - 1] !== page - 1 && (
+                            <span className="px-2 text-muted-foreground">...</span>
+                          )}
+                          <Button
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => setCurrentPage(page)}
+                          >
+                            {page}
+                          </Button>
+                        </React.Fragment>
+                      ))}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8"
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8"
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Previous
-                </Button>
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter(page => {
-                      return page === 1 || 
-                             page === totalPages || 
-                             Math.abs(page - currentPage) <= 1;
-                    })
-                    .map((page, index, array) => (
-                      <React.Fragment key={page}>
-                        {index > 0 && array[index - 1] !== page - 1 && (
-                          <span className="px-2 text-muted-foreground">...</span>
-                        )}
-                        <Button
-                          variant={currentPage === page ? "default" : "outline"}
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={() => setCurrentPage(page)}
-                        >
-                          {page}
-                        </Button>
-                      </React.Fragment>
-                    ))}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8"
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+            )}
           </div>
         </motion.div>
       </div>
     </section>
   );
 }
-
