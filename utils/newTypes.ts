@@ -171,7 +171,7 @@ export interface AssetDetails {
   price: number;
   volume: number;
   volume7d: number;
-  price7d: any[]; // Adjust based on actual data structure
+  price7d: { time: number; price: number }[]; // Adjust based on actual data structure
   contract: string;
   toml_info: {
     code: string;
@@ -263,4 +263,58 @@ export interface GlobalMetrics {
   bestaprpair: string;
   bestapraddress: string;
   period: "24h" | "7d" | "14d" | "30d" | "90d" | "180d" | "360d";
+}
+
+export interface BalanceLineLiquidityPool {
+  liquidity_pool_id: string;
+  asset_type: "liquidity_pool_shares";
+  balance: string;
+  limit: string;
+  last_modified_ledger: number;
+  is_authorized: boolean;
+  is_authorized_to_maintain_liabilities: boolean;
+  is_clawback_enabled: boolean;
+  sponsor?: string;
+}
+
+export interface BalanceLineAsset<T extends "credit_alphanum4" | "credit_alphanum12"> {
+  balance: string;
+  limit: string;
+  asset_type: T;
+  asset_code: string;
+  asset_issuer: string;
+  buying_liabilities: string;
+  selling_liabilities: string;
+  last_modified_ledger: number;
+  is_authorized: boolean;
+  is_authorized_to_maintain_liabilities: boolean;
+  is_clawback_enabled: boolean;
+  sponsor?: string;
+}
+export interface WalletContextType {
+  isConnected: boolean;
+  address: string | null;
+  balance: string | null;
+  otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null;
+  updateWalletInfo: (
+      isConnected: boolean,
+      address: string | null,
+      balance: string | null,
+      otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null
+  ) => void;
+}
+
+export interface BalanceLineNative {
+  balance: string;
+  asset_type: "native";
+  buying_liabilities: string;
+  selling_liabilities: string;
+}
+
+export type BalanceLine = BalanceLineNative | BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool;
+
+export interface AccountResponse {
+  id: string;
+  account_id: string;
+  balances: BalanceLine[];
 }

@@ -3,8 +3,8 @@
 import React from "react";
 import { StellarWalletsKit, WalletNetwork, allowAllModules, XBULL_ID } from "@creit.tech/stellar-wallets-kit";
 import { useWallet } from "./WalletContext";
+import { AccountResponse, BalanceLine, BalanceLineNative, BalanceLineAsset, BalanceLineLiquidityPool } from "../utils/newTypes";
 import { Horizon } from "@stellar/stellar-sdk";
-import { AccountResponse, HorizonApi } from "@stellar/stellar-sdk/lib/horizon";
 
 export const ConnectWallet: React.FC = () => {
   const { isConnected, updateWalletInfo } = useWallet();
@@ -26,17 +26,17 @@ export const ConnectWallet: React.FC = () => {
             const server = new Horizon.Server("https://horizon.stellar.org", { allowHttp: true });
 
             const account: AccountResponse = await server.loadAccount(address);
-            const balances: HorizonApi.BalanceLine[] = account.balances;
-            let xlmBalance: HorizonApi.BalanceLineNative | undefined;
+            const balances: BalanceLine[] = account.balances;
+            let xlmBalance: BalanceLineNative | undefined;
 
-            const otherBalances: (HorizonApi.BalanceLineAsset | HorizonApi.BalanceLineLiquidityPool)[] = [];
+            const otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] = [];
             // Process all balances in a single loop asynchronously
             await Promise.all(
               balances.map(async (balance) => {
                 if (balance.asset_type === "native") {
                   xlmBalance = balance;
                 } else {
-                  otherBalances.push(balance as HorizonApi.BalanceLineAsset | HorizonApi.BalanceLineLiquidityPool);
+                  otherBalances.push(balance as BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool);
                 }
               })
             );
