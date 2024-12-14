@@ -1,24 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bars4Icon, XMarkIcon, SunIcon, MoonIcon, UserCircleIcon } from "@heroicons/react/24/outline";
-import { useTheme } from "./ThemeContext";
-
 import Image from "next/image";
+import { Bars4Icon, XMarkIcon, SunIcon, MoonIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
+import { useTheme } from "@/contexts/ThemeContext";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ConnectWallet } from "@/components/ConnectWallet";
-import { signOut, useSession } from "next-auth/react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navigationItems = [
   { name: "Home", path: "/ai-home" },
@@ -34,16 +27,9 @@ const Navbar: React.FC = () => {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { data: session, status } = useSession(); // get the client session
 
-  useEffect(() => {
-    if (status !== "loading") {
-      if (session?.user?.accessToken) {
-        setIsLoggedIn(true);
-      }
-    }
-  }, [status]);
+  const { session, signOut } = useAuth();  
+  const isLoggedIn = !!session?.user?.accessToken;
 
   const handleLogin = () => {
     router.push("/signup?mode=login");
@@ -55,9 +41,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav
-      className={`sticky top-0 w-full border-b ${theme === "dark" ? "bg-background border-border" : "bg-white border-gray-200"} z-50`}
-    >
+    <nav className={`sticky top-0 w-full border-b ${theme === "dark" ? "bg-background border-border" : "bg-white border-gray-200"} z-50`}>
       <div className="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="relative flex items-center">
           <Image
@@ -65,7 +49,7 @@ const Navbar: React.FC = () => {
             alt="Hoops Logo"
             width={120}
             height={40}
-            className={`h-8 w-auto ${theme === "dark" ? "brightness-0 invert" : "brightness-0"}`}
+            className={`${theme === "dark" ? "brightness-0 invert" : "brightness-0"}`}
             priority
           />
         </Link>

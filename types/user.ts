@@ -7,6 +7,7 @@ interface UserType {
   accessToken: string;
   refreshToken: string;
   subId: string;
+  emailVerified?: Date | null;
 }
 
 type UserResponseType = {

@@ -1,12 +1,13 @@
-'use client'
+'use client';
 
-import React, { useState, useEffect, ChangeEvent, FormEvent, Suspense } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react'
+import { useRouter } from 'next/navigation'
 import { SunIcon, MoonIcon } from '@heroicons/react/24/outline'
 import { Checkbox } from "@/components/ui/checkbox"
 import Image from "next/image"
-import { useTheme } from "@/components/ThemeContext"
-import { useSession, signIn } from "next-auth/react"
+import { useTheme } from "@/contexts/ThemeContext"
+import { useAuth } from "@/contexts/AuthContext"
+import GetLoginFromParams from "@/components/GetLoginFromParams"
 
 const GoogleIcon = () => <Image src="/GoogleIcon.svg" alt="Google" width={24} height={24} />
 const DiscordIcon = () => <Image src="/discord.svg" alt="Discord" width={24} height={24} />
@@ -119,7 +120,20 @@ const AuthForm = ({
   handleSubmit,
   loginWithGoogle,
   loginWithDiscord,
-}: any) => (
+}: {
+  isLogin: boolean;
+  email: string;
+  password: string;
+  setEmail: (email: string) => void;
+  setPassword: (password: string) => void;
+  agreed: boolean;
+  setAgreed: (agreed: boolean) => void;
+  error: string;
+  success: string;
+  handleSubmit: (e: FormEvent) => void;
+  loginWithGoogle: () => void;
+  loginWithDiscord: () => void;
+}) => (
   <form onSubmit={handleSubmit} className="mt-8 space-y-6">
     <EmailInput value={email} onChange={(e) => setEmail(e.target.value)} />
     <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
@@ -139,18 +153,6 @@ const AuthForm = ({
   </form>
 )
 
-function SuspenseSearchParams({
-  setIsLogin,
-}: {
-  setIsLogin: (isLogin: boolean) => void
-}) {
-  const searchParams = useSearchParams()
-  useEffect(() => {
-    setIsLogin(searchParams.get('mode') === 'login')
-  }, [searchParams])
-  return null
-}
-
 export default function Component() {
   const router = useRouter()
   const { theme, toggleTheme } = useTheme()
@@ -161,13 +163,40 @@ export default function Component() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const passwordLength = 6
-  const { data: session } = useSession()
+
+  const { session, signIn } = useAuth();
+
+  // We'll receive all params from GetLoginFromParams
+  const [errorParam, setErrorParam] = useState("");
+  const [oauthEmail, setOauthEmail] = useState("");
+  const [oauthProvider, setOauthProvider] = useState("");
+  const [oauthCode, setOauthCode] = useState("");
+
+  const handleParamsLoaded = ({ isLogin: loginMode, errorParam, oauthEmail, oauthProvider, oauthCode }: {
+    isLogin: boolean; errorParam: string; oauthEmail?: string; oauthProvider?: string; oauthCode?: string;
+  }) => {
+    setIsLogin(loginMode);
+    setErrorParam(errorParam);
+    if (oauthEmail) setOauthEmail(oauthEmail);
+    if (oauthProvider) setOauthProvider(oauthProvider);
+    if (oauthCode) setOauthCode(oauthCode);
+  };
 
   useEffect(() => {
-    if (session?.user?.accessToken) {
+    if (session?.user?.accessToken && !errorParam) {
       router.push("/profile")
     }
-  }, [session])
+  }, [session, router, errorParam])
+
+  // If NO_ACCOUNT scenario, prefill email if available
+  useEffect(() => {
+    if (errorParam.startsWith('NO_ACCOUNT')) {
+      setIsLogin(false) // ensure signup mode
+      if (oauthEmail) {
+        setEmail(oauthEmail)
+      }
+    }
+  }, [errorParam, oauthEmail])
 
   const toggleMode = () => {
     const newMode = !isLogin
@@ -175,7 +204,7 @@ export default function Component() {
     router.push(newPath)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
 
     if (isLogin) {
@@ -192,7 +221,7 @@ export default function Component() {
           setSuccess("")
           setError("Invalid credentials")
         }
-      } catch (error) {
+      } catch (error: unknown) {
         setError("Internal server error")
       }
     } else {
@@ -202,39 +231,69 @@ export default function Component() {
       }
 
       try {
-        const res = await fetch("/api/register", {
+        const res = await fetch("/api/auth/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ email: email, password: password })
         })
+
         if (res.ok) {
           setSuccess("Registration successful, please login")
-          setIsLogin(true)
+          // If NO_ACCOUNT scenario, link their OAuth now
+          if (errorParam.startsWith('NO_ACCOUNT') && oauthProvider && oauthCode) {
+            // Sign in with credentials
+            const signInRes = await signIn("credentials", { redirect: false, email, password })
+            if (!signInRes?.ok) {
+              setError("Failed to login after registration")
+              return
+            }
+
+            // Link endpoint
+            const linkRes = await fetch("/api/auth/oauth/link", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ provider: oauthProvider, code: oauthCode })
+            })
+
+            if (!linkRes.ok) {
+              const errData = await linkRes.json()
+              setError(`Failed to link OAuth: ${errData.message || linkRes.statusText}`)
+              return
+            }
+            router.push("/profile")
+          } else {
+            // normal sign-up without oauth scenario
+            setIsLogin(true)
+          }
         } else {
           setError(`Error: ${res.statusText}`)
-          throw new Error(`${res.statusText}`)
+          const errData = await res.json().catch(() => ({}))
+          if (errData?.error) {
+            console.error(errData.error)
+          }
         }
-      } catch (err) {
+      } catch (error: unknown) {
         setError("Unexpected error")
       }
     }
   }
 
   const loginWithGoogle = () => {
-    signIn("google")
+    // Initiate OAuth flow
+    window.location.href = "/api/auth/oauth/start?provider=google";
   }
 
   const loginWithDiscord = () => {
-    signIn("discord")
+    // Initiate OAuth flow
+    window.location.href = "/api/auth/oauth/start?provider=discord";
   }
 
   return (
     <div className="page-container">
-      <Suspense fallback={<div>Loading...</div>}>
-        <SuspenseSearchParams setIsLogin={setIsLogin} />
-      </Suspense>
+      {/* GetLoginFromParams handles all search param reading under Suspense */}
+      <GetLoginFromParams onParamsLoaded={handleParamsLoaded} />
       <div className="absolute top-4 right-4">
         <button
           onClick={toggleTheme}

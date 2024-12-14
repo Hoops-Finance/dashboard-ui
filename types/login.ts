@@ -4,7 +4,8 @@ type CredentialsType = {
 };
 
 type SocialCredentialsType = {
-  auth_code: string;
+  provider: string;
+  code: string;
 };
 
 export type { CredentialsType, SocialCredentialsType };

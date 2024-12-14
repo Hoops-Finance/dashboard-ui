@@ -30,7 +30,7 @@ export default function Profile() {
       // Redirect to `/login` if no access token or no session
       router.push("/signup?mode=login&next=" + pathname);
     }
-  }, [session]);
+  }, [session, pathname, router]);
 
   const getUserProfile = (token: string) => {
     setLoadingProfile(true);
@@ -40,9 +40,12 @@ export default function Profile() {
       .then(() => {
         setLoadingProfile(false);
       })
-      .catch((error) => {
-        // handle error here
-        console.error(error);
+      .catch((error: unknown) => {
+        if (error instanceof Error) {
+          console.error(error.message);
+        } else {
+          console.error("Unknown error fetching user profile");
+        }
       });
   };
 

@@ -1,98 +1,64 @@
+/* This component reads the provider and code from the URL, then calls signIn("social"). The utils/auth.ts will use the /api/auth/oauth/exchange route to finalize login or link. */
+
 "use client";
 
-// library imports
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { signIn } from "@/utils/auth";
 
 export default function SocialAuth() {
   const searchParams = useSearchParams();
   const currentUrl = usePathname();
-  const segments = currentUrl.split("/");
-  const provider = segments.pop() || segments.pop();
-
-  let socialLogin = process.env.GOOGLE_OAUTH_FLOW_URL || "";
-
-  switch (provider) {
-    case "google":
-      socialLogin = process.env.GOOGLE_OAUTH_FLOW_URL || "";
-      break;
-    case "discord":
-      socialLogin = process.env.DISCORD_OAUTH_FLOW_URL || "";
-      break;
-  }
-
   const router = useRouter();
 
-  const [authSuccess, setAuthSuccess] = useState(true);
-  const [tokenStatus, setTokenStatus] = useState(false);
+  const segments = currentUrl.split("/");
+  const provider = segments.pop() || segments.pop(); // "google" or "discord"
+  const code = searchParams.get("code");
+
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    // check query string for authentication code
-    if (authSuccess || tokenStatus) {
-      const code = searchParams.get("code");
-      if (!tokenStatus && authSuccess) {
-        if (code) {
-          const decodeCode = decodeURIComponent(code);
-          authenticateUser(decodeCode);
-        } else {
-          router.push("/auth/login");
-        }
-      } else if (tokenStatus) {
-        // Redirect to previous page or home page
-        const next = searchParams.get("next") || "/";
-        router.push(next);
-      } else {
-        router.push("/auth/login");
-      }
+    if (!code || !provider) {
+      setError("Missing code or provider");
+      return;
     }
-  }, [tokenStatus, authSuccess]);
 
-  const authenticateUser = async (code: string) => {
-    try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ username: code, type: "social" })
-      });
-
+    (async () => {
+      const res = await signIn("social", { redirect: false, provider, code });
+      if (!res) {
+        setError("Social login failed with unknown error.");
+        return;
+      }
       if (res.ok) {
-        setTokenStatus(true);
-        window.location.href = "/profile";
+        router.push("/profile");
       } else {
-        // handle error state here
-        setAuthSuccess(false);
+        // If NO_ACCOUNT scenario, NextAuth will redirect to signup with error param automatically
+        // If other error, display it
+        setError(res.error || "Social login failed");
       }
-    } catch (error) {
-      setAuthSuccess(false);
-    }
-  };
+    })();
+  }, [code, provider, router]);
 
-  return (
-    <>
+  if (error) {
+    return (
       <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
         <div className="grid gap-6">
-          <div className="rounded-xl border bg-card text-card-foreground shadow">
-            {authSuccess ? (
-              <div>
-                <h1>Authenticating...</h1>
-              </div>
-            ) : (
-              <div>
-                <h1> An error occurred while attempting to authenticate your account with Google or Discord </h1>
-
-                <div>
-                  <div>
-                    <Link href={socialLogin}>Please try again</Link>
-                  </div>
-                </div>
-              </div>
-            )}
+          <div className="rounded-xl border bg-card text-card-foreground shadow p-4">
+            <h1 className="text-lg font-semibold">An error occurred while authenticating</h1>
+            <p className="text-sm text-muted-foreground">{error}</p>
           </div>
         </div>
       </div>
-    </>
+    );
+  }
+
+  return (
+    <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <div className="grid gap-6">
+        <div className="rounded-xl border bg-card text-card-foreground shadow p-4">
+          <h1 className="text-lg font-semibold">Authenticating...</h1>
+        </div>
+      </div>
+    </div>
   );
 }
