@@ -2,7 +2,7 @@
 
 import React from "react";
 import { StellarWalletsKit, WalletNetwork, allowAllModules, XBULL_ID } from "@creit.tech/stellar-wallets-kit";
-import { useWallet } from "./WalletContext";
+import { useWallet } from "../contexts/WalletContext";
 import { AccountResponse, BalanceLine, BalanceLineNative, BalanceLineAsset, BalanceLineLiquidityPool } from "../utils/newTypes";
 import { Horizon } from "@stellar/stellar-sdk";
 
