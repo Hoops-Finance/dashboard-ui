@@ -1,7 +1,7 @@
 // /app/api/tokeninfo/[asset]/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { AssetDetails } from "../../../../utils/newTypes";
+import { AssetDetails } from "@/utils/newTypes";
 
 const API_BASE_URL = "https://api.stellar.expert/explorer/public/asset";
 const API_KEY = process.env.SXX_API_KEY; // Ensure this is set in your .env.local

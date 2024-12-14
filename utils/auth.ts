@@ -5,7 +5,7 @@ import { useSession as originalUseSession } from "next-auth/react";
 
 import type { NextAuthConfig, Session } from "next-auth";
 import type { JWT } from "next-auth/jwt";
-import type { UserType, UserResponseType } from "../types/user";
+import type { UserType, UserResponseType } from "@/types/user";
 
 declare module "next-auth" {
   interface User extends UserType {

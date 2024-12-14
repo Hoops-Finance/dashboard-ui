@@ -1,6 +1,6 @@
 //this is distinct from poolscolumns, and is used in the expanded markets
 import { TableColumn } from "react-data-table-component";
-import { Pair } from "../../utils/newTypes";
+import { Pair } from "@/utils/newTypes";
 
 export const pairColumns = (token0Symbol: string, token1Symbol: string, token0Decimals: number, token1Decimals: number): TableColumn<Pair>[] => [
   {

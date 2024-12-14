@@ -154,7 +154,7 @@ export default function PoolPage({ params, searchParams }: PageProps) {
       window.removeEventListener('resize', handleResize);
       chartInstance.remove();
     };
-  }, []);
+  }, [chart]);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-background">

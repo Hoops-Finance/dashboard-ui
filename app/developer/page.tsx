@@ -139,7 +139,7 @@ export default function DeveloperPage() {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <p>
-                        Make sure to copy your API key now. For security reasons, you won't be able to see it again.
+                        Make sure to copy your API key now. For security reasons, you won&apos;t be able to see it again.
                       </p>
                     </div>
                   </div>

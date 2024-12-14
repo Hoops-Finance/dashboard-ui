@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Flame, Diamond, Coins, Search, ChevronLeft, ChevronRight, X, ChevronUp, ChevronDown, ArrowUpDown, BookOpen } from 'lucide-react';
-import { PoolRiskApiResponseObject } from "@/utils/newTypes";
+import { PoolRiskApiResponseObject, RankingFactors, RiskFactors } from "@/utils/newTypes";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -194,7 +194,11 @@ export default function PoolsPage() {
         const bValue = b[sortConfig.key!];
 
         // Convert values to comparable numbers if they're strings with numbers
-        const getComparableValue = (value: any) => {
+        const getComparableValue = (value: string | number | RiskFactors | RankingFactors) => {
+          if (typeof value === 'object') {
+            // Handle RiskFactors and RankingFactors types
+            return JSON.stringify(value);
+          }
           if (typeof value === 'string') {
             // Try to extract number from string (handles %, $, etc.)
             const number = parseFloat(value.replace(/[^0-9.-]+/g, ''));

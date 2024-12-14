@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { WalletConnection } from "../../components/Dashboard/WalletConnection";
+import { WalletConnection } from "@/components/Dashboard/WalletConnection";
 import { Metrics } from "@/components/Dashboard/Metrics";
-import { TableComponent } from "../../components/Dashboard/TableComponent";
-import DetailedInfo from "../../components/DetailedInfo";
+import { TableComponent } from "@/components/Dashboard/TableComponent";
+import DetailedInfo from "@/components/DetailedInfo";
 import { ExplorerTableData, ProcessedToken, PoolRiskApiResponseObject, Pair, GlobalMetrics } from "utils/newTypes";
-import { fetchData } from "../../utils/FetchData";
+import { fetchData } from "@/utils/FetchData";
 
 export default function Dashboard() {
   const [explorerData, setExplorerTableData] = useState<ExplorerTableData | null>(null);

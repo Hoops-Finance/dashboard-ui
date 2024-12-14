@@ -1,5 +1,5 @@
 import { TableColumn } from "react-data-table-component";
-import { Market } from "../../utils/newTypes";
+import { Market } from "@/utils/newTypes";
 import Image from 'next/image';
 
 const protocolIcons: Record<string, string> = {

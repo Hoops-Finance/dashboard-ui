@@ -1,7 +1,7 @@
 // TokenColumns.tsx
 
 import { TableColumn } from "react-data-table-component";
-import { ProcessedToken } from "../../utils/newTypes";
+import { ProcessedToken } from "@/utils/newTypes";
 import Image from "next/image";
 
 export const tokenColumns: TableColumn<ProcessedToken>[] = [

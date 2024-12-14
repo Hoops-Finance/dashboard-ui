@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useState, useContext, ReactNode } from "react";
-import { WalletContextType, BalanceLineAsset, BalanceLineLiquidityPool } from "../utils/newTypes";
+import { WalletContextType, BalanceLineAsset, BalanceLineLiquidityPool } from "@/utils/newTypes";
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 

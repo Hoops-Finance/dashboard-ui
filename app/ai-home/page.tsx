@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
-import { useTheme } from "@/components/ThemeContext"
+import { useTheme } from "@/contexts/ThemeContext"
 
 const poolData = [
   { name: 'ETH/XLM', apy: 10.3 },

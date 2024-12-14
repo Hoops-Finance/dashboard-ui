@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ConnectWallet } from "../ConnectWallet";
-import { useWallet } from "../../contexts/WalletContext";
+import { ConnectWallet } from "@/components/ConnectWallet";
+import { useWallet } from "@/contexts/WalletContext";
 import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 export function WalletConnection() {
   const { isConnected, address, balance } = useWallet();

@@ -1,9 +1,9 @@
 import React from "react";
 import DataTable from "react-data-table-component";
-import { Market, Pair } from "../../utils/newTypes";
-import { pairColumns } from "../DataViews/PairColumns";
+import { Market, Pair } from "@/utils/newTypes";
+import { pairColumns } from "@/components/DataViews/PairColumns";
 import { customTableStyles } from "./TableStyles";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { ExpanderComponentProps } from "react-data-table-component";
 
 interface ExpandedMarketComponentProps extends ExpanderComponentProps<Market> {

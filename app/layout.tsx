@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ClientWalletProvider } from "../components/ClientWalletProvider";
+import { ClientWalletProvider } from "@/components/ClientWalletProvider";
 import Navbar from "@/components/Navbar";
 import { Footer } from "@/components/ui/Footer";
 import { ThemeProvider } from "@/contexts/ThemeContext";

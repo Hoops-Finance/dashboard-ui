@@ -1,5 +1,5 @@
 import { TableColumn } from "react-data-table-component";
-import { PoolRiskApiResponseObject } from "../../utils/newTypes";
+import { PoolRiskApiResponseObject } from "@/utils/newTypes";
 import Image from "next/image";
 
 export const poolsColumns: TableColumn<PoolRiskApiResponseObject>[] = [
