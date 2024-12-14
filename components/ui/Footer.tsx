@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function Footer() {
   return (
     <footer 
@@ -5,13 +7,13 @@ export function Footer() {
       style={{ display: 'var(--footer-display, block)' }}
     >
       <nav className="flex justify-center gap-6 text-sm text-muted-foreground">
-        <a href="#" className="hover:text-primary transition-colors duration-300">Pricing</a>
-        <a href="#" className="hover:text-primary transition-colors duration-300">Enterprise</a>
-        <a href="#" className="hover:text-primary transition-colors duration-300">FAQ</a>
-        <a href="#" className="hover:text-primary transition-colors duration-300">Legal</a>
-        <a href="#" className="hover:text-primary transition-colors duration-300">Privacy</a>
-        <a href="#" className="hover:text-primary transition-colors duration-300">Explore</a>
-        <a href="#" className="hover:text-primary transition-colors duration-300">Save ↗</a>
+        <Link href="#" className="hover:text-primary transition-colors duration-300">Pricing</Link>
+        <Link href="#" className="hover:text-primary transition-colors duration-300">Enterprise</Link>
+        <Link href="#" className="hover:text-primary transition-colors duration-300">FAQ</Link>
+        <Link href="#" className="hover:text-primary transition-colors duration-300">Legal</Link>
+        <Link href="#" className="hover:text-primary transition-colors duration-300">Privacy</Link>
+        <Link href="#" className="hover:text-primary transition-colors duration-300">Explore</Link>
+        <Link href="#" className="hover:text-primary transition-colors duration-300">Save ↗</Link>
       </nav>
     </footer>
   )
