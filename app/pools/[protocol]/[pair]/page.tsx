@@ -1,51 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { createChart, IChartApi, UTCTimestamp, SeriesType, ISeriesApi, ColorType, ChartOptions } from "lightweight-charts";
-import { useDataContext } from "@/contexts/DataContext";
-import { cn } from "@/lib/utils";
-import {
-  AlertCircle,
-  BarChart3,
-  ChevronRight,
-  Copy,
-  ExternalLink,
-  FileCode,
-  LineChart,
-  Lock,
-  Plus,
-  Settings,
-  Share2,
-  Shield,
-  Tag,
-  Loader2
-} from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { AlertCircle, BarChart3, ChevronRight, Copy, ExternalLink, FileCode, LineChart, Lock, Plus, Settings, Share2, Shield, Tag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-import type { TransformedCandleData } from "@/utils/newTypes";
-
-interface PageProps {
-  params: {
-    protocol: string;
-    pair: string;
-  };
-}
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { useDataContext } from "@/contexts/DataContext";
+import ChartComponent from "@/components/ChartComponent";
+import { UTCTimestamp } from "lightweight-charts";
 
 interface StatCardProps {
   title: string;
@@ -96,78 +62,17 @@ const getProtocolDisplay = (protocol: string): string => {
     protocol.charAt(0).toUpperCase() + protocol.slice(1).toLowerCase();
 };
 
-type ChartStyle = 'candlestick' | 'line' | 'area';
-
-// Simple EMA calculation
-function ema(data: number[], period: number): number[] {
-  const k = 2 / (period + 1);
-  const emaVals: number[] = [];
-  let emaPrev = data[0];
-  emaVals.push(emaPrev);
-  for (let i = 1; i < data.length; i++) {
-    emaPrev = data[i] * k + emaPrev * (1 - k);
-    emaVals.push(emaPrev);
-  }
-  return emaVals;
-}
-
-// MACD calculation
-function calcMACD(data: number[]): {macd:number[], signal:number[]} {
-  if (data.length < 26) {
-    return {macd: [], signal: []};
-  }
-  const ema12 = ema(data, 12);
-  const ema26 = ema(data, 26);
-  const macd: number[] = [];
-  for (let i = 25; i < data.length; i++) {
-    macd.push(ema12[i] - ema26[i]);
-  }
-  const signal = ema(macd, 9);
-  return { macd, signal };
-}
-
-// RSI calculation (14-period)
-function calcRSI(data: number[]): number[] {
-  if (data.length < 15) return [];
-  const rsiArr: number[] = [];
-  let gains = 0;
-  let losses = 0;
-  const period = 14;
-  for (let i = 1; i <= period; i++) {
-    const diff = data[i] - data[i-1];
-    if (diff > 0) gains += diff; else losses -= diff;
-  }
-  let avgGain = gains / period;
-  let avgLoss = losses / period;
-  rsiArr.push(100 - 100/(1+avgGain/avgLoss));
-  
-  for (let i = period+1; i < data.length; i++) {
-    const diff = data[i] - data[i-1];
-    if (diff > 0) {
-      avgGain = (avgGain*(period-1)+diff)/period;
-      avgLoss = (avgLoss*(period-1)+0)/period;
-    } else {
-      avgGain = (avgGain*(period-1)+0)/period;
-      avgLoss = (avgLoss*(period-1)-diff)/period;
-    }
-    const rs = avgGain/avgLoss;
-    rsiArr.push(100 - 100/(1+rs));
-  }
-  return rsiArr;
-}
-
-export default function PoolPage({ params }: PageProps) {
+export default function PoolPage({ params }: { params: { protocol: string; pair: string } }) {
   const router = useRouter();
   const { poolRiskData, period, setPeriod, loading, fetchCandles, pairs } = useDataContext();
-
   const [copyFeedback, setCopyFeedback] = useState<string>('');
-  const chartContainerRef = useRef<HTMLDivElement>(null);
-  const [chart, setChart] = useState<IChartApi | null>(null);
-  const [chartError, setChartError] = useState<string | null>(null);
-  const [chartStyle, setChartStyle] = useState<ChartStyle>('candlestick');
-
+  const [chartStyle, setChartStyle] = useState<'candlestick'|'line'|'area'>('candlestick');
   const [showMACD, setShowMACD] = useState(false);
   const [showRSI, setShowRSI] = useState(false);
+  const [showSMA, setShowSMA] = useState(false);
+  const [showEMA, setShowEMA] = useState(false);
+  const [showBollinger, setShowBollinger] = useState(false);
+  const [inverted, setInverted] = useState(false);
 
   const protocolParam = params.protocol.toLowerCase();
   const pairParam = params.pair;
@@ -208,15 +113,9 @@ export default function PoolPage({ params }: PageProps) {
     return poolRiskData.find(pool => pool.pairId === foundPair.id);
   }, [pairs, poolRiskData, token0Name, token1Name]);
 
-  const [candleData, setCandleData] = useState<{time: UTCTimestamp, open:number, high:number, low:number, close:number}[]>([]);
-  const [volumeData, setVolumeData] = useState<{time: UTCTimestamp, value:number, color:string}[]>([]);
-
-  // Use refs for series
-  const mainSeriesRef = useRef<ISeriesApi<SeriesType> | null>(null);
-  const volumeSeriesRef = useRef<ISeriesApi<"Histogram"> | null>(null);
-  const macdSeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
-  const macdSignalSeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
-  const rsiSeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
+  const [candleData, setCandleData] = useState<{time:UTCTimestamp;open:number;high:number;low:number;close:number}[]>([]);
+  const [volumeData, setVolumeData] = useState<{time:UTCTimestamp;value:number;color:string}[]>([]);
+  const [chartError, setChartError] = useState<string|null>(null);
 
   useEffect(() => {
     if (!poolData || loading) return;
@@ -248,14 +147,14 @@ export default function PoolPage({ params }: PageProps) {
             from = to - 7 * 24 * 3600;
         }
 
-        const rawData = await fetchCandles(token0Name, token1Name, from, to) as TransformedCandleData[];
+        const rawData = await fetchCandles(token0Name, token1Name, from, to);
         if (!rawData || rawData.length === 0) {
           setCandleData([]);
           setVolumeData([]);
           return;
         }
 
-        const cData = rawData.map(c => ({
+        const cData = rawData.map((c: { time: number; open: number; high: number; low: number; close: number; baseVolume: number }) => ({
           time: c.time as UTCTimestamp,
           open: c.open,
           high: c.high,
@@ -263,7 +162,7 @@ export default function PoolPage({ params }: PageProps) {
           close: c.close,
         }));
 
-        const vData = rawData.map(c => ({
+        const vData = rawData.map((c: { time: number; open: number; close: number; baseVolume: number }) => ({
           time: c.time as UTCTimestamp,
           value: c.baseVolume,
           color: c.close >= c.open ? '#26a69a' : '#ef5350',
@@ -271,7 +170,7 @@ export default function PoolPage({ params }: PageProps) {
 
         setCandleData(cData);
         setVolumeData(vData);
-      } catch (error: unknown) {
+      } catch (error:unknown) {
         console.error('Error loading chart data:', error);
         const message = error instanceof Error ? error.message : 'Unknown error';
         setChartError('Unable to load chart data: ' + message);
@@ -281,292 +180,6 @@ export default function PoolPage({ params }: PageProps) {
     };
     loadData();
   }, [poolData, period, fetchCandles, loading, token0Name, token1Name]);
-
-  useEffect(() => {
-    if (!chartContainerRef.current) return;
-
-    const container = chartContainerRef.current;
-    const chartOptions: ChartOptions = {
-      overlayPriceScales: {
-        mode: 0,
-        invertScale: false,
-        alignLabels: true,
-        borderVisible: false,
-        borderColor: '#2c2c3e',
-        entireTextOnly: false,
-        ticksVisible: true,
-        minimumWidth: 50,
-        scaleMargins: {
-          top: 0.1,
-          bottom: 0.1,
-        },
-      },
-      handleScroll: {
-        pressedMouseMove: true,
-        horzTouchDrag: true,
-        vertTouchDrag: false,
-        mouseWheel: true,
-      },
-      handleScale: {
-        axisDoubleClickReset: { time:true, price:true },
-        axisPressedMouseMove: { time:true, price:true },
-        mouseWheel: true,
-        pinch: true,
-      },
-      kineticScroll: {
-        touch: true,
-        mouse: true,
-      },
-      trackingMode: {
-        exitMode: 1,
-      },
-      layout: {
-        textColor: '#D9D9D9',
-        background: { type: ColorType.Solid, color: '#1e1e2f' },
-        fontSize: 12,
-        fontFamily: 'Arial',
-        attributionLogo: false,
-      },
-      rightPriceScale: {
-        borderVisible: false,
-        borderColor: '#2c2c3e',
-        entireTextOnly: false,
-        visible: true,
-        ticksVisible: true,
-        minimumWidth: 50,
-        autoScale: true,
-        mode: 0,
-        invertScale: false,
-        alignLabels: true,
-        scaleMargins: {
-          top: 0.1,
-          bottom: 0.1,
-        },
-      },
-      leftPriceScale: {
-        visible: false,
-        autoScale: true,
-        mode: 0,
-        invertScale: false,
-        alignLabels: true,
-        borderVisible: false,
-        borderColor: '#2c2c3e',
-        entireTextOnly: false,
-        ticksVisible: true,
-        minimumWidth: 50,
-        scaleMargins: {
-          top: 0.1,
-          bottom: 0.1,
-        },
-      },
-      timeScale: {
-        borderVisible: false,
-        rightOffset: 5,
-        barSpacing: 6,
-        minBarSpacing: 1,
-        fixLeftEdge: false,
-        fixRightEdge: false,
-        lockVisibleTimeRangeOnResize: false,
-        rightBarStaysOnScroll: false,
-        borderColor: '#2c2c3e',
-        visible: true,
-        timeVisible: true,
-        secondsVisible: false,
-        shiftVisibleRangeOnNewBar: true,
-        ticksVisible: true,
-        allowShiftVisibleRangeOnWhitespaceReplacement: true,
-        uniformDistribution: false,
-        minimumHeight: 0,
-        allowBoldLabels: true,
-      },
-      grid: {
-        vertLines: { color: '#2c2c3e', style: 0, visible: true },
-        horzLines: { color: '#2c2c3e', style: 0, visible: true },
-      },
-      crosshair: {
-        mode: 1,
-        vertLine: {
-          color: '#758696', width: 1, style: 0, visible: true, labelVisible: true,
-          labelBackgroundColor: '#121212' // Provide a valid color
-        },
-        horzLine: {
-          color: '#758696', width: 1, style: 0, visible: true, labelVisible: true,
-          labelBackgroundColor: '#121212' // Provide a valid color here too
-        },
-      },
-      localization: {
-        dateFormat: 'yyyy/MM/dd',
-        locale: 'en-US',
-      },
-      autoSize: true,
-      watermark: {
-        visible: false,
-        color: '',
-        text: '',
-        fontSize: 0,
-        fontFamily: '',
-        fontStyle: '',
-        horzAlign: 'center',
-        vertAlign: 'center',
-      },
-      width: container.clientWidth,
-      height: container.clientHeight,
-    };
-
-    const chartInstance = createChart(container, chartOptions);
-    setChart(chartInstance);
-
-    const handleResize = () => {
-      if (chartInstance) {
-        chartInstance.applyOptions({
-          width: container.clientWidth,
-          height: container.clientHeight,
-        });
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      chartInstance.remove();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!chart) return;
-
-    // Remove all old series
-    if (mainSeriesRef.current) {
-      chart.removeSeries(mainSeriesRef.current);
-      mainSeriesRef.current = null;
-    }
-    if (volumeSeriesRef.current) {
-      chart.removeSeries(volumeSeriesRef.current);
-      volumeSeriesRef.current = null;
-    }
-    if (macdSeriesRef.current) {
-      chart.removeSeries(macdSeriesRef.current);
-      macdSeriesRef.current = null;
-    }
-    if (macdSignalSeriesRef.current) {
-      chart.removeSeries(macdSignalSeriesRef.current);
-      macdSignalSeriesRef.current = null;
-    }
-    if (rsiSeriesRef.current) {
-      chart.removeSeries(rsiSeriesRef.current);
-      rsiSeriesRef.current = null;
-    }
-
-    if (candleData.length === 0 || volumeData.length === 0) {
-      return;
-    }
-
-    let newMainSeries: ISeriesApi<SeriesType>;
-    if (chartStyle === 'candlestick') {
-      newMainSeries = chart.addCandlestickSeries({
-        upColor: '#26a69a',
-        downColor: '#ef5350',
-        borderDownColor: '#ef5350',
-        borderUpColor: '#26a69a',
-        wickDownColor: '#ef5350',
-        wickUpColor: '#26a69a',
-      });
-      newMainSeries.setData(candleData);
-    } else if (chartStyle === 'line') {
-      const lineData = candleData.map(d => ({ time: d.time, value: d.close }));
-      newMainSeries = chart.addLineSeries({
-        color: '#2196f3',
-        lineWidth: 2,
-        crosshairMarkerVisible: true,
-      });
-      newMainSeries.setData(lineData);
-    } else {
-      const areaData = candleData.map(d => ({ time: d.time, value: d.close }));
-      newMainSeries = chart.addAreaSeries({
-        topColor: 'rgba(33, 150, 243, 0.4)',
-        bottomColor: 'rgba(33, 150, 243, 0.0)',
-        lineColor: '#2196f3',
-        lineWidth: 2,
-      });
-      newMainSeries.setData(areaData);
-    }
-
-    newMainSeries.priceScale().applyOptions({
-      scaleMargins: {
-        top: 0.1,
-        bottom: 0.4,
-      },
-    });
-
-    mainSeriesRef.current = newMainSeries;
-
-    const newVolumeSeries = chart.addHistogramSeries({
-      color: '#26a69a',
-      priceFormat: { type: 'volume' },
-      priceScaleId: '',
-    });
-    newVolumeSeries.priceScale().applyOptions({
-      scaleMargins: {
-        top: 0.7,
-        bottom: 0,
-      },
-    });
-    newVolumeSeries.setData(volumeData);
-    volumeSeriesRef.current = newVolumeSeries;
-
-    const closes = candleData.map(d => d.close);
-
-    if (showMACD && closes.length > 0) {
-      const { macd, signal } = calcMACD(closes);
-      if (macd.length > 0 && signal.length > 0) {
-        const startIndex = candleData.length - macd.length;
-        const macdData = macd.map((v,i)=>({ time: candleData[startIndex+i].time, value:v }));
-        const signalData = signal.map((v,i)=>({ time: candleData[startIndex+(macd.length-signal.length)+i].time, value:v }));
-
-        // Create a separate scale for MACD
-        const macdLine = chart.addLineSeries({ 
-          color:'#e91e63', 
-          lineWidth:1,
-          priceScaleId: 'macd'
-        });
-        macdLine.priceScale().applyOptions({
-          autoScale: true,
-          scaleMargins:{top:0.3,bottom:0.3}
-        });
-        macdLine.setData(macdData);
-        macdSeriesRef.current = macdLine;
-
-        const signalLine = chart.addLineSeries({
-          color:'#ffa726', 
-          lineWidth:1,
-          priceScaleId: 'macd'
-        });
-        signalLine.setData(signalData);
-        macdSignalSeriesRef.current = signalLine;
-      }
-    }
-
-    if (showRSI && closes.length > 0) {
-      const rsiVals = calcRSI(closes);
-      if (rsiVals.length > 0) {
-        const startIndex = candleData.length - rsiVals.length;
-        const rsiData = rsiVals.map((v,i)=>({ time: candleData[startIndex+i].time, value:v }));
-        const rsiLine = chart.addLineSeries({ 
-          color:'#ab47bc', 
-          lineWidth:1,
-          priceScaleId: 'rsi'
-        });
-        rsiLine.priceScale().applyOptions({
-          autoScale:true,
-          scaleMargins:{top:0.3,bottom:0.3}
-        });
-        rsiLine.setData(rsiData);
-        rsiSeriesRef.current = rsiLine;
-      }
-    }
-
-    chart.timeScale().fitContent();
-  }, [chart, chartStyle, candleData, volumeData, showMACD, showRSI]);
 
   const handleCopy = async (text: string) => {
     try {
@@ -661,46 +274,51 @@ export default function PoolPage({ params }: PageProps) {
         </header>
 
         {/* Toolbar for chart style and indicators */}
-        <div className="flex gap-2 mt-4 flex-wrap">
-          <Button
-            variant={chartStyle === 'candlestick' ? 'default' : 'secondary'}
-            onClick={() => setChartStyle('candlestick')}
-          >
-            Candlestick
-          </Button>
-          <Button
-            variant={chartStyle === 'line' ? 'default' : 'secondary'}
-            onClick={() => setChartStyle('line')}
-          >
-            Line
-          </Button>
-          <Button
-            variant={chartStyle === 'area' ? 'default' : 'secondary'}
-            onClick={() => setChartStyle('area')}
-          >
-            Area
-          </Button>
-          <Button
-            variant={showMACD ? 'default' : 'secondary'}
-            onClick={() => setShowMACD(!showMACD)}
-          >
-            MACD
-          </Button>
-          <Button
-            variant={showRSI ? 'default' : 'secondary'}
-            onClick={() => setShowRSI(!showRSI)}
-          >
-            RSI
-          </Button>
+        <div className="flex items-center mt-4 w-full justify-between flex-wrap gap-2">
+          {/* Left: Switch Base Price */}
+          <div className="flex items-center gap-2">
+            <Button variant={inverted ? 'default':'secondary'} onClick={()=>setInverted(!inverted)}>
+              Switch Base Price
+            </Button>
+          </div>
+
+          {/* Middle: Indicators */}
+          <div className="flex items-center gap-2 flex-wrap justify-center">
+            <Button variant={showMACD ? 'default' : 'secondary'} onClick={() => setShowMACD(!showMACD)}>
+              MACD
+            </Button>
+            <Button variant={showRSI ? 'default' : 'secondary'} onClick={() => setShowRSI(!showRSI)}>
+              RSI
+            </Button>
+            <Button variant={showSMA ? 'default' : 'secondary'} onClick={() => setShowSMA(!showSMA)}>
+              SMA
+            </Button>
+            <Button variant={showEMA ? 'default':'secondary'} onClick={()=>setShowEMA(!showEMA)}>
+              EMA
+            </Button>
+            <Button variant={showBollinger ? 'default':'secondary'} onClick={()=>setShowBollinger(!showBollinger)}>
+              Bollinger
+            </Button>
+          </div>
+
+          {/* Right: Chart style toggles */}
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <Button variant={chartStyle === 'candlestick' ? 'default' : 'secondary'} onClick={() => setChartStyle('candlestick')}>
+              Candlestick
+            </Button>
+            <Button variant={chartStyle === 'line' ? 'default' : 'secondary'} onClick={() => setChartStyle('line')}>
+              Line
+            </Button>
+            <Button variant={chartStyle === 'area' ? 'default' : 'secondary'} onClick={() => setChartStyle('area')}>
+              Area
+            </Button>
+          </div>
         </div>
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col py-6 gap-6">
           {/* Chart Section */}
-          <section
-            className="h-[400px] lg:h-[500px] rounded-lg border bg-card overflow-hidden"
-            aria-label="Price & Volume Chart"
-          >
+          <section className="h-[400px] lg:h-[500px] rounded-lg border bg-card overflow-hidden" aria-label="Price & Volume Chart">
             <div className="h-full flex flex-col">
               <div className="p-4 border-b border-border flex items-center justify-between bg-card">
                 <div className="flex items-center gap-2">
@@ -721,12 +339,17 @@ export default function PoolPage({ params }: PageProps) {
                 </Select>
               </div>
               <div className="flex-1 relative bg-muted/10">
-                {/* Chart Container */}
-                <div
-                  ref={chartContainerRef}
-                  className="absolute inset-0"
+                <ChartComponent
+                  candleData={candleData}
+                  volumeData={volumeData}
+                  chartStyle={chartStyle}
+                  showMACD={showMACD}
+                  showRSI={showRSI}
+                  showSMA={showSMA}
+                  showEMA={showEMA}
+                  showBollinger={showBollinger}
+                  inverted={inverted}
                 />
-                {/* Chart Error Overlay */}
                 {chartError && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center p-4">
@@ -848,7 +471,7 @@ export default function PoolPage({ params }: PageProps) {
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0"
-                            onClick={() => handleCopy(poolData.market)}
+                            onClick={() => { navigator.clipboard.writeText(poolData.market)}}
                             aria-label="Copy contract address"
                           >
                             <Copy className="h-4 w-4" aria-hidden="true" />
