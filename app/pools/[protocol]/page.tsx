@@ -61,7 +61,7 @@ const PROTOCOL_INFO: Record<Protocol, {
   },
   aquarius: {
     name: "Aquarius",
-    description: "Aqua Network is a decentralized finance platform on the Stellar network, offering tools for liquidity awards, trading, and governance. It empowers users to earn rewards, vote on proposals, and project developers to bribe users to use their products. Their token is AQUA.",
+    description: "Aqua Network is a decentralized finance platform on the Stellar network, offering tools for liquidity awards, trading, and governance.",
     logo: "/images/protocols/aqua.svg",
     links: [
       { name: "Website", url: "https://aquarius.finance" },
@@ -70,7 +70,7 @@ const PROTOCOL_INFO: Record<Protocol, {
   },
   blend: {
     name: "Blend",
-    description: `Blend is a decentralized finance protocol on the Stellar network, enabling a suite of financial products including lending, borrowing, and yield farming. They offer what they refer to as "liquidity primatives" to allow users to create custom financial products. Their token is BLND`,
+    description: `Blend is a decentralized finance protocol on the Stellar network, enabling lending, borrowing, and yield farming.`,
     logo: "/images/protocols/blend.svg",
     links: [
       { name: "Website", url: "https://blend.finance" },
@@ -79,7 +79,7 @@ const PROTOCOL_INFO: Record<Protocol, {
   },
   phoenix: {
     name: "Phoenix",
-    description: "Phoenix is a decentralized automated market maker on the Stellar network offering liquidity pools and rewards. They also have their own token PHO.",
+    description: "Phoenix is a decentralized automated market maker on the stellar network with liquidity pools and rewards.",
     logo: "/images/protocols/phoenix.svg",
     links: [
       { name: "Website", url: "https://phoenix.finance" },
@@ -123,16 +123,14 @@ interface PageProps {
 export default function ProtocolPage({ params }: PageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { poolRiskData, period, setPeriod, loading } = useDataContext();
 
+  const { poolRiskData, period, setPeriod, loading, pairs } = useDataContext();
   const protocol = params.protocol as Protocol;
 
-  // Hooks (must be unconditional):
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get('page')) || 1);
   const [entriesPerPage, setEntriesPerPage] = useState(Number(searchParams.get('limit')) || 10);
 
-  // Compute protocol validity and related data *after* hooks:
   const isValidProtocol = PROTOCOLS.includes(protocol);
   const mappedProtocol = isValidProtocol ? PROTOCOL_MAPPING[protocol] : null;
   const protocolInfo = isValidProtocol ? PROTOCOL_INFO[protocol] : null;
@@ -169,11 +167,10 @@ export default function ProtocolPage({ params }: PageProps) {
       case '90d': return '90D';
       case '180d': return '180D';
       case '360d': return '360D';
-      default: return '30D'; // fallback
+      default: return '30D';
     }
   };
 
-  // Now handle conditions after hooks:
   if (!isValidProtocol) {
     return (
       <main className="container mx-auto p-4 space-y-8">
@@ -195,6 +192,22 @@ export default function ProtocolPage({ params }: PageProps) {
     );
   }
 
+  const handleViewDetails = (pool: PoolRiskApiResponseObject) => {
+    // Need to map pool to correct token naming
+    const p = pairs.find(pr => pr.id === pool.pairId);
+    if (!p) {
+      // fallback
+      const urlSafePair = pool.market.replace(/\//g, '-');
+      router.push(`/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`);
+      return;
+    }
+
+    const t0Name = p.token0Details.name;
+    const t1Name = p.token1Details.name;
+    const urlSafePair = `${t0Name.replace(/:/g, '-')}-${t1Name.replace(/:/g, '-')}`;
+    router.push(`/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`);
+  };
+
   return (
     <main className="container mx-auto p-4 space-y-8">
       {/* Breadcrumbs */}
@@ -210,7 +223,7 @@ export default function ProtocolPage({ params }: PageProps) {
         </Link>
         <ChevronRight className="h-4 w-4" aria-hidden="true" />
         <span className="text-foreground font-medium" aria-current="page">
-          {protocolInfo?.name}
+          {protocolInfo!.name}
         </span>
       </nav>
 
@@ -255,7 +268,7 @@ export default function ProtocolPage({ params }: PageProps) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Volume ({formatPeriodDisplay(period as AllowedPeriods)})
+                Volume ({formatPeriodDisplay(period)})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -263,7 +276,7 @@ export default function ProtocolPage({ params }: PageProps) {
                 {formatDollarAmount(stats.volume24h)}
               </div>
               <p className="text-xs text-muted-foreground">
-                Last {formatPeriodDisplay(period as AllowedPeriods)}
+                Last {formatPeriodDisplay(period)}
               </p>
             </CardContent>
           </Card>
@@ -283,7 +296,7 @@ export default function ProtocolPage({ params }: PageProps) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Average APY ({formatPeriodDisplay(period as AllowedPeriods)})
+                Average APY ({formatPeriodDisplay(period)})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -365,10 +378,10 @@ export default function ProtocolPage({ params }: PageProps) {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground">Pair</TableHead>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">APR ({formatPeriodDisplay(period as AllowedPeriods)})</TableHead>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">APR ({formatPeriodDisplay(period)})</TableHead>
                     <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">TVL</TableHead>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Volume ({formatPeriodDisplay(period as AllowedPeriods)})</TableHead>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Fees ({formatPeriodDisplay(period as AllowedPeriods)})</TableHead>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Volume ({formatPeriodDisplay(period)})</TableHead>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Fees ({formatPeriodDisplay(period)})</TableHead>
                     <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Risk Score</TableHead>
                     <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Actions</TableHead>
                   </TableRow>
@@ -414,15 +427,13 @@ export default function ProtocolPage({ params }: PageProps) {
                             variant="ghost"
                             size="sm"
                             className="h-8 px-3 text-muted-foreground hover:text-foreground"
-                            asChild
+                            onClick={() => {
+                              // Navigate to details
+                              handleViewDetails(pool);
+                            }}
                           >
-                            <Link 
-                              href={`/pools/${protocol}/${pool.pairId}`}
-                              aria-label={`View details for ${pool.market} pool`}
-                            >
-                              View Details
-                              <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
-                            </Link>
+                            View Details
+                            <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
                           </Button>
                         </TableCell>
                       </TableRow>

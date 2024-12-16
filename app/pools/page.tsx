@@ -29,7 +29,6 @@ import { cn } from "@/lib/utils";
 
 type AllowedPeriods = "24h"|"7d"|"14d"|"30d"|"90d"|"180d"|"360d";
 
-// Dummy data for top pools (unchanged)
 const topPoolsData = [
   { 
     title: "Best APR Pairs",
@@ -93,9 +92,8 @@ type SortConfig = {
 
 export default function PoolsPage() {
   const router = useRouter();
-  const { poolRiskData, period, setPeriod, loading } = useDataContext();
+  const { poolRiskData, period, setPeriod, loading, pairs, tokens } = useDataContext(); // pairs and tokens needed to reconstruct URLs
 
-  // Hooks must always run:
   const [selectedProtocols, setSelectedProtocols] = useState<Protocol[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -154,7 +152,6 @@ export default function PoolsPage() {
             const parsed = parseFloat(value.replace(/[^0-9.-]+/g, ''));
             return isNaN(parsed) ? 0 : parsed;
           } else {
-            // value is RiskFactors or RankingFactors with a numeric score
             return value.score;
           }
         };
@@ -174,7 +171,6 @@ export default function PoolsPage() {
   const startIndex = (currentPage - 1) * entriesPerPage;
   const paginatedData = sortedAndFilteredData.slice(startIndex, startIndex + entriesPerPage);
 
-  // useEffect must not be conditional:
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, selectedProtocols]);
@@ -201,7 +197,22 @@ export default function PoolsPage() {
   };
 
   const handleViewDetails = (pool: PoolRiskApiResponseObject) => {
-    const urlSafePair = pool.market.replace(/\//g, '-');
+    // We must convert pool.market (like "native/USDC") into a route using token name format:
+    // Find the pair that matches pool.pairId
+    const p = pairs.find(pr => pr.id === pool.pairId);
+    if (!p) {
+      // fallback: just use existing format
+      const urlSafePair = pool.market.replace(/\//g, '-');
+      router.push(`/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`);
+      return;
+    }
+
+    // p.token0Details.name and p.token1Details.name have the correct SYMBOL:ISSUER format
+    // Construct a pair string like "SYMBOL:ISSUER-SYMBOL:ISSUER"
+    const t0Name = p.token0Details.name;
+    const t1Name = p.token1Details.name;
+
+    const urlSafePair = `${t0Name.replace(/:/g, '-')}-${t1Name.replace(/:/g, '-')}`;
     router.push(`/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`);
   };
 
@@ -231,7 +242,6 @@ export default function PoolsPage() {
     </TableHead>
   );
 
-  // Now handle conditions AFTER hooks:
   if (loading) {
     return (
       <section className="relative">

@@ -476,6 +476,7 @@ export default function TokensPage() {
                       width={48}
                       height={48}
                       className="rounded-full"
+                      unoptimized
                     />
                   </div>
                 )}

@@ -28,9 +28,16 @@ export interface Token {
   logoUrl?: string;
   lastUpdated: number; // Converted to epoch timestamp
 }
+export interface TokenDetails {
+  symbol: string;
+  name: string;  // "SYMBOL:ISSUER" format
+  decimals: number;
+}
+
+// Represents a trading pair fetched from the API
 export interface PairApiResponseObject {
   _id: string;
-  lastUpdated: string;
+  lastUpdated: string; // Converted to epoch timestamp
   lpHolders: string[];
   lptSupply: number;
   protocol: string;
@@ -38,14 +45,15 @@ export interface PairApiResponseObject {
   reserve1: number;
   t0usd: string;
   t1usd: string;
-  token0: string;
-  token1: string;
+  token0: string; // Token ID
+  token1: string; // Token ID
+  token0Details: TokenDetails;  // <- Add this
+  token1Details: TokenDetails;  // <- Add this
   tvl: number;
   lpToken: string;
-  pairtype?: string;
+  pairType?: string;
 }
 
-// Represents a trading pair fetched from the API
 export interface Pair {
   id: string; // Renamed from _id
   lastUpdated: number; // Converted to epoch timestamp
@@ -58,10 +66,13 @@ export interface Pair {
   t1usd: string;
   token0: string; // Token ID
   token1: string; // Token ID
+  token0Details: TokenDetails;  // <- Add this
+  token1Details: TokenDetails;  // <- Add this
   tvl: number;
   lpToken: string;
   pairType?: string;
 }
+
 export interface MarketApiResponseObject {
   marketLabel: string;
   token0: string;

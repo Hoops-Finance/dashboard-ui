@@ -7,10 +7,10 @@ import type {
   Market, 
   Pair, 
   Token, 
-  MarketApiResponseObject, 
-  PairApiResponseObject, 
+  MarketApiResponseObject,  
   TokenApiResponseObject,
-  AssetDetails
+  AssetDetails,
+  PairApiResponseObject
 } from '@/utils/newTypes';
 
 type AllowedPeriods = '24h'|'7d'|'14d'|'30d'|'90d'|'180d'|'360d';
@@ -65,7 +65,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: pair._id,
         lastUpdated: convertToEpoch(pair.lastUpdated)
       }));
-
+      
       const tokenMap = new Map(convertedTokens.map(t => [t.id, t]));
       const pairMap = new Map(convertedPairs.map(p => [p.id, p]));
 
@@ -108,9 +108,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const fetchPeriodData = useCallback(async (p: AllowedPeriods) => {
-    setLoading(true);
+    // DO NOT toggle loading here to avoid infinite loop
+    // This fetch is done after initial data load, so no need to change `loading`.
     try {
-      // Assume /api/getmetrics and /api/getstatistics are available proxy routes
       const [metricsRes, statsRes] = await Promise.all([
         fetch(`/api/getmetrics?period=${p}`),
         fetch(`/api/getstatistics?period=${p}`)
@@ -129,8 +129,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Error fetching period data:', error);
       setGlobalMetrics(null);
       setPoolRiskData([]);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -141,7 +139,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Whenever period changes, fetch global metrics and pool stats
-    // but only if we have already fetched core data once (tokens not empty or ended loading)
+    // Only fetch if core data is loaded and available
     if (!loading && tokens.length > 0 && pairs.length > 0 && markets.length > 0) {
       fetchPeriodData(period);
     }
