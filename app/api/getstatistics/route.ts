@@ -6,7 +6,7 @@ import { PoolRiskApiResponseObject } from "@/utils/newTypes"; // Adjust the impo
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const period = searchParams.get("period");
-  const apiUrl = `${process.env.API_URL}/getstatistics?period=${period}`;
+  const apiUrl = `https://api.hoops.finance/getstatistics?period=${period}`;
 
   try {
     const response = await fetch(apiUrl, {
