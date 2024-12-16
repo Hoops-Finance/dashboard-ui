@@ -7,30 +7,23 @@ import type {
   Market, 
   Pair, 
   Token, 
-  ExplorerTableData, 
   MarketApiResponseObject, 
   PairApiResponseObject, 
   TokenApiResponseObject,
   AssetDetails
 } from '@/utils/newTypes';
 
-type Period = string; 
-// Allowed common periods, but we also allow custom: "24h"|"7d"|"14d"|"30d"|"90d"|"180d"|"360d" or any custom string.
+type AllowedPeriods = '24h'|'7d'|'14d'|'30d'|'90d'|'180d'|'360d';
 
 interface DataContextValue {
   loading: boolean;
-  // Data sets
   globalMetrics: GlobalMetrics | null;
   poolRiskData: PoolRiskApiResponseObject[];
   markets: Market[];
-  pairs: Pair[];
+  pairs: Pair[];  
   tokens: Token[];
-
-  // Period state
-  period: Period;
-  setPeriod: (p: Period) => void;
-
-  // On-demand fetch methods
+  period: AllowedPeriods;
+  setPeriod: (p: AllowedPeriods) => void;
   fetchCandles: (token0: string, token1: string | null, from: number, to: number) => Promise<any>;
   fetchTokenDetails: (asset: string) => Promise<AssetDetails | null>;
 }
@@ -44,94 +37,66 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [markets, setMarkets] = useState<Market[]>([]);
   const [pairs, setPairs] = useState<Pair[]>([]);
   const [tokens, setTokens] = useState<Token[]>([]);
-  const [period, setPeriod] = useState<Period>('14d'); // default to 14d as per request
+  const [period, setPeriodState] = useState<AllowedPeriods>('14d'); // default
 
-  // Utility function: Convert date string to epoch
   const convertToEpoch = (dateStr: string): number => new Date(dateStr).getTime();
 
-  // Process initial markets, pairs, tokens into Market[], Pair[], Token[]
   const processCoreData = useCallback(async () => {
     setLoading(true);
     try {
-      const [marketsRes, pairsRes, tokensRes] = await Promise.all([
-        fetch('/api/markets'),
-        fetch('/api/pairs'),
-        fetch('/api/tokens')
-      ]);
+      // Fetch from our proxy route
+      const res = await fetch('/api/data');
+      if (!res.ok) throw new Error('Failed to fetch core data');
 
-      if (!marketsRes.ok || !pairsRes.ok || !tokensRes.ok) {
-        throw new Error('Failed to fetch core data (markets/pairs/tokens)');
-      }
+      const { markets: marketsData, pairs: pairsData, tokens: tokensData } = await res.json() as {
+        markets: MarketApiResponseObject[],
+        pairs: PairApiResponseObject[],
+        tokens: TokenApiResponseObject[]
+      };
 
-      const marketsData: MarketApiResponseObject[] = await marketsRes.json();
-      const pairsData: PairApiResponseObject[] = await pairsRes.json();
-      const tokensData: TokenApiResponseObject[] = await tokensRes.json();
-
-      // Convert tokens
       const convertedTokens: Token[] = tokensData.map(token => ({
+        ...token,
         id: token._id,
-        symbol: token.symbol,
-        name: token.name,
-        decimals: token.decimals,
-        price: token.price,
-        pairs: token.pairs,
-        lastUpdated: convertToEpoch(token.lastupdated),
+        lastUpdated: convertToEpoch(token.lastupdated)
       }));
 
-      const pairsMap = new Map<string, Pair>();
-      const convertedPairs: Pair[] = pairsData.map(pair => {
-        const p: Pair = {
-          id: pair._id,
-          lastUpdated: convertToEpoch(pair.lastUpdated),
-          lpHolders: pair.lpHolders,
-          lptSupply: pair.lptSupply,
-          protocol: pair.protocol,
-          reserve0: pair.reserve0,
-          reserve1: pair.reserve1,
-          t0usd: pair.t0usd,
-          t1usd: pair.t1usd,
-          token0: pair.token0,
-          token1: pair.token1,
-          tvl: pair.tvl,
-          lpToken: pair.lpToken,
-          pairType: pair.pairtype
-        };
-        pairsMap.set(p.id, p);
-        return p;
-      });
+      const convertedPairs: Pair[] = pairsData.map(pair => ({
+        ...pair,
+        id: pair._id,
+        lastUpdated: convertToEpoch(pair.lastUpdated)
+      }));
 
-      const tokensMap = new Map<string, Token>();
-      convertedTokens.forEach(t => tokensMap.set(t.id, t));
+      const tokenMap = new Map(convertedTokens.map(t => [t.id, t]));
+      const pairMap = new Map(convertedPairs.map(p => [p.id, p]));
 
-      // Enrich markets
       const convertedMarkets: Market[] = marketsData.map(m => {
-        const token0 = tokensMap.get(m.token0);
-        const token1 = tokensMap.get(m.token1);
-        const marketLabel = token0 && token1 ? `${token0.symbol} / ${token1.symbol}` : "Unknown";
-
+        const token0 = tokenMap.get(m.token0);
+        const token1 = tokenMap.get(m.token1);
         let totalTVL = 0;
-        const enrichedPools: Pair[] = m.pools.map(poolRef => {
-          const p = pairsMap.get(poolRef.pair);
+        const enrichedPools = m.pools.map(poolRef => {
+          const p = pairMap.get(poolRef.pair);
           if (p) {
             totalTVL += p.tvl || 0;
             return p;
           }
           throw new Error(`Pair not found: ${poolRef.pair}`);
         });
-
+        const marketLabel = token0 && token1 ? `${token0.symbol} / ${token1.symbol}` : "Unknown";
         return {
+          ...m,
           id: m.marketLabel,
           token0: token0!,
           token1: token1!,
           pools: enrichedPools,
           marketLabel,
-          totalTVL,
+          totalTVL
         };
       });
 
       setMarkets(convertedMarkets);
       setPairs(convertedPairs);
       setTokens(convertedTokens);
+
     } catch (error) {
       console.error('Error processing core data:', error);
       setMarkets([]);
@@ -142,10 +107,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Fetch data that depends on period: globalMetrics and poolRiskData
-  const fetchPeriodData = useCallback(async (p: Period) => {
+  const fetchPeriodData = useCallback(async (p: AllowedPeriods) => {
     setLoading(true);
     try {
+      // Assume /api/getmetrics and /api/getstatistics are available proxy routes
       const [metricsRes, statsRes] = await Promise.all([
         fetch(`/api/getmetrics?period=${p}`),
         fetch(`/api/getstatistics?period=${p}`)
@@ -182,8 +147,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [period, fetchPeriodData, loading, tokens.length, pairs.length, markets.length]);
 
+  const setPeriod = (p: AllowedPeriods) => {
+    setPeriodState(p);
+  };
+
   const fetchCandles = async (token0: string, token1: string | null, from: number, to: number) => {
-    // Normalize tokens: 'XLM' or replace ':' with '-'
     const normalize = (t: string) =>
       t.toLowerCase() === 'xlm' || t.toLowerCase() === 'native' ? 'XLM' : t.replace(/:/g, '-');
 
@@ -205,7 +173,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const fetchTokenDetails = async (asset: string): Promise<AssetDetails | null> => {
-    // Normalize like candles
     const a = asset.toLowerCase() === 'xlm' || asset.toLowerCase() === 'native' ? 'XLM' : asset.replace(/:/g, '-');
     const res = await fetch(`/api/tokeninfo/${a}`);
     if (!res.ok) {
@@ -225,7 +192,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     period,
     setPeriod,
     fetchCandles,
-    fetchTokenDetails,
+    fetchTokenDetails
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

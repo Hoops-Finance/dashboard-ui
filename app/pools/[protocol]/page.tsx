@@ -27,10 +27,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Search, ChevronRight, ChevronLeft, MessageCircleWarning } from "lucide-react";
 import { TabNavigation } from "./tab-navigation";
+import { PoolRiskApiResponseObject } from "@/utils/newTypes";
+
+type AllowedPeriods = "24h"|"7d"|"14d"|"30d"|"90d"|"180d"|"360d";
 
 const PERIODS = [
   { value: '24h', label: '24H' },
   { value: '7d', label: '7D' },
+  { value: '14d', label: '14D' },
   { value: '30d', label: '30D' },
   { value: '90d', label: '90D' },
   { value: '180d', label: '180D' },
@@ -40,7 +44,6 @@ const PERIODS = [
 const PROTOCOLS = ['soroswap', 'aquarius', 'blend', 'phoenix'] as const;
 type Protocol = typeof PROTOCOLS[number];
 
-// Protocol-specific information
 const PROTOCOL_INFO: Record<Protocol, {
   name: string;
   description: string;
@@ -58,7 +61,7 @@ const PROTOCOL_INFO: Record<Protocol, {
   },
   aquarius: {
     name: "Aquarius",
-    description: "Aqua Network is a decentralized finance platform on the Stellar network, offering tools for liquidity provision, trading, and governance. It empowers users to earn rewards, vote on proposals, and participate in a vibrant DeFi ecosystem.",
+    description: "Aqua Network is a decentralized finance platform on the Stellar network, offering tools for liquidity awards, trading, and governance. It empowers users to earn rewards, vote on proposals, and project developers to bribe users to use their products. Their token is AQUA.",
     logo: "/images/protocols/aqua.svg",
     links: [
       { name: "Website", url: "https://aquarius.finance" },
@@ -67,7 +70,7 @@ const PROTOCOL_INFO: Record<Protocol, {
   },
   blend: {
     name: "Blend",
-    description: "Blend is a decentralized exchange aggregator that sources liquidity from multiple DEXes to provide the best trading rates.",
+    description: `Blend is a decentralized finance protocol on the Stellar network, enabling a suite of financial products including lending, borrowing, and yield farming. They offer what they refer to as "liquidity primatives" to allow users to create custom financial products. Their token is BLND`,
     logo: "/images/protocols/blend.svg",
     links: [
       { name: "Website", url: "https://blend.finance" },
@@ -76,7 +79,7 @@ const PROTOCOL_INFO: Record<Protocol, {
   },
   phoenix: {
     name: "Phoenix",
-    description: "Phoenix is a decentralized perpetual exchange protocol built on Stellar, offering leveraged trading with deep liquidity.",
+    description: "Phoenix is a decentralized automated market maker on the Stellar network offering liquidity pools and rewards. They also have their own token PHO.",
     logo: "/images/protocols/phoenix.svg",
     links: [
       { name: "Website", url: "https://phoenix.finance" },
@@ -85,7 +88,6 @@ const PROTOCOL_INFO: Record<Protocol, {
   }
 };
 
-// Add protocol mapping
 const PROTOCOL_MAPPING: Record<Protocol, string> = {
   soroswap: 'soroswap',
   phoenix: 'phoenix',
@@ -93,7 +95,7 @@ const PROTOCOL_MAPPING: Record<Protocol, string> = {
   blend: 'blend'
 };
 
-function getProtocolStats(pools: any[]) {
+function getProtocolStats(pools: PoolRiskApiResponseObject[]) {
   if (!pools?.length) {
     return {
       tvl: 0,
@@ -103,15 +105,15 @@ function getProtocolStats(pools: any[]) {
     };
   }
 
-  return {
-    tvl: pools.reduce((sum, pool) => sum + parseFloat(pool.totalValueLocked || '0'), 0),
-    volume24h: pools.reduce((sum, pool) => sum + parseFloat(pool.volume || '0'), 0),
-    poolCount: pools.length,
-    averageApy: pools.reduce((sum, pool) => {
-      const apr = parseFloat(pool.apr?.replace('%', '') || '0');
-      return sum + apr;
-    }, 0) / pools.length,
-  };
+  const tvl = pools.reduce((sum, pool) => sum + parseFloat(pool.totalValueLocked || '0'), 0);
+  const volume24h = pools.reduce((sum, pool) => sum + parseFloat(pool.volume || '0'), 0);
+  const poolCount = pools.length;
+  const averageApy = pools.reduce((sum, pool) => {
+    const apr = parseFloat(pool.apr?.replace('%', '') || '0');
+    return sum + apr;
+  }, 0) / poolCount;
+
+  return { tvl, volume24h, poolCount, averageApy };
 }
 
 interface PageProps {
@@ -121,11 +123,58 @@ interface PageProps {
 export default function ProtocolPage({ params }: PageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const { poolRiskData, period, setPeriod, loading } = useDataContext();
+
   const protocol = params.protocol as Protocol;
 
-  if (!PROTOCOLS.includes(protocol)) {
+  // Hooks (must be unconditional):
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get('page')) || 1);
+  const [entriesPerPage, setEntriesPerPage] = useState(Number(searchParams.get('limit')) || 10);
+
+  // Compute protocol validity and related data *after* hooks:
+  const isValidProtocol = PROTOCOLS.includes(protocol);
+  const mappedProtocol = isValidProtocol ? PROTOCOL_MAPPING[protocol] : null;
+  const protocolInfo = isValidProtocol ? PROTOCOL_INFO[protocol] : null;
+
+  const protocolPools = useMemo(() => {
+    if (!isValidProtocol) return [];
+    return poolRiskData.filter(pool =>
+      pool.protocol.toLowerCase() === mappedProtocol!.toLowerCase()
+    );
+  }, [poolRiskData, mappedProtocol, isValidProtocol]);
+
+  const stats = getProtocolStats(protocolPools);
+
+  const filteredData = useMemo(() => {
+    if (!isValidProtocol) return [];
+    return protocolPools.filter(pool => {
+      return searchQuery === '' ||
+        pool.market.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        pool.protocol.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+  }, [protocolPools, searchQuery, isValidProtocol]);
+
+  const totalPages = Math.ceil(filteredData.length / entriesPerPage);
+  const startIndex = (currentPage - 1) * entriesPerPage;
+  const endIndex = Math.min(startIndex + entriesPerPage, filteredData.length);
+  const paginatedPools = filteredData.slice(startIndex, endIndex);
+
+  const formatPeriodDisplay = (p: AllowedPeriods) => {
+    switch (p) {
+      case '24h': return '24H';
+      case '7d': return '7D';
+      case '14d': return '14D';
+      case '30d': return '30D';
+      case '90d': return '90D';
+      case '180d': return '180D';
+      case '360d': return '360D';
+      default: return '30D'; // fallback
+    }
+  };
+
+  // Now handle conditions after hooks:
+  if (!isValidProtocol) {
     return (
       <main className="container mx-auto p-4 space-y-8">
         <Alert variant="destructive" role="alert">
@@ -138,37 +187,6 @@ export default function ProtocolPage({ params }: PageProps) {
     );
   }
 
-  const protocolInfo = PROTOCOL_INFO[protocol];
-  const mappedProtocol = PROTOCOL_MAPPING[protocol];
-
-  // Local states for searching and pagination
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(Number(searchParams.get('page')) || 1);
-  const [entriesPerPage, setEntriesPerPage] = useState(Number(searchParams.get('limit')) || 10);
-
-  // Format period for display
-  const formatPeriodDisplay = (p: string) => {
-    switch (p) {
-      case '24h': return '24H';
-      case '7d': return '7D';
-      case '30d': return '30D';
-      case '90d': return '90D';
-      case '180d': return '180D';
-      case '360d': return '360D';
-      default: return '30D';
-    }
-  };
-
-  // Filter pools by protocol
-  const protocolPools = useMemo(() => {
-    return poolRiskData.filter(pool =>
-      pool.protocol.toLowerCase() === mappedProtocol.toLowerCase()
-    );
-  }, [poolRiskData, mappedProtocol]);
-
-  const stats = getProtocolStats(protocolPools);
-
-  // If loading, show loading
   if (loading) {
     return (
       <main className="container mx-auto p-4 space-y-8">
@@ -176,19 +194,6 @@ export default function ProtocolPage({ params }: PageProps) {
       </main>
     );
   }
-
-  // Filter by search
-  const filteredData = protocolPools.filter(pool => {
-    return searchQuery === '' ||
-      pool.market.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      pool.protocol.toLowerCase().includes(searchQuery.toLowerCase());
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(filteredData.length / entriesPerPage);
-  const startIndex = (currentPage - 1) * entriesPerPage;
-  const endIndex = Math.min(startIndex + entriesPerPage, filteredData.length);
-  const paginatedPools = filteredData.slice(startIndex, endIndex);
 
   return (
     <main className="container mx-auto p-4 space-y-8">
@@ -205,7 +210,7 @@ export default function ProtocolPage({ params }: PageProps) {
         </Link>
         <ChevronRight className="h-4 w-4" aria-hidden="true" />
         <span className="text-foreground font-medium" aria-current="page">
-          {protocolInfo.name}
+          {protocolInfo?.name}
         </span>
       </nav>
 
@@ -216,14 +221,14 @@ export default function ProtocolPage({ params }: PageProps) {
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 flex items-center justify-center" aria-hidden="true">
                 <ProtocolLogo 
-                  logo={protocolInfo.logo} 
-                  name={protocolInfo.name} 
+                  logo={protocolInfo!.logo} 
+                  name={protocolInfo!.name} 
                 />
               </div>
               <div>
-                <CardTitle>{protocolInfo.name}</CardTitle>
+                <CardTitle>{protocolInfo!.name}</CardTitle>
                 <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-                  {protocolInfo.description}
+                  {protocolInfo!.description}
                 </p>
               </div>
             </div>
@@ -250,7 +255,7 @@ export default function ProtocolPage({ params }: PageProps) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Volume ({formatPeriodDisplay(period)})
+                Volume ({formatPeriodDisplay(period as AllowedPeriods)})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -258,7 +263,7 @@ export default function ProtocolPage({ params }: PageProps) {
                 {formatDollarAmount(stats.volume24h)}
               </div>
               <p className="text-xs text-muted-foreground">
-                Last {formatPeriodDisplay(period)}
+                Last {formatPeriodDisplay(period as AllowedPeriods)}
               </p>
             </CardContent>
           </Card>
@@ -278,7 +283,7 @@ export default function ProtocolPage({ params }: PageProps) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Average APY ({formatPeriodDisplay(period)})
+                Average APY ({formatPeriodDisplay(period as AllowedPeriods)})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -307,7 +312,7 @@ export default function ProtocolPage({ params }: PageProps) {
               name="period"
               value={period}
               onValueChange={(v) => {
-                setPeriod(v);
+                setPeriod(v as AllowedPeriods);
                 setCurrentPage(1);
               }}
               aria-label="Select time period"
@@ -360,10 +365,10 @@ export default function ProtocolPage({ params }: PageProps) {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground">Pair</TableHead>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">APR ({formatPeriodDisplay(period)})</TableHead>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">APR ({formatPeriodDisplay(period as AllowedPeriods)})</TableHead>
                     <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">TVL</TableHead>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Volume ({formatPeriodDisplay(period)})</TableHead>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Fees ({formatPeriodDisplay(period)})</TableHead>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Volume ({formatPeriodDisplay(period as AllowedPeriods)})</TableHead>
+                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Fees ({formatPeriodDisplay(period as AllowedPeriods)})</TableHead>
                     <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Risk Score</TableHead>
                     <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Actions</TableHead>
                   </TableRow>
@@ -375,7 +380,7 @@ export default function ProtocolPage({ params }: PageProps) {
                         colSpan={7} 
                         className="h-10 px-4 text-center text-muted-foreground"
                       >
-                        No pools found for {protocolInfo.name}
+                        No pools found for {protocolInfo!.name}
                       </TableCell>
                     </TableRow>
                   ) : (

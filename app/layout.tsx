@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import { Footer } from "@/components/ui/Footer";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { DataProvider } from "@/contexts/DataContext";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -23,18 +24,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={inter.variable}>
       <body className={cn("min-h-screen bg-background antialiased")}>
         <ThemeProvider defaultTheme="dark">
-            <SessionProvider>
-              <AuthProvider>
+          <SessionProvider>
+            <AuthProvider>
               <ClientWalletProvider>
-                <Navbar />
+                <DataProvider>
+                  <Navbar />
                   <main className="flex-1">{children}</main>
-                <Footer />
-                </ClientWalletProvider>
-              </AuthProvider>
-            </SessionProvider>
+                  <Footer />
+                </DataProvider>
+              </ClientWalletProvider>
+            </AuthProvider>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -216,7 +216,7 @@ export interface CandleData {
 }
 
 export interface SxCandleResponse {
-  time: string; //Unix timestamp
+  time: number; //Unix timestamp
   open: number; //Open price
   high: number; //High price
   low: number; //Low price

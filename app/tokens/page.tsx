@@ -1,5 +1,3 @@
-// caution this page is not finished. It is a work in progress.
-
 "use client";
 
 import React, { useState, useMemo } from "react";
@@ -38,6 +36,15 @@ import {
 } from "lucide-react";
 import type { AssetDetails, Token, Pair } from "@/utils/newTypes";
 
+// Stablecoin IDs (these are known stablecoins from the backend)
+const STABLECOIN_IDS = new Set<string>([
+  "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75", // USDC
+  "CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP", // USDx
+  "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV", // EURC
+  "CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U",   // EURx
+]);
+
+// Allowed periods (from context), but on tokens page we only show a subset for now.
 const PERIOD_OPTIONS = [
   { value: "24h", label: "24H" },
   { value: "7d", label: "7D" },
@@ -59,41 +66,86 @@ export default function TokensPage() {
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
 
-  // Determine if token is stablecoin: symbol includes "usd" and length ≤ 4
-  const isStablecoin = (symbol: string) => {
-    const sym = symbol.toLowerCase();
-    return sym.includes("usd") && sym.length <= 4;
-  };
+  // Check if token is a "real" token (not LP/soroban only):
+  // name should match pattern: SYMBOL:ISSUER (ISSUER is a stellar pubkey starting with G)
+  // This is a heuristic to filter out LP tokens and similar.
+  const realTokenRegex = useMemo(() => /^[^:]+:G[A-Z0-9]{55}$/, []); 
+  // Explanation:
+  // ^ - start of string
+  // [^:]+ - one or more chars not colon (the symbol part)
+  // : - colon separator
+  // G - issuer must start with G for Stellar ed25519 key
+  // [A-Z0-9]{55} - 55 alphanumeric chars (typical length for Stellar keys)
+  // $ - end of string
 
-  // Determine "hot" tokens:
-  // Sort poolRiskData by volume (descending), take top 10 pairs by volume, find tokens in these pairs
-  const hotTokens = useMemo(() => {
-    if (!poolRiskData || poolRiskData.length === 0) return new Set<string>();
+  const filteredRealTokens = useMemo(() => {
+    return tokens.filter(token => realTokenRegex.test(token.name));
+  }, [tokens, realTokenRegex]);
 
-    const sortedByVolume = [...poolRiskData].sort((a, b) => {
-      const volA = parseFloat(a.volume);
-      const volB = parseFloat(b.volume);
-      return volB - volA; 
-    });
+  // Stablecoin check by ID
+  const isStablecoin = (tokenId: string): boolean => STABLECOIN_IDS.has(tokenId);
 
-    const topPools = sortedByVolume.slice(0, 10);
-    // topPools have pairId and protocol, we have pairs array to map pairId -> pair -> tokens
-    const topTokenIds = new Set<string>();
-    for (const pool of topPools) {
-      const pair = pairs.find(p => p.id === pool.pairId);
-      if (pair) {
-        // Add token0 and token1 to hot set
-        topTokenIds.add(pair.token0);
-        topTokenIds.add(pair.token1);
-      }
+  // Compute token stats for "hot" determination:
+  // Hot tokens: top 10 by pairs count or top 10 by total volume
+  const tokenPairCountMap = useMemo(() => {
+    // Count how many pairs each token participates in
+    const map = new Map<string, number>();
+    for (const token of filteredRealTokens) {
+      map.set(token.id, token.pairs.length);
+    }
+    return map;
+  }, [filteredRealTokens]);
+
+  const tokenVolumeMap = useMemo(() => {
+    // Sum volumes of pools that token is in
+    const pairMap = new Map<string, Pair>();
+    for (const p of pairs) {
+      pairMap.set(p.id, p);
     }
 
-    return topTokenIds;
+    // We'll accumulate volume per token
+    const volumeMap = new Map<string, number>();
+    for (const pool of poolRiskData) {
+      const vol = parseFloat(pool.volume);
+      const p = pairMap.get(pool.pairId);
+      if (!p) continue;
+      // p.token0 and p.token1 are token IDs
+      const t0 = p.token0;
+      const t1 = p.token1;
+      volumeMap.set(t0, (volumeMap.get(t0) || 0) + vol);
+      volumeMap.set(t1, (volumeMap.get(t1) || 0) + vol);
+    }
+    return volumeMap;
   }, [poolRiskData, pairs]);
 
-  // Filtering tokens based on tab
+  // Get top 10 by pair count
+  const topPairCountTokens = useMemo(() => {
+    const arr = Array.from(tokenPairCountMap.entries());
+    arr.sort((a, b) => b[1] - a[1]);
+    return new Set<string>(arr.slice(0, 10).map(item => item[0]));
+  }, [tokenPairCountMap]);
+
+  // Get top 10 by volume
+  const topVolumeTokens = useMemo(() => {
+    const arr = Array.from(tokenVolumeMap.entries());
+    arr.sort((a, b) => b[1] - a[1]);
+    return new Set<string>(arr.slice(0, 10).map(item => item[0]));
+  }, [tokenVolumeMap]);
+
+  const hotTokens = useMemo(() => {
+    // Union of top pair count and top volume
+    const s = new Set<string>();
+    for (const tokenId of Array.from(topPairCountTokens)) {
+      s.add(tokenId);
+    }
+    for (const tokenId of Array.from(topVolumeTokens)) {
+      s.add(tokenId);
+    }
+    return s;
+  }, [topPairCountTokens, topVolumeTokens]);
+
   const filteredTokens = useMemo(() => {
-    return tokens.filter(token => {
+    return filteredRealTokens.filter(token => {
       const matchesSearch =
         token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         token.symbol.toLowerCase().includes(searchQuery.toLowerCase());
@@ -101,14 +153,15 @@ export default function TokensPage() {
       if (!matchesSearch) return false;
 
       if (selectedTab === "stablecoins") {
-        return isStablecoin(token.symbol);
+        return isStablecoin(token.id);
       } else if (selectedTab === "hot") {
+        // Check if token is in hotTokens
         return hotTokens.has(token.id);
       }
 
-      return true; // all tab
+      return true; // all
     });
-  }, [tokens, searchQuery, selectedTab, hotTokens]);
+  }, [filteredRealTokens, searchQuery, selectedTab, hotTokens]);
 
   const totalPages = Math.ceil(filteredTokens.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
@@ -120,11 +173,9 @@ export default function TokensPage() {
     setTokenDetails(null);
     setShowDialog(true);
     try {
-      // We need a correct way to form asset string. 
-      // If token.id has issuer info, we assume token.id as the asset.
-      // If not, we must guess. If token is XLM, asset = "XLM".
-      // If not XLM, maybe token.id or token.name:token.symbol. Without issuer info, we guess token.id.
-      const assetId = token.id;
+      // token.name = SYMBOL:ISSUER
+      // We can directly use token.name as the asset identifier for fetchTokenDetails
+      const assetId = token.name; 
       const details = await fetchTokenDetails(assetId);
       setTokenDetails(details);
     } catch (error) {
@@ -134,10 +185,18 @@ export default function TokensPage() {
     }
   };
 
-  // Find pairs that involve this token
   const getPairsForToken = (token: Token) => {
-    const pairIds = token.pairs.map(tp => tp.pairId);
-    const tokenPairs = pairs.filter(p => pairIds.includes(p.id));
+    // token.pairs gives pairIds, find these pairs
+    const pairMap = new Map<string, Pair>();
+    for (const p of pairs) {
+      pairMap.set(p.id, p);
+    }
+
+    const tokenPairs: Pair[] = [];
+    for (const tp of token.pairs) {
+      const foundPair = pairMap.get(tp.pairId);
+      if (foundPair) tokenPairs.push(foundPair);
+    }
     return tokenPairs;
   };
 
@@ -156,11 +215,12 @@ export default function TokensPage() {
         </motion.div>
 
         {/* Simple Metrics Card */}
+        {/* Just shows how many 'real' tokens we have */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card className="p-6 bg-card border-border hover:shadow-md transition-all duration-300">
             <div>
-              <p className="text-sm text-muted-foreground">Total Tokens Indexed</p>
-              <h3 className="text-2xl font-bold text-foreground mt-1">{tokens.length}</h3>
+              <p className="text-sm text-muted-foreground">Total Real Tokens Indexed</p>
+              <h3 className="text-2xl font-bold text-foreground mt-1">{filteredRealTokens.length}</h3>
               <p className="text-sm mt-1 text-emerald-400">---</p>
             </div>
           </Card>
@@ -209,8 +269,8 @@ export default function TokensPage() {
 
           <div className="flex items-center gap-4">
             <Select
-              value={period as "24h"|"7d"|"30d"} // since period in context could be any string, cast here for the demo
-              onValueChange={(value: "24h" | "7d" | "30d") => setPeriod(value)}
+              value={period as "24h"|"7d"|"30d"}
+              onValueChange={(value: "24h"|"7d"|"30d") => setPeriod(value)}
             >
               <SelectTrigger className="w-[180px] h-9">
                 <SelectValue placeholder="Select period" />
@@ -279,37 +339,40 @@ export default function TokensPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  displayedTokens.map((token) => (
-                    <TableRow key={token.id} className="group hover:bg-muted/50">
-                      <TableCell className="h-10 px-4 align-middle">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden relative">
-                            {token.symbol.slice(0,1).toUpperCase()}
+                  displayedTokens.map((token) => {
+                    const [symbolName] = token.name.split(':');
+                    return (
+                      <TableRow key={token.id} className="group hover:bg-muted/50">
+                        <TableCell className="h-10 px-4 align-middle">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden relative">
+                              {token.symbol.slice(0,1).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="font-medium">{symbolName}</div>
+                              <div className="text-sm text-muted-foreground">{token.symbol}</div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="font-medium">{token.name}</div>
-                            <div className="text-sm text-muted-foreground">{token.symbol}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="h-10 px-4 align-middle text-right">
-                        ${token.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
-                      </TableCell>
-                      <TableCell className="h-10 px-4 align-middle text-right text-sm text-muted-foreground">
-                        {new Date(token.lastUpdated).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="h-10 px-4 align-middle text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-3 text-muted-foreground hover:text-foreground"
-                          onClick={() => handleViewDetails(token)}
-                        >
-                          View Details
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        </TableCell>
+                        <TableCell className="h-10 px-4 align-middle text-right">
+                          ${token.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
+                        </TableCell>
+                        <TableCell className="h-10 px-4 align-middle text-right text-sm text-muted-foreground">
+                          {new Date(token.lastUpdated).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="h-10 px-4 align-middle text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-3 text-muted-foreground hover:text-foreground"
+                            onClick={() => handleViewDetails(token)}
+                          >
+                            View Details
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
@@ -397,7 +460,7 @@ export default function TokensPage() {
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>{selectedToken.name} ({selectedToken.symbol}) Details</DialogTitle>
+              <DialogTitle>{selectedToken.name.split(':')[0]} ({selectedToken.symbol}) Details</DialogTitle>
               <DialogDescription>
                 {detailsLoading ? "Loading token details..." : 
                   tokenDetails ? "Detailed info from AssetDetails:" : "Failed to load details or no details available."}

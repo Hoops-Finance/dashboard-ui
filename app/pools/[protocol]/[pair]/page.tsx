@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createChart, ColorType, IChartApi, UTCTimestamp } from "lightweight-charts";
 import { useDataContext } from "@/contexts/DataContext";
@@ -36,6 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { SxCandleResponse, TransformedCandleData } from "@/utils/newTypes";
 
 interface PageProps {
   params: {
@@ -88,7 +89,6 @@ const PERIOD_OPTIONS = [
 
 type PeriodOption = typeof PERIOD_OPTIONS[number]["value"];
 
-// Helper function to get display name for protocol
 const getProtocolDisplay = (protocol: string): string => {
   return protocol.toLowerCase() === 'aqua' ? 'Aquarius' :
     protocol.charAt(0).toUpperCase() + protocol.slice(1).toLowerCase();
@@ -106,11 +106,132 @@ export default function PoolPage({ params }: PageProps) {
   const protocolParam = params.protocol.toLowerCase();
   const pairParam = params.pair.replace(/-/g, '/');
 
-  // Find the matching pool
-  const poolData = poolRiskData.find(pool =>
-    pool.protocol.toLowerCase() === protocolParam &&
-    pool.market === pairParam
-  );
+  // Derive the poolData once
+  const poolData = useMemo(() => {
+    return poolRiskData.find(pool =>
+      pool.protocol.toLowerCase() === protocolParam &&
+      pool.market === pairParam
+    );
+  }, [poolRiskData, protocolParam, pairParam]);
+
+  // This effect runs unconditionally, but if data isn't ready, it returns early.
+  useEffect(() => {
+    if (loading || !poolData || !chartContainerRef.current) return;
+
+    setChartError(null);
+    const container = chartContainerRef.current;
+    const chartInstance = createChart(container, {
+      layout: {
+        background: { type: ColorType.Solid, color: 'transparent' },
+        textColor: '#64748b',
+      },
+      grid: {
+        vertLines: { color: '#e2e8f0' },
+        horzLines: { color: '#e2e8f0' },
+      },
+      width: container.clientWidth,
+      height: container.clientHeight,
+      handleScale: {
+        mouseWheel: false,
+        pinch: false,
+        axisPressedMouseMove: {
+          time: true,
+          price: false,
+        },
+      },
+      handleScroll: {
+        mouseWheel: false,
+        pressedMouseMove: true,
+        horzTouchDrag: true,
+        vertTouchDrag: false,
+      },
+    });
+    setChart(chartInstance);
+
+    const to = Math.floor(Date.now() / 1000);
+    let from: number;
+    switch (period) {
+      case '24h':
+        from = to - 24 * 3600;
+        break;
+      case '7d':
+        from = to - 7 * 24 * 3600;
+        break;
+      case '30d':
+        from = to - 30 * 24 * 3600;
+        break;
+      case '90d':
+        from = to - 90 * 24 * 3600;
+        break;
+      case '180d':
+        from = to - 180 * 24 * 3600;
+        break;
+      case '360d':
+        from = to - 360 * 24 * 3600;
+        break;
+      default:
+        from = to - 7 * 24 * 3600;
+    }
+
+    const [token0, token1] = poolData.market.split('/');
+    (async () => {
+      try {
+        const rawData = await fetchCandles(token0, token1, from, to) as SxCandleResponse[];
+        if (!rawData || rawData.length === 0) {
+          throw new Error('No chart data available');
+        }
+
+        // Transform SxCandleResponse[] to TransformedCandleData[]
+        const transformed: TransformedCandleData[] = rawData.map((record, i) => {
+          const nextOpen = i < rawData.length - 1 ? rawData[i + 1].open : record.open;
+          return {
+            time: record.time as UTCTimestamp,
+            open: record.open,
+            high: record.high,
+            low: record.low,
+            close: nextOpen,
+            baseVolume: record.baseVolume,
+            quoteVolume: record.quoteVolume,
+            tradesCount: record.tradesCount
+          };
+        });
+
+        const volumeSeries = chartInstance.addHistogramSeries({
+          color: '#26a69a',
+          priceFormat: { type: 'volume' },
+          priceScaleId: '',
+        });
+
+        // Use baseVolume from candle data for the chart's value
+        volumeSeries.setData(
+          transformed.map((c) => ({
+            time: c.time,
+            value: c.baseVolume,
+            color: '#26a69a',
+          }))
+        );
+
+        chartInstance.timeScale().fitContent();
+      } catch (error: unknown) {
+        console.error('Error loading chart data:', error);
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        setChartError('Unable to load chart data: ' + message);
+      }
+    })();
+
+    const handleResize = () => {
+      chartInstance.applyOptions({
+        width: container.clientWidth,
+        height: container.clientHeight,
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      chartInstance.remove();
+    };
+  }, [poolData, period, fetchCandles, loading]);
 
   const handleCopy = async (text: string) => {
     try {
@@ -143,122 +264,6 @@ export default function PoolPage({ params }: PageProps) {
       </div>
     );
   }
-
-  // Initialize and update chart when period or poolData changes
-  useEffect(() => {
-    if (!chartContainerRef.current || !poolData) return;
-
-    const initChart = async () => {
-      setChartError(null);
-
-      const container = chartContainerRef.current;
-      if (!container) return;
-
-      const chartInstance = createChart(container, {
-        layout: {
-          background: { type: ColorType.Solid, color: 'transparent' },
-          textColor: '#64748b',
-        },
-        grid: {
-          vertLines: { color: '#e2e8f0' },
-          horzLines: { color: '#e2e8f0' },
-        },
-        width: container.clientWidth,
-        height: container.clientHeight,
-        handleScale: {
-          mouseWheel: false,
-          pinch: false,
-          axisPressedMouseMove: {
-            time: true,
-            price: false,
-          },
-        },
-        handleScroll: {
-          mouseWheel: false,
-          pressedMouseMove: true,
-          horzTouchDrag: true,
-          vertTouchDrag: false,
-        },
-      });
-
-      setChart(chartInstance);
-
-      // Calculate time range based on period
-      const to = Math.floor(Date.now() / 1000);
-      let from: number;
-      switch (period) {
-        case '24h':
-          from = to - 24 * 3600;
-          break;
-        case '7d':
-          from = to - 7 * 24 * 3600;
-          break;
-        case '30d':
-          from = to - 30 * 24 * 3600;
-          break;
-        case '90d':
-          from = to - 90 * 24 * 3600;
-          break;
-        case '180d':
-          from = to - 180 * 24 * 3600;
-          break;
-        case '360d':
-          from = to - 360 * 24 * 3600;
-          break;
-        default:
-          from = to - 7 * 24 * 3600;
-      }
-
-      const [token0, token1] = poolData.market.split('/');
-
-      try {
-        // We know fetchCandles returns raw data
-        // Let's define a local type for the returned candle data:
-        type RawCandle = { time: number; open: number; high: number; low: number; close: number };
-        const candleData: RawCandle[] = await fetchCandles(token0, token1, from, to);
-
-        if (!candleData || candleData.length === 0) {
-          throw new Error('No chart data available');
-        }
-
-        const volumeSeries = chartInstance.addHistogramSeries({
-          color: '#26a69a',
-          priceFormat: {
-            type: 'volume',
-          },
-          priceScaleId: '',
-        });
-
-        volumeSeries.setData(
-          candleData.map((candle: RawCandle) => ({
-            time: candle.time as UTCTimestamp,
-            value: Number(poolData.volume),
-            color: '#26a69a',
-          }))
-        );
-
-        chartInstance.timeScale().fitContent();
-      } catch (error: any) {
-        console.error('Error loading chart data:', error);
-        setChartError('Unable to load chart data');
-      }
-
-      const handleResize = () => {
-        chartInstance.applyOptions({
-          width: container.clientWidth,
-          height: container.clientHeight,
-        });
-      };
-
-      window.addEventListener('resize', handleResize);
-      return () => {
-        window.removeEventListener('resize', handleResize);
-        chartInstance.remove();
-      };
-    };
-
-    initChart();
-  }, [poolData, period, fetchCandles]);
 
   return (
     <div className="min-h-[calc(100vh-72px)] bg-background flex flex-col">
@@ -332,7 +337,7 @@ export default function PoolPage({ params }: PageProps) {
                   <LineChart className="h-5 w-5 text-primary" aria-hidden="true" />
                   Volume Chart
                 </div>
-                <Select value={period} onValueChange={setPeriod}>
+                <Select value={period} onValueChange={(val: PeriodOption) => setPeriod(val)}>
                   <SelectTrigger className="w-[100px]" aria-label="Select time period">
                     <SelectValue placeholder="Select period" />
                   </SelectTrigger>
@@ -357,7 +362,7 @@ export default function PoolPage({ params }: PageProps) {
                     <div className="text-center p-4">
                       <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" aria-hidden="true" />
                       <p className="text-sm text-muted-foreground">
-                        Chart data unavailable
+                        {chartError}
                       </p>
                     </div>
                   </div>

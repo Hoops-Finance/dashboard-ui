@@ -22,12 +22,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Flame, Diamond, Coins, Search, ChevronLeft, ChevronRight, X, ArrowUpDown, BookOpen } from 'lucide-react';
-import { PoolRiskApiResponseObject } from "@/utils/newTypes";
+import { PoolRiskApiResponseObject, RankingFactors, RiskFactors } from "@/utils/newTypes";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-// Top pools dummy data (unchanged)
+type AllowedPeriods = "24h"|"7d"|"14d"|"30d"|"90d"|"180d"|"360d";
+
+// Dummy data for top pools (unchanged)
 const topPoolsData = [
   { 
     title: "Best APR Pairs",
@@ -93,25 +95,12 @@ export default function PoolsPage() {
   const router = useRouter();
   const { poolRiskData, period, setPeriod, loading } = useDataContext();
 
+  // Hooks must always run:
   const [selectedProtocols, setSelectedProtocols] = useState<Protocol[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const [sortConfig, setSortConfig] = useState<SortConfig>({
-    key: null,
-    direction: null
-  });
-
-  // Show loading state from data context
-  if (loading) {
-    return (
-      <section className="relative">
-        <div className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
-          Loading pools data...
-        </div>
-      </section>
-    );
-  }
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: null });
 
   const formatPercentage = (value: number) => {
     return {
@@ -120,7 +109,6 @@ export default function PoolsPage() {
     };
   };
 
-  // Filter based on search and protocol
   const filteredData = useMemo(() => {
     return poolRiskData.filter(pool => {
       const matchesSearch = searchQuery === '' || 
@@ -151,32 +139,29 @@ export default function PoolsPage() {
   };
 
   const sortedAndFilteredData = useMemo(() => {
-    let data = [...filteredData];
+    const data = [...filteredData];
     if (sortConfig.key && sortConfig.direction) {
       data.sort((a, b) => {
         const aValue = a[sortConfig.key!];
         const bValue = b[sortConfig.key!];
-  
+
         const getComparableValue = (
           value: string | number | RiskFactors | RankingFactors
         ): number => {
           if (typeof value === 'number') {
-            // Already a number
             return value;
           } else if (typeof value === 'string') {
-            // Attempt to parse a number from the string (e.g. "24.09%" -> 24.09)
             const parsed = parseFloat(value.replace(/[^0-9.-]+/g, ''));
             return isNaN(parsed) ? 0 : parsed;
           } else {
-            // It's either RiskFactors or RankingFactors.
-            // Both have a numeric 'score' field we can rely on.
+            // value is RiskFactors or RankingFactors with a numeric score
             return value.score;
           }
         };
-  
+
         const comparableA = getComparableValue(aValue);
         const comparableB = getComparableValue(bValue);
-  
+
         if (comparableA < comparableB) return sortConfig.direction === 'asc' ? -1 : 1;
         if (comparableA > comparableB) return sortConfig.direction === 'asc' ? 1 : -1;
         return 0;
@@ -184,13 +169,12 @@ export default function PoolsPage() {
     }
     return data;
   }, [filteredData, sortConfig]);
-  
 
   const totalPages = Math.ceil(sortedAndFilteredData.length / entriesPerPage);
   const startIndex = (currentPage - 1) * entriesPerPage;
   const paginatedData = sortedAndFilteredData.slice(startIndex, startIndex + entriesPerPage);
 
-  // Reset to first page when filters change
+  // useEffect must not be conditional:
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, selectedProtocols]);
@@ -212,8 +196,8 @@ export default function PoolsPage() {
     }
   };
 
-  const getProtocolDisplay = (protocol: string) => {
-    return protocol.toLowerCase() === 'aqua' ? 'Aquarius' : protocol;
+  const getProtocolDisplay = (proto: string) => {
+    return proto.toLowerCase() === 'aqua' ? 'Aquarius' : proto;
   };
 
   const handleViewDetails = (pool: PoolRiskApiResponseObject) => {
@@ -246,6 +230,17 @@ export default function PoolsPage() {
       </div>
     </TableHead>
   );
+
+  // Now handle conditions AFTER hooks:
+  if (loading) {
+    return (
+      <section className="relative">
+        <div className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
+          Loading pools data...
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative">
@@ -345,7 +340,14 @@ export default function PoolsPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Select value={period} onValueChange={(v) => { setPeriod(v); setCurrentPage(1); }}>
+            <Select 
+              value={period as AllowedPeriods} 
+              onValueChange={(v: AllowedPeriods) => { 
+                setPeriod(v); 
+                setCurrentPage(1); 
+              }}
+              aria-label="Select time period"
+            >
               <SelectTrigger className="w-[180px] h-9">
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
