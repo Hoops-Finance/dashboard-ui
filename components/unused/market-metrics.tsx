@@ -6,7 +6,7 @@ export function MarketMetrics() {
     <div className="grid gap-6 md:grid-cols-3">
       <Card className="p-6 bg-card">
         <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center gap-2">
+          <div className="flex-center-g-2">
             <TrendingUp className="w-5 h-5 text-green-500" />
             <span className="font-semibold">Total Market Cap</span>
           </div>
@@ -32,7 +32,7 @@ export function MarketMetrics() {
 
       <Card className="p-6 bg-card">
         <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center gap-2">
+          <div className="flex-center-g-2">
             <Activity className="w-5 h-5 text-blue-500" />
             <span className="font-semibold">24hr Volume</span>
           </div>
@@ -52,7 +52,7 @@ export function MarketMetrics() {
       <div className="space-y-6">
         <Card className="p-6 bg-card">
           <div className="flex justify-between items-start mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex-center-g-2">
               <Activity className="w-5 h-5 text-orange-500" />
               <span className="font-semibold">Market Sentiment</span>
             </div>
@@ -65,7 +65,7 @@ export function MarketMetrics() {
 
         <Card className="p-6 bg-card">
           <div className="flex justify-between items-start mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex-center-g-2">
               <LineChart className="w-5 h-5 text-purple-500" />
               <span className="font-semibold">Altcoin Season</span>
             </div>

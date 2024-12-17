@@ -73,7 +73,7 @@ export function StrategiesSidebar() {
           onClick={() => setExpandedId(expandedId === strategy.id ? null : strategy.id)}
         >
           <div className="p-4">
-            <div className="flex items-start justify-between">
+            <div className="card-content-base">
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-2">
                   {strategy.tokens.map((token, i) => (

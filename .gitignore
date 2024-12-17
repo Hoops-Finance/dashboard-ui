@@ -69,3 +69,5 @@ log.txt
 *.*.old
 *.*old
 *.not
+tailold
+unstaged_changes.txt

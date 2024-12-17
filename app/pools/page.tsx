@@ -279,7 +279,7 @@ export default function PoolsPage() {
             >
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex-center-g-2">
                     <section.icon className="h-5 w-5 text-primary" />
                     {section.title}
                   </CardTitle>
@@ -292,7 +292,7 @@ export default function PoolsPage() {
                       whileHover={{ x: 4 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex-center-g-2">
                         <span className="text-muted-foreground">#{item.rank}</span>
                         <span className="text-foreground font-medium group-hover:text-primary transition-colors duration-200">
                           {item.pair}
@@ -349,7 +349,7 @@ export default function PoolsPage() {
             </Button>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex-center-g-4">
             <Select 
               value={period as AllowedPeriods} 
               onValueChange={(v: AllowedPeriods) => { 
@@ -371,7 +371,7 @@ export default function PoolsPage() {
             </Select>
 
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="search-bar" />
               <Input 
                 placeholder="Search by token/pair/pool address" 
                 className="pl-10 h-9"
@@ -396,7 +396,7 @@ export default function PoolsPage() {
 
         {/* Pools Table */}
         <motion.div 
-          className="rounded-lg border bg-card text-card-foreground shadow"
+          className="pools-motion"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.4 }}
@@ -418,7 +418,7 @@ export default function PoolsPage() {
               <TableBody>
                 {paginatedData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="h-10 px-4 text-center text-muted-foreground">
+                    <TableCell colSpan={8} className="table-cell-base">
                       No pools data available
                     </TableCell>
                   </TableRow>
@@ -426,7 +426,7 @@ export default function PoolsPage() {
                   paginatedData.map((pool, index) => (
                     <TableRow 
                       key={index} 
-                      className="group hover:bg-muted/50 cursor-pointer border-b border-border"
+                      className="group table-row-hover border-b border-border"
                       onClick={() => handleViewDetails(pool)}
                     >
                       <TableCell className="h-10 px-4 align-middle">
@@ -446,28 +446,28 @@ export default function PoolsPage() {
                       <TableCell className="h-10 px-4 align-middle font-medium">
                         {pool.market}
                       </TableCell>
-                      <TableCell className="h-10 px-4 align-middle text-right font-medium">
+                      <TableCell className="table-header-cell font-medium">
                         {pool.apr}
                       </TableCell>
-                      <TableCell className="h-10 px-4 align-middle text-right">
+                      <TableCell className="table-header-cell">
                         ${Number(pool.totalValueLocked).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       </TableCell>
-                      <TableCell className="h-10 px-4 align-middle text-right">
+                      <TableCell className="table-header-cell">
                         ${Number(pool.volume).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       </TableCell>
-                      <TableCell className="h-10 px-4 align-middle text-right">
+                      <TableCell className="table-header-cell">
                         ${Number(pool.fees).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       </TableCell>
-                      <TableCell className="h-10 px-4 align-middle text-right">
+                      <TableCell className="table-header-cell">
                         <span className={`font-medium ${Number(pool.riskScore) <= 50 ? 'text-green-500' : 'text-red-500'}`}>
                           {Number(pool.riskScore).toFixed(2)}
                         </span>
                       </TableCell>
-                      <TableCell className="h-10 px-4 align-middle text-right">
+                      <TableCell className="table-header-cell">
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 px-3 text-muted-foreground hover:text-foreground"
+                          className="details-button"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleViewDetails(pool);
@@ -485,9 +485,9 @@ export default function PoolsPage() {
 
             {/* Table Footer with Pagination */}
             {sortedAndFilteredData.length > 0 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t border-border">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
+              <div className="table-footer-group">
+                <div className="flex-center-g-4">
+                  <div className="flex-center-g-2">
                     <span className="text-sm text-muted-foreground">Show</span>
                     <Select
                       value={entriesPerPage.toString()}
@@ -512,7 +512,7 @@ export default function PoolsPage() {
                     Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, sortedAndFilteredData.length)} of {sortedAndFilteredData.length} entries
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex-center-g-2">
                   <Button
                     variant="outline"
                     size="sm"

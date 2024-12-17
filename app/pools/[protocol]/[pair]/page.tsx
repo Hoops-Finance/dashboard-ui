@@ -276,14 +276,14 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
         {/* Toolbar for chart style and indicators */}
         <div className="flex items-center mt-4 w-full justify-between flex-wrap gap-2">
           {/* Left: Switch Base Price */}
-          <div className="flex items-center gap-2">
+          <div className="flex-center-g-2">
             <Button variant={inverted ? 'default':'secondary'} onClick={()=>setInverted(!inverted)}>
               Switch Base Price
             </Button>
           </div>
 
           {/* Middle: Indicators */}
-          <div className="flex items-center gap-2 flex-wrap justify-center">
+          <div className="indicator-buttons">
             <Button variant={showMACD ? 'default' : 'secondary'} onClick={() => setShowMACD(!showMACD)}>
               MACD
             </Button>
@@ -302,7 +302,7 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
           </div>
 
           {/* Right: Chart style toggles */}
-          <div className="flex items-center gap-2 flex-wrap justify-end">
+          <div className="chart-style-buttons">
             <Button variant={chartStyle === 'candlestick' ? 'default' : 'secondary'} onClick={() => setChartStyle('candlestick')}>
               Candlestick
             </Button>
@@ -321,7 +321,7 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
           <section className="h-[400px] lg:h-[500px] rounded-lg border bg-card overflow-hidden" aria-label="Price & Volume Chart">
             <div className="h-full flex flex-col">
               <div className="p-4 border-b border-border flex items-center justify-between bg-card">
-                <div className="flex items-center gap-2">
+                <div className="flex-center-g-2">
                   <LineChart className="h-5 w-5 text-primary" aria-hidden="true" />
                   Price & Volume
                 </div>

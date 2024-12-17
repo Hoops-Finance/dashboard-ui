@@ -249,7 +249,7 @@ export default function ProtocolPage({ params }: PageProps) {
         </Card>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="stat-card">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -320,7 +320,7 @@ export default function ProtocolPage({ params }: PageProps) {
           </div>
 
           {/* Search Controls */}
-          <div className="flex items-center gap-4">
+          <div className="flex-center-g-4">
             <Select
               name="period"
               value={period}
@@ -343,7 +343,7 @@ export default function ProtocolPage({ params }: PageProps) {
             </Select>
 
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              <Search className="search-bar" aria-hidden="true" />
               <Input
                 type="search"
                 placeholder="Search by token/pair/pool address"
@@ -372,18 +372,18 @@ export default function ProtocolPage({ params }: PageProps) {
           </div>
 
           {/* Pools Table */}
-          <div className="rounded-lg border bg-card text-card-foreground shadow">
+          <div className="pools-motion">
             <div className="relative w-full overflow-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground">Pair</TableHead>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">APR ({formatPeriodDisplay(period)})</TableHead>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">TVL</TableHead>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Volume ({formatPeriodDisplay(period)})</TableHead>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Fees ({formatPeriodDisplay(period)})</TableHead>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Risk Score</TableHead>
-                    <TableHead className="h-10 px-4 align-middle font-medium text-muted-foreground text-right">Actions</TableHead>
+                    <TableHead className="table-header-label">Pair</TableHead>
+                    <TableHead className="table-header-label">APR ({formatPeriodDisplay(period)})</TableHead>
+                    <TableHead className="table-header-label">TVL</TableHead>
+                    <TableHead className="table-header-label">Volume ({formatPeriodDisplay(period)})</TableHead>
+                    <TableHead className="table-header-label">Fees ({formatPeriodDisplay(period)})</TableHead>
+                    <TableHead className="table-header-label">Risk Score</TableHead>
+                    <TableHead className="table-header-label">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -391,7 +391,7 @@ export default function ProtocolPage({ params }: PageProps) {
                     <TableRow>
                       <TableCell 
                         colSpan={7} 
-                        className="h-10 px-4 text-center text-muted-foreground"
+                        className="table-cell-base"
                       >
                         No pools found for {protocolInfo!.name}
                       </TableCell>
@@ -400,33 +400,33 @@ export default function ProtocolPage({ params }: PageProps) {
                     paginatedPools.map((pool) => (
                       <TableRow 
                         key={pool.pairId} 
-                        className="group hover:bg-muted/50 cursor-pointer border-b border-border"
+                        className="group table-header-row"
                       >
                         <TableCell className="h-10 px-4 align-middle font-medium">
                           {pool.market}
                         </TableCell>
-                        <TableCell className="h-10 px-4 align-middle text-right">
+                        <TableCell className="table-header-cell">
                           {pool.apr}
                         </TableCell>
-                        <TableCell className="h-10 px-4 align-middle text-right">
+                        <TableCell className="table-header-cell">
                           {formatDollarAmount(parseFloat(pool.totalValueLocked))}
                         </TableCell>
-                        <TableCell className="h-10 px-4 align-middle text-right">
+                        <TableCell className="table-header-cell">
                           {formatDollarAmount(parseFloat(pool.volume))}
                         </TableCell>
-                        <TableCell className="h-10 px-4 align-middle text-right">
+                        <TableCell className="table-header-cell">
                           {formatDollarAmount(parseFloat(pool.fees))}
                         </TableCell>
-                        <TableCell className="h-10 px-4 align-middle text-right">
+                        <TableCell className="table-header-cell">
                           <span className={`font-medium ${parseFloat(pool.riskScore) <= 50 ? 'text-green-500' : 'text-red-500'}`}>
                             {pool.riskScore}
                           </span>
                         </TableCell>
-                        <TableCell className="h-10 px-4 align-middle text-right">
+                        <TableCell className="table-header-cell">
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 px-3 text-muted-foreground hover:text-foreground"
+                            className="details-button"
                             onClick={() => {
                               // Navigate to details
                               handleViewDetails(pool);
@@ -444,9 +444,9 @@ export default function ProtocolPage({ params }: PageProps) {
 
               {/* Pagination */}
               {filteredData.length > 0 && (
-                <div className="flex items-center justify-between px-4 py-4 border-t border-border">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
+                <div className="table-footer">
+                  <div className="flex-center-g-4">
+                    <div className="flex-center-g-2">
                       <span className="text-sm text-muted-foreground">Show</span>
                       <Select
                         name="limit"
@@ -476,7 +476,7 @@ export default function ProtocolPage({ params }: PageProps) {
                   </div>
 
                   {totalPages > 1 && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex-center-g-2">
                       <Button
                         variant="outline"
                         size="sm"

@@ -74,7 +74,7 @@ const Navbar: React.FC = () => {
           ))}
 
           {isLoggedIn ? (
-            <div className="flex items-center gap-4">
+            <div className="flex-center-g-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -115,7 +115,7 @@ const Navbar: React.FC = () => {
               </DropdownMenu>
             </div>
           ) : (
-            <div className="flex items-center gap-4">
+            <div className="flex-center-g-4">
               <button
                 onClick={handleLogin}
                 className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}

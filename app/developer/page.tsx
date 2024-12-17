@@ -118,7 +118,7 @@ export default function DeveloperPage() {
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">Your API Key</Label>
                       <div className="p-3 bg-muted rounded-md">
-                        <div className="flex items-center gap-2">
+                        <div className="flex-center-g-2">
                           <code className="flex-1 text-sm break-all">
                             {generatedKey}
                           </code>

@@ -152,7 +152,7 @@ export function AIChat() {
               className="ml-0 max-w-[85%]"
             >
               <Card className="p-6 bg-muted/50">
-                <div className="flex items-center gap-4">
+                <div className="flex-center-g-4">
                   <div className="rounded-full p-2 bg-primary/10">
                     <Bot className="h-5 w-5" />
                   </div>

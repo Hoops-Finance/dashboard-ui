@@ -96,7 +96,7 @@ export default function FinancialPlaylistList() {
           </Button>
         </div>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="search-bar" />
           <Input
             placeholder="Search playlists"
             value={searchTerm}
@@ -115,7 +115,7 @@ export default function FinancialPlaylistList() {
               onClick={() => setExpandedId(expandedId === playlist.id ? null : playlist.id)}
             >
               <CardContent className="p-4">
-                <div className="flex items-start justify-between">
+                <div className="card-content-base">
                   <div className="flex items-center gap-3">
                     <div className="text-2xl">{playlist.icon}</div>
                     <div>
@@ -152,7 +152,7 @@ export default function FinancialPlaylistList() {
                         {playlist.pools.map((pool, index) => (
                           <div key={index} className="flex items-center justify-between text-sm">
                             <span>{pool.name}</span>
-                            <div className="flex items-center gap-4">
+                            <div className="flex-center-g-4">
                               <span className="text-muted-foreground">{pool.allocation}%</span>
                               <span className="text-green-500">{pool.apr}% APR</span>
                             </div>

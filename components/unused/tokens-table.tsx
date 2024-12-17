@@ -71,7 +71,7 @@ export function TokensTable() {
             {tokens.map((token) => (
               <TableRow key={token.name} className="hover:bg-muted/50">
                 <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
+                  <div className="flex-center-g-2">
                     <span>{token.icon}</span>
                     <span>{token.name}</span>
                   </div>
