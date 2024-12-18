@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { 
   GlobalMetrics, 
   PoolRiskApiResponseObject, 
@@ -12,8 +12,7 @@ import type {
   AssetDetails,
   PairApiResponseObject
 } from '@/utils/newTypes';
-
-type AllowedPeriods = '24h'|'7d'|'14d'|'30d'|'90d'|'180d'|'360d';
+import { AllowedPeriods } from '@/utils/utilities';
 
 interface DataContextValue {
   loading: boolean;
@@ -146,7 +145,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const fetchCandles = async (token0: string, token1: string | null, from: number, to: number): Promise<unknown> => {
-    const normalize = (t: string) =>
+    const normalize = (t: string): string =>
       t.toLowerCase() === 'xlm' || t.toLowerCase() === 'native' ? 'XLM' : t.replace(/:/g, '-');
 
     const t0 = normalize(token0);
@@ -161,7 +160,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const res = await fetch(endpoint);
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.error || 'Failed to fetch candles');
+      throw new Error((errData as {error?:string}).error || 'Failed to fetch candles');
     }
     return res.json();
   };
@@ -176,7 +175,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return res.json() as Promise<AssetDetails>;
   };
 
-  // Helper to get pairs for a given token
   const getPairsForToken = (token: Token): Pair[] => {
     const pairMap = new Map<string, Pair>(pairs.map(p=>[p.id,p]));
     const tokenPairsList: Pair[] = [];
@@ -187,7 +185,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return tokenPairsList;
   };
 
-  // Helper to build pool route using pairs and tokens
   const buildPoolRoute = (pool: PoolRiskApiResponseObject): string => {
     const p = pairs.find(pr => pr.id === pool.pairId);
     if (!p) {

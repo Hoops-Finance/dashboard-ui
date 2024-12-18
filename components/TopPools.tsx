@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Pair, PoolRiskApiResponseObject, Token } from "@/utils/newTypes";
 import { useDataContext } from "@/contexts/DataContext";
 
-// Icons inline
 function FlameIcon() {
   return (
     <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M13 4l-1 2H6l5 8h3l5-8h-6l1-2z"/><path d="M13 12l-2 4h6"/></svg>
@@ -94,7 +93,6 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
 
   return (
     <div className="grid gap-6 md:grid-cols-3">
-      {/* Best APR Pairs */}
       <motion.div
         initial={{ opacity:0,y:20}}
         animate={{opacity:1,y:0}}
@@ -137,7 +135,6 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
         </Card>
       </motion.div>
 
-      {/* Highest Volume Pairs */}
       <motion.div
         initial={{opacity:0,y:20}}
         animate={{opacity:1,y:0}}
@@ -178,7 +175,6 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
         </Card>
       </motion.div>
 
-      {/* Best Stable Coin Pools */}
       <motion.div
         initial={{opacity:0,y:20}}
         animate={{opacity:1,y:0}}

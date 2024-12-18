@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useDataContext } from "@/contexts/DataContext";
 import ChartComponent from "@/components/ChartComponent";
 import type { UTCTimestamp } from "lightweight-charts";
+import { CandleDataPoint, VolumeDataPoint, PERIOD_OPTIONS, AllowedPeriods } from "@/utils/utilities";
 
 interface StatCardProps {
   title: string;
@@ -46,17 +47,6 @@ const StatCard = ({ title, value, tooltip, icon }: StatCardProps) => (
   </div>
 );
 
-const PERIOD_OPTIONS = [
-  { value: "24h", label: "24H" },
-  { value: "7d", label: "7D" },
-  { value: "30d", label: "30D" },
-  { value: "90d", label: "90D" },
-  { value: "180d", label: "180D" },
-  { value: "360d", label: "360D" },
-] as const;
-
-type PeriodOption = typeof PERIOD_OPTIONS[number]["value"];
-
 const getProtocolDisplay = (protocol: string): string => {
   return protocol.toLowerCase() === 'aqua' ? 'Aquarius' :
     protocol.charAt(0).toUpperCase() + protocol.slice(1).toLowerCase();
@@ -64,7 +54,7 @@ const getProtocolDisplay = (protocol: string): string => {
 
 export default function PoolPage({ params }: { params: { protocol: string; pair: string } }) {
   const router = useRouter();
-  const { poolRiskData, period, setPeriod, loading, fetchCandles, pairs } = useDataContext();
+  const { poolRiskData, period, setPeriod, loading, fetchCandles, pairs, tokens } = useDataContext();
   const [copyFeedback, setCopyFeedback] = useState<string>('');
   
   const protocolParam = params.protocol.toLowerCase();
@@ -97,7 +87,7 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
       if (!pr.token0Details || !pr.token1Details) return false;
       return (
         (pr.token0Details.name === token0Name && pr.token1Details.name === token1Name) ||
-        (pr.token0Details.name === token1Name && pr.token0Details.name === token0Name)
+        (pr.token1Details.name === token0Name && pr.token0Details.name === token1Name)
       );
     });
 
@@ -106,8 +96,8 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
     return poolRiskData.find(pool => pool.pairId === foundPair.id);
   }, [pairs, poolRiskData, token0Name, token1Name]);
 
-  const [candleData, setCandleData] = useState<{time:UTCTimestamp;open:number;high:number;low:number;close:number}[]>([]);
-  const [volumeData, setVolumeData] = useState<{time:UTCTimestamp;value:number;color:string}[]>([]);
+  const [candleData, setCandleData] = useState<CandleDataPoint[]>([]);
+  const [volumeData, setVolumeData] = useState<VolumeDataPoint[]>([]);
   const [chartError, setChartError] = useState<string|null>(null);
 
   useEffect(() => {
@@ -123,6 +113,9 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
             break;
           case '7d':
             from = to - 7 * 24 * 3600;
+            break;
+          case '14d':
+            from = to - 14 * 24 * 3600;
             break;
           case '30d':
             from = to - 30 * 24 * 3600;
@@ -141,33 +134,32 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
         }
 
         const rawData = await fetchCandles(token0Name, token1Name, from, to);
-        if (!rawData || (rawData as []).length === 0) {
+        const arr = rawData as {time:number;open:number;high:number;low:number;close:number;baseVolume:number}[];
+
+        if (!arr || arr.length === 0) {
           setCandleData([]);
           setVolumeData([]);
           return;
         }
 
-        const arr = rawData as {time:number;open:number;high:number;low:number;close:number;baseVolume:number}[];
-
         const cData = arr.map(c => ({
-          time: c.time as UTCTimestamp,
+          time: c.time as unknown as UTCTimestamp,
           open: c.open,
           high: c.high,
           low: c.low,
           close: c.close,
         }));
-
         const vData = arr.map(c => ({
-          time: c.time as UTCTimestamp,
+          time: c.time as unknown as UTCTimestamp,
           value: c.baseVolume,
           color: c.close >= c.open ? '#26a69a' : '#ef5350',
         }));
 
         setCandleData(cData);
         setVolumeData(vData);
-      } catch (error:unknown) {
-        console.error('Error loading chart data:', error);
+      } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Error loading chart data:', message);
         setChartError('Unable to load chart data: ' + message);
         setCandleData([]);
         setVolumeData([]);
@@ -212,7 +204,6 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
   return (
     <div className="min-h-[calc(100vh-72px)] bg-background flex flex-col">
       <div className="container max-w-7xl mx-auto px-4 flex-1 flex flex-col">
-        {/* Header Section */}
         <header className="py-4 border-b border-border">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -268,14 +259,13 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
           </div>
         </header>
 
-        {/* Chart Section */}
         <section className="h-[400px] lg:h-[500px] rounded-lg border bg-card overflow-hidden my-6" aria-label="Price & Volume Chart">
           <div className="p-4 border-b border-border flex items-center justify-between bg-card">
             <div className="flex-center-g-2">
               <LineChart className="h-5 w-5 text-primary" aria-hidden="true" />
               Price & Volume
             </div>
-            <Select value={period} onValueChange={(val: PeriodOption) => setPeriod(val)}>
+            <Select value={period} onValueChange={(val) => setPeriod(val as AllowedPeriods)}>
               <SelectTrigger className="w-[100px]" aria-label="Select time period">
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
@@ -303,7 +293,6 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
           </div>
         </section>
 
-        {/* Pool Details Section */}
         <section className="flex-1" aria-label="Pool Details">
           <Tabs defaultValue="overview" className="h-full">
             <TabsList className="w-full justify-start h-9 bg-muted rounded-lg p-1">

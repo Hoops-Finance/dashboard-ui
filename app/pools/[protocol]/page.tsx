@@ -1,39 +1,17 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDataContext } from "@/contexts/DataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ProtocolLogo } from "@/components/protocol-logo";
 import { formatDollarAmount, formatPercentage } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Search, ChevronRight, MessageCircleWarning } from "lucide-react";
-import { TabNavigation } from "./tab-navigation";
-import { PoolRiskApiResponseObject } from "@/utils/newTypes";
+import { MessageCircleWarning } from "lucide-react";
 import { PoolsTable } from "@/components/PoolsTable";
 import { TopPools } from "@/components/TopPools";
-
-type AllowedPeriods = "24h"|"7d"|"14d"|"30d"|"90d"|"180d"|"360d";
-
-const PERIODS = [
-  { value: '24h', label: '24H' },
-  { value: '7d', label: '7D' },
-  { value: '14d', label: '14D' },
-  { value: '30d', label: '30D' },
-  { value: '90d', label: '90D' },
-  { value: '180d', label: '180D' },
-  { value: '360d', label: '360D' }
-] as const;
+import { STABLECOIN_IDS, AllowedPeriods } from "@/utils/utilities";
 
 const PROTOCOLS = ['soroswap', 'aquarius', 'blend', 'phoenix'] as const;
 type Protocol = typeof PROTOCOLS[number];
@@ -82,14 +60,7 @@ const PROTOCOL_INFO: Record<Protocol, {
   }
 };
 
-const PROTOCOL_MAPPING: Record<Protocol, string> = {
-  soroswap: 'soroswap',
-  phoenix: 'phoenix',
-  aquarius: 'aqua',
-  blend: 'blend'
-};
-
-function getProtocolStats(pools: PoolRiskApiResponseObject[]) {
+function getProtocolStats(pools: import('@/utils/newTypes').PoolRiskApiResponseObject[]) {
   if (!pools?.length) {
     return {
       tvl: 0,
@@ -110,43 +81,21 @@ function getProtocolStats(pools: PoolRiskApiResponseObject[]) {
   return { tvl, volume24h, poolCount, averageApy };
 }
 
-const STABLECOIN_IDS = new Set<string>([
-  "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-  "CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP",
-  "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV",
-  "CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U"
-]);
-
 export default function ProtocolPage({ params }: { params: { protocol: string } }) {
-  const searchParams = useSearchParams();
-  const { poolRiskData, period, setPeriod, loading, pairs, tokens } = useDataContext();
+  const { poolRiskData, period, loading, pairs, tokens } = useDataContext();
   const protocol = params.protocol as Protocol;
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(Number(searchParams.get('page')) || 1);
-  const [entriesPerPage, setEntriesPerPage] = useState(Number(searchParams.get('limit')) || 10);
-
   const isValidProtocol = PROTOCOLS.includes(protocol);
-  const mappedProtocol = isValidProtocol ? PROTOCOL_MAPPING[protocol] : null;
   const protocolInfo = isValidProtocol ? PROTOCOL_INFO[protocol] : null;
 
   const protocolPools = useMemo(() => {
     if (!isValidProtocol) return [];
+    const mappedProtocol = protocol === 'aquarius' ? 'aqua' : protocol;
     return poolRiskData.filter(pool =>
-      pool.protocol.toLowerCase() === mappedProtocol!.toLowerCase()
+      pool.protocol.toLowerCase() === mappedProtocol.toLowerCase()
     );
-  }, [poolRiskData, mappedProtocol, isValidProtocol]);
+  }, [poolRiskData, protocol, isValidProtocol]);
 
   const stats = getProtocolStats(protocolPools);
-
-  const filteredData = useMemo(() => {
-    if (!isValidProtocol) return [];
-    return protocolPools.filter(pool => {
-      return searchQuery === '' ||
-        pool.market.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        pool.protocol.toLowerCase().includes(searchQuery.toLowerCase());
-    });
-  }, [protocolPools, searchQuery, isValidProtocol]);
 
   if (!isValidProtocol) {
     return (
@@ -169,19 +118,6 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
     );
   }
 
-  const formatPeriodDisplay = (p: AllowedPeriods) => {
-    switch (p) {
-      case '24h': return '24H';
-      case '7d': return '7D';
-      case '14d': return '14D';
-      case '30d': return '30D';
-      case '90d': return '90D';
-      case '180d': return '180D';
-      case '360d': return '360D';
-      default: return '30D';
-    }
-  };
-
   return (
     <main className="container mx-auto p-4 space-y-8">
       {/* Breadcrumbs */}
@@ -191,11 +127,11 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
             <path d="M3 11l9-9 9 9M9 21V9c0-.58.24-1.12.66-1.53L12 5.13l2.34 2.34c.42.41.66.95.66 1.53v12" />
           </svg>
         </Link>
-        <ChevronRight className="h-4 w-4" aria-hidden="true" />
+        <span>/</span>
         <Link href="/pools" className="hover:text-foreground">
           Pools
         </Link>
-        <ChevronRight className="h-4 w-4" aria-hidden="true" />
+        <span>/</span>
         <span className="text-foreground font-medium" aria-current="page">
           {protocolInfo!.name}
         </span>
@@ -242,7 +178,7 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
           <Card>
             <CardHeader className="card-header">
               <CardTitle className="text-sm font-medium">
-                Volume ({formatPeriodDisplay(period)})
+                Volume ({period.toUpperCase()})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -250,7 +186,7 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
                 {formatDollarAmount(stats.volume24h)}
               </div>
               <p className="text-xs text-muted-foreground">
-                Last {formatPeriodDisplay(period)}
+                Last {period.toUpperCase()}
               </p>
             </CardContent>
           </Card>
@@ -270,7 +206,7 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
           <Card>
             <CardHeader className="card-header">
               <CardTitle className="text-sm font-medium">
-                Average APY ({formatPeriodDisplay(period)})
+                Average APY ({period.toUpperCase()})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -295,74 +231,10 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
 
         {/* Pools Table Section */}
         <section aria-label="Pools data" className="space-y-4">
-          {/* Navigation Tabs */}
-          <div>
-            <div className="flex h-10 items-center space-x-4 text-muted-foreground">
-              <TabNavigation />
-            </div>
-          </div>
-
-          {/* Search Controls */}
-          <div className="flex-center-g-4">
-            <Select
-              name="period"
-              value={period}
-              onValueChange={(v) => {
-                setPeriod(v as AllowedPeriods);
-                setCurrentPage(1);
-              }}
-              aria-label="Select time period"
-            >
-              <SelectTrigger className="w-[180px] h-9">
-                <SelectValue placeholder="Select period" />
-              </SelectTrigger>
-              <SelectContent>
-                {PERIODS.map(p => (
-                  <SelectItem key={p.value} value={p.value}>
-                    {p.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <div className="flex-1 relative">
-              <Search className="search-bar" aria-hidden="true" />
-              <Input
-                type="search"
-                placeholder="Search by token/pair/pool address"
-                className="pl-10 h-9"
-                aria-label="Search pools"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
-              />
-            </div>
-
-            <Button 
-              variant="secondary" 
-              className="h-9"
-              aria-label="Reset filters"
-              onClick={() => {
-                setSearchQuery('');
-                setPeriod('30d');
-                setCurrentPage(1);
-              }}
-            >
-              Reset
-            </Button>
-          </div>
-
           <PoolsTable
-            data={filteredData}
+            data={protocolPools}
             pairs={pairs}
             tokens={tokens}
-            period={period}
-            initialEntriesPerPage={entriesPerPage}
-            showSearch={false}
-            showPagination={true}
-            showPeriodLabel={true}
           />
         </section>
       </div>

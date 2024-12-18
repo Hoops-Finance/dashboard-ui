@@ -1,44 +1,19 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useDataContext } from "@/contexts/DataContext";
-import type { UTCTimestamp } from "lightweight-charts";
+import { AlertCircle, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, ChevronRight, Loader2 } from "lucide-react";
 import Image from "next/image";
 import type { AssetDetails, Pair, Token, PoolRiskApiResponseObject } from "@/utils/newTypes";
+import { useDataContext } from "@/contexts/DataContext";
 import ChartComponent from "@/components/ChartComponent";
 import { PoolsTable } from "@/components/PoolsTable";
 import { TopPools } from "@/components/TopPools";
-
-interface CandleDataPoint {
-  time: UTCTimestamp;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-}
-interface VolumeDataPoint {
-  time: UTCTimestamp;
-  value: number;
-  color: string;
-}
-
-const PERIOD_OPTIONS = [
-  { value: "24h", label: "24H" },
-  { value: "7d", label: "7D" },
-  { value: "30d", label: "30D" },
-] as const;
-
-const STABLECOIN_IDS = new Set<string>([
-  "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75", 
-  "CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP",
-  "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV",
-  "CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U"
-]);
+import { CandleDataPoint, VolumeDataPoint, PERIOD_OPTIONS, AllowedPeriods, STABLECOIN_IDS } from "@/utils/utilities";
+import { UTCTimestamp } from "lightweight-charts";
 
 export default function TokenDetailsPage() {
   const { tokens, pairs, poolRiskData, loading, fetchTokenDetails, fetchCandles, period, setPeriod, getPairsForToken } = useDataContext();
@@ -52,12 +27,6 @@ export default function TokenDetailsPage() {
   } else {
     tokenAssetId = tokenIdParam.replace(/-/g, ':');
   }
-
-  const [candleData, setCandleData] = useState<CandleDataPoint[]>([]);
-  const [volumeData, setVolumeData] = useState<VolumeDataPoint[]>([]);
-  const [chartError, setChartError] = useState<string|null>(null);
-  const [tokenDetails, setTokenDetails] = useState<AssetDetails|null>(null);
-  const [detailsLoading, setDetailsLoading] = useState(true);
 
   const token: Token | undefined = useMemo(() => {
     if (tokenAssetId === 'native') {
@@ -78,9 +47,14 @@ export default function TokenDetailsPage() {
     return poolRiskData.filter(pool=>pairIds.has(pool.pairId));
   }, [tokenPairs, poolRiskData]);
 
+  const [candleData, setCandleData] = useState<CandleDataPoint[]>([]);
+  const [volumeData, setVolumeData] = useState<VolumeDataPoint[]>([]);
+  const [chartError, setChartError] = useState<string|null>(null);
+  const [tokenDetails, setTokenDetails] = useState<AssetDetails|null>(null);
+  const [detailsLoading, setDetailsLoading] = useState(true);
+
   useEffect(() => {
     if (!token) {
-      console.log("No token found for tokenAssetId:", tokenAssetId);
       return;
     }
     setDetailsLoading(true);
@@ -108,7 +82,11 @@ export default function TokenDetailsPage() {
         switch(period) {
           case '24h': from=to-24*3600;break;
           case '7d': from=to-7*24*3600;break;
+          case '14d': from=to-14*24*3600;break;
           case '30d': from=to-30*24*3600;break;
+          case '90d': from=to-90*24*3600;break;
+          case '180d': from=to-180*24*3600;break;
+          case '360d': from=to-360*24*3600;break;
           default: from=to-7*24*3600;
         }
         const rawData = await fetchCandles(tokenAssetId, null, from, to);
@@ -149,15 +127,11 @@ export default function TokenDetailsPage() {
     loadCandles();
   }, [token, tokenAssetId, period, fetchCandles]);
 
-  const displaySymbol = token? token.symbol : "";
-  const displayName = token? token.name.split(':')[0] : "";
-  const imageUrl = tokenDetails?.toml_info.image || '';
-
-  if(!token){
+  if (!token) {
     return (
       <div className="min-h-[calc(100vh-72px)] bg-background flex items-center justify-center">
         <div className="text-center p-4">
-          <AlertCircle className="alert-circle" aria-hidden="true"/>
+          <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" aria-hidden="true" />
           <p className="text-sm text-muted-foreground">Token not found</p>
           <Button variant="ghost" className="mt-4" onClick={()=>router.push('/tokens')} title="Go back to tokens list">
             Back to Tokens
@@ -175,6 +149,10 @@ export default function TokenDetailsPage() {
       </div>
     );
   }
+
+  const displaySymbol = token.symbol;
+  const displayName = token.name.split(':')[0];
+  const imageUrl = tokenDetails?.toml_info.image || '';
 
   return (
     <div className="min-h-[calc(100vh-72px)] bg-background flex flex-col">
@@ -195,7 +173,7 @@ export default function TokenDetailsPage() {
         </header>
 
         <div className="flex justify-end">
-          <Select value={period as "24h"|"7d"|"30d"} onValueChange={(v:"24h"|"7d"|"30d")=>setPeriod(v)}>
+          <Select value={period} onValueChange={(v) => setPeriod(v as AllowedPeriods)}>
             <SelectTrigger className="w-[100px] h-9" title="Select time period">
               <SelectValue placeholder="Select period"/>
             </SelectTrigger>
@@ -207,13 +185,12 @@ export default function TokenDetailsPage() {
           </Select>
         </div>
 
-        {/* Chart Section */}
         <section className="h-[400px] lg:h-[500px] rounded-lg border bg-card overflow-hidden" aria-label="Price & Volume Chart">
           <ChartComponent candleData={candleData} volumeData={volumeData}/>
           {chartError && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center p-4">
-                <AlertCircle className="alert-circle" aria-hidden="true"/>
+                <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" aria-hidden="true" />
                 <p className="text-sm text-muted-foreground">
                   {chartError}
                 </p>
@@ -224,12 +201,11 @@ export default function TokenDetailsPage() {
 
         {detailsLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 className="loader-spinner" aria-hidden="true"/>
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" aria-hidden="true"/>
             <p className="text-sm text-muted-foreground ml-2">Loading token details...</p>
           </div>
         ) : tokenDetails ? (
           <div className="space-y-6" aria-label="Token details and pools">
-            {/* Details Cards */}
             <div className="stat-card">
               <Card className="token-card">
                 <CardHeader className="pb-1">
@@ -252,7 +228,7 @@ export default function TokenDetailsPage() {
                 </CardContent>
               </Card>
               <Card className="token-card">
-                <CardHeader className="pb-1">   
+                <CardHeader className="pb-1">
                   <CardTitle className="text-sm text-muted-foreground">Volume (7d)</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -286,7 +262,6 @@ export default function TokenDetailsPage() {
               </Card>
             )}
 
-            {/* Top Pools for this token */}
             <TopPools
               data={tokenPools}
               pairs={pairs}
@@ -303,16 +278,12 @@ export default function TokenDetailsPage() {
                 data={tokenPools}
                 pairs={pairs}
                 tokens={tokens}
-                period={period}
-                showSearch={false}
-                showPagination={true}
-                showPeriodLabel={false}
               />
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-10">
-            <AlertCircle className="alert-circle" aria-hidden="true"/>
+            <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" aria-hidden="true"/>
             <p className="text-sm text-muted-foreground">No details available</p>
           </div>
         )}
