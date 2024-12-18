@@ -24,8 +24,10 @@ interface DataContextValue {
   tokens: Token[];
   period: AllowedPeriods;
   setPeriod: (p: AllowedPeriods) => void;
-  fetchCandles: (token0: string, token1: string | null, from: number, to: number) => Promise<any>;
+  fetchCandles: (token0: string, token1: string | null, from: number, to: number) => Promise<unknown>;
   fetchTokenDetails: (asset: string) => Promise<AssetDetails | null>;
+  getPairsForToken: (token: Token) => Pair[];
+  buildPoolRoute: (pool: PoolRiskApiResponseObject) => string;
 }
 
 const DataContext = createContext<DataContextValue | undefined>(undefined);
@@ -44,7 +46,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const processCoreData = useCallback(async () => {
     setLoading(true);
     try {
-      // Fetch from our proxy route
       const res = await fetch('/api/data');
       if (!res.ok) throw new Error('Failed to fetch core data');
 
@@ -108,8 +109,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const fetchPeriodData = useCallback(async (p: AllowedPeriods) => {
-    // DO NOT toggle loading here to avoid infinite loop
-    // This fetch is done after initial data load, so no need to change `loading`.
     try {
       const [metricsRes, statsRes] = await Promise.all([
         fetch(`/api/getmetrics?period=${p}`),
@@ -133,13 +132,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
-    // First load: fetch core data (markets, pairs, tokens)
     processCoreData();
   }, [processCoreData]);
 
   useEffect(() => {
-    // Whenever period changes, fetch global metrics and pool stats
-    // Only fetch if core data is loaded and available
     if (!loading && tokens.length > 0 && pairs.length > 0 && markets.length > 0) {
       fetchPeriodData(period);
     }
@@ -149,7 +145,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setPeriodState(p);
   };
 
-  const fetchCandles = async (token0: string, token1: string | null, from: number, to: number) => {
+  const fetchCandles = async (token0: string, token1: string | null, from: number, to: number): Promise<unknown> => {
     const normalize = (t: string) =>
       t.toLowerCase() === 'xlm' || t.toLowerCase() === 'native' ? 'XLM' : t.replace(/:/g, '-');
 
@@ -180,6 +176,35 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return res.json() as Promise<AssetDetails>;
   };
 
+  // Helper to get pairs for a given token
+  const getPairsForToken = (token: Token): Pair[] => {
+    const pairMap = new Map<string, Pair>(pairs.map(p=>[p.id,p]));
+    const tokenPairsList: Pair[] = [];
+    for(const tokenPairPrice of token.pairs) {
+      const foundPair = pairMap.get(tokenPairPrice.pairId);
+      if(foundPair) tokenPairsList.push(foundPair);
+    }
+    return tokenPairsList;
+  };
+
+  // Helper to build pool route using pairs and tokens
+  const buildPoolRoute = (pool: PoolRiskApiResponseObject): string => {
+    const p = pairs.find(pr => pr.id === pool.pairId);
+    if (!p) {
+      const urlSafePair = pool.market.replace(/\//g, '-');
+      return `/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`;
+    }
+    const t0 = tokens.find(t=>t.id===p.token0);
+    const t1 = tokens.find(t=>t.id===p.token1);
+    if(!t0||!t1){
+      const urlSafePair = pool.market.replace(/\//g,'-');
+      return `/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`;
+    }
+    const t0Name = t0.name.replace(/:/g,'-');
+    const t1Name = t1.name.replace(/:/g,'-');
+    return `/pools/${pool.protocol.toLowerCase()}/${t0Name}-${t1Name}?period=${period}`;
+  };
+
   const value: DataContextValue = {
     loading,
     globalMetrics,
@@ -190,7 +215,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     period,
     setPeriod,
     fetchCandles,
-    fetchTokenDetails
+    fetchTokenDetails,
+    getPairsForToken,
+    buildPoolRoute
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

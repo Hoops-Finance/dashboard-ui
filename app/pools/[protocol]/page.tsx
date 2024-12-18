@@ -1,17 +1,9 @@
 "use client";
 
-import React, { useState, useMemo, Fragment } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDataContext } from "@/contexts/DataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ProtocolLogo } from "@/components/protocol-logo";
@@ -25,9 +17,11 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, ChevronRight, ChevronLeft, MessageCircleWarning } from "lucide-react";
+import { Search, ChevronRight, MessageCircleWarning } from "lucide-react";
 import { TabNavigation } from "./tab-navigation";
 import { PoolRiskApiResponseObject } from "@/utils/newTypes";
+import { PoolsTable } from "@/components/PoolsTable";
+import { TopPools } from "@/components/TopPools";
 
 type AllowedPeriods = "24h"|"7d"|"14d"|"30d"|"90d"|"180d"|"360d";
 
@@ -116,15 +110,16 @@ function getProtocolStats(pools: PoolRiskApiResponseObject[]) {
   return { tvl, volume24h, poolCount, averageApy };
 }
 
-interface PageProps {
-  params: { protocol: string };
-}
+const STABLECOIN_IDS = new Set<string>([
+  "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+  "CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP",
+  "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV",
+  "CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U"
+]);
 
-export default function ProtocolPage({ params }: PageProps) {
-  const router = useRouter();
+export default function ProtocolPage({ params }: { params: { protocol: string } }) {
   const searchParams = useSearchParams();
-
-  const { poolRiskData, period, setPeriod, loading, pairs } = useDataContext();
+  const { poolRiskData, period, setPeriod, loading, pairs, tokens } = useDataContext();
   const protocol = params.protocol as Protocol;
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -153,24 +148,6 @@ export default function ProtocolPage({ params }: PageProps) {
     });
   }, [protocolPools, searchQuery, isValidProtocol]);
 
-  const totalPages = Math.ceil(filteredData.length / entriesPerPage);
-  const startIndex = (currentPage - 1) * entriesPerPage;
-  const endIndex = Math.min(startIndex + entriesPerPage, filteredData.length);
-  const paginatedPools = filteredData.slice(startIndex, endIndex);
-
-  const formatPeriodDisplay = (p: AllowedPeriods) => {
-    switch (p) {
-      case '24h': return '24H';
-      case '7d': return '7D';
-      case '14d': return '14D';
-      case '30d': return '30D';
-      case '90d': return '90D';
-      case '180d': return '180D';
-      case '360d': return '360D';
-      default: return '30D';
-    }
-  };
-
   if (!isValidProtocol) {
     return (
       <main className="container mx-auto p-4 space-y-8">
@@ -192,20 +169,17 @@ export default function ProtocolPage({ params }: PageProps) {
     );
   }
 
-  const handleViewDetails = (pool: PoolRiskApiResponseObject) => {
-    // Need to map pool to correct token naming
-    const p = pairs.find(pr => pr.id === pool.pairId);
-    if (!p) {
-      // fallback
-      const urlSafePair = pool.market.replace(/\//g, '-');
-      router.push(`/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`);
-      return;
+  const formatPeriodDisplay = (p: AllowedPeriods) => {
+    switch (p) {
+      case '24h': return '24H';
+      case '7d': return '7D';
+      case '14d': return '14D';
+      case '30d': return '30D';
+      case '90d': return '90D';
+      case '180d': return '180D';
+      case '360d': return '360D';
+      default: return '30D';
     }
-
-    const t0Name = p.token0Details.name;
-    const t1Name = p.token1Details.name;
-    const urlSafePair = `${t0Name.replace(/:/g, '-')}-${t1Name.replace(/:/g, '-')}`;
-    router.push(`/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`);
   };
 
   return (
@@ -251,7 +225,7 @@ export default function ProtocolPage({ params }: PageProps) {
         {/* Stats Cards */}
         <div className="stat-card">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="card-header">
               <CardTitle className="text-sm font-medium">
                 Total Value Locked
               </CardTitle>
@@ -266,7 +240,7 @@ export default function ProtocolPage({ params }: PageProps) {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="card-header">
               <CardTitle className="text-sm font-medium">
                 Volume ({formatPeriodDisplay(period)})
               </CardTitle>
@@ -281,7 +255,7 @@ export default function ProtocolPage({ params }: PageProps) {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="card-header">
               <CardTitle className="text-sm font-medium">
                 Active Pools
               </CardTitle>
@@ -294,7 +268,7 @@ export default function ProtocolPage({ params }: PageProps) {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="card-header">
               <CardTitle className="text-sm font-medium">
                 Average APY ({formatPeriodDisplay(period)})
               </CardTitle>
@@ -309,6 +283,15 @@ export default function ProtocolPage({ params }: PageProps) {
             </CardContent>
           </Card>
         </div>
+
+        {/* Top Pools for this protocol */}
+        <TopPools
+          data={protocolPools}
+          pairs={pairs}
+          tokens={tokens}
+          stablecoinIds={STABLECOIN_IDS}
+          period={period}
+        />
 
         {/* Pools Table Section */}
         <section aria-label="Pools data" className="space-y-4">
@@ -371,163 +354,16 @@ export default function ProtocolPage({ params }: PageProps) {
             </Button>
           </div>
 
-          {/* Pools Table */}
-          <div className="pools-motion">
-            <div className="relative w-full overflow-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="table-header-label">Pair</TableHead>
-                    <TableHead className="table-header-label">APR ({formatPeriodDisplay(period)})</TableHead>
-                    <TableHead className="table-header-label">TVL</TableHead>
-                    <TableHead className="table-header-label">Volume ({formatPeriodDisplay(period)})</TableHead>
-                    <TableHead className="table-header-label">Fees ({formatPeriodDisplay(period)})</TableHead>
-                    <TableHead className="table-header-label">Risk Score</TableHead>
-                    <TableHead className="table-header-label">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedPools.length === 0 ? (
-                    <TableRow>
-                      <TableCell 
-                        colSpan={7} 
-                        className="table-cell-base"
-                      >
-                        No pools found for {protocolInfo!.name}
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    paginatedPools.map((pool) => (
-                      <TableRow 
-                        key={pool.pairId} 
-                        className="group table-header-row"
-                      >
-                        <TableCell className="h-10 px-4 align-middle font-medium">
-                          {pool.market}
-                        </TableCell>
-                        <TableCell className="table-header-cell">
-                          {pool.apr}
-                        </TableCell>
-                        <TableCell className="table-header-cell">
-                          {formatDollarAmount(parseFloat(pool.totalValueLocked))}
-                        </TableCell>
-                        <TableCell className="table-header-cell">
-                          {formatDollarAmount(parseFloat(pool.volume))}
-                        </TableCell>
-                        <TableCell className="table-header-cell">
-                          {formatDollarAmount(parseFloat(pool.fees))}
-                        </TableCell>
-                        <TableCell className="table-header-cell">
-                          <span className={`font-medium ${parseFloat(pool.riskScore) <= 50 ? 'text-green-500' : 'text-red-500'}`}>
-                            {pool.riskScore}
-                          </span>
-                        </TableCell>
-                        <TableCell className="table-header-cell">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="details-button"
-                            onClick={() => {
-                              // Navigate to details
-                              handleViewDetails(pool);
-                            }}
-                          >
-                            View Details
-                            <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-
-              {/* Pagination */}
-              {filteredData.length > 0 && (
-                <div className="table-footer">
-                  <div className="flex-center-g-4">
-                    <div className="flex-center-g-2">
-                      <span className="text-sm text-muted-foreground">Show</span>
-                      <Select
-                        name="limit"
-                        value={entriesPerPage.toString()}
-                        onValueChange={(v) => {
-                          setEntriesPerPage(Number(v));
-                          setCurrentPage(1);
-                        }}
-                        aria-label="Number of entries per page"
-                      >
-                        <SelectTrigger className="w-[70px] h-8">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[10, 25, 50, 100].map(value => (
-                            <SelectItem key={value} value={value.toString()}>
-                              {value}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <span className="text-sm text-muted-foreground">entries</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Showing {startIndex + 1} to {endIndex} of {filteredData.length} entries
-                    </p>
-                  </div>
-
-                  {totalPages > 1 && (
-                    <div className="flex-center-g-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8"
-                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                        disabled={currentPage === 1}
-                        aria-label="Previous page"
-                      >
-                        <ChevronLeft className="h-4 w-4 mr-2" aria-hidden="true" />
-                        Previous
-                      </Button>
-                      {Array.from({ length: totalPages }, (_, i) => i + 1)
-                        .filter(page => {
-                          return page === 1 || 
-                                 page === totalPages || 
-                                 Math.abs(page - currentPage) <= 1;
-                        })
-                        .map((page, index, array) => (
-                          <Fragment key={page}>
-                            {index > 0 && array[index - 1] !== page - 1 && (
-                              <span className="text-sm text-muted-foreground px-2" aria-hidden="true">...</span>
-                            )}
-                            <Button
-                              variant={currentPage === page ? "default" : "outline"}
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => setCurrentPage(page)}
-                              aria-label={`Page ${page}`}
-                              aria-current={currentPage === page ? "page" : undefined}
-                            >
-                              {page}
-                            </Button>
-                          </Fragment>
-                        ))}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8"
-                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                        disabled={currentPage === totalPages}
-                        aria-label="Next page"
-                      >
-                        Next
-                        <ChevronRight className="h-4 w-4 ml-2" aria-hidden="true" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+          <PoolsTable
+            data={filteredData}
+            pairs={pairs}
+            tokens={tokens}
+            period={period}
+            initialEntriesPerPage={entriesPerPage}
+            showSearch={false}
+            showPagination={true}
+            showPeriodLabel={true}
+          />
         </section>
       </div>
     </main>

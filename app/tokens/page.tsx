@@ -27,13 +27,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { Search, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
-import type { Token, Pair, PoolRiskApiResponseObject } from "@/utils/newTypes";
+import type { Token } from "@/utils/newTypes";
+import { TopPools } from "@/components/TopPools";
 
 const STABLECOIN_IDS = new Set<string>([
-  "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75", // USDC
-  "CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP", // USDx
-  "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV", // EURC
-  "CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U",   // EURx
+  "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+  "CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP",
+  "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV",
+  "CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U",
 ]);
 
 const PERIOD_OPTIONS = [
@@ -53,22 +54,20 @@ export default function TokensPage() {
   const realTokenRegex = useMemo(() => /^[^:]+:G[A-Z0-9]{55}$/, []);
 
   const filteredRealTokens = useMemo(() => {
-    // Include XLM as well
     return tokens.filter((token: Token) => realTokenRegex.test(token.name) || token.symbol.toUpperCase() === "XLM");
   }, [tokens, realTokenRegex]);
 
   const isStablecoin = (tokenId: string): boolean => STABLECOIN_IDS.has(tokenId);
 
-  // Build a map of volumes per token
-  const pairMap: Map<string, Pair> = useMemo(() => {
-    const m = new Map<string, Pair>();
-    for (const p of pairs) m.set(p.id, p);
+  const pairMap = useMemo(() => {
+    const m = new Map<string, {token0:string;token1:string}>();
+    for (const p of pairs) m.set(p.id, {token0:p.token0,token1:p.token1});
     return m;
   }, [pairs]);
 
-  const volumeMap: Map<string, number> = useMemo(() => {
+  const volumeMap = useMemo(() => {
     const volMap = new Map<string, number>();
-    for (const pd of poolRiskData as PoolRiskApiResponseObject[]) {
+    for (const pd of poolRiskData) {
       const vol = parseFloat(pd.volume) || 0;
       const p = pairMap.get(pd.pairId);
       if (!p) continue;
@@ -78,7 +77,7 @@ export default function TokensPage() {
     return volMap;
   }, [poolRiskData, pairMap]);
 
-  const tokenPairCountMap: Map<string, number> = useMemo(() => {
+  const tokenPairCountMap = useMemo(() => {
     const map = new Map<string, number>();
     for (const token of filteredRealTokens) {
       map.set(token.id, token.pairs.length);
@@ -137,10 +136,17 @@ export default function TokensPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-72px)] bg-background flex flex-col items-center justify-center gap-2">
+        Loading tokens data...
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       <div className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Title Section */}
         <motion.div
           className="space-y-0.5"
           initial={{ opacity: 0, y: -20 }}
@@ -151,11 +157,19 @@ export default function TokensPage() {
           <p className="text-sm text-muted-foreground">Track and analyze token performance</p>
         </motion.div>
 
-        {/* Simple Metrics Card */}
+        {/* Top Pools globally on tokens page */}
+        <TopPools
+          data={poolRiskData}
+          pairs={pairs}
+          tokens={tokens}
+          stablecoinIds={STABLECOIN_IDS}
+          period={period}
+        />
+
         <div className="stat-card">
           <Card className="p-6 bg-card border-border hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-1">
-              <CardTitle className="text-sm text-sm text-muted-foreground">Total Real Tokens Indexed</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">Total Real Tokens Indexed</CardTitle>
             </CardHeader>
             <CardContent>
               <h3 className="text-2xl font-bold text-foreground mt-1">{filteredRealTokens.length}</h3>
@@ -164,7 +178,6 @@ export default function TokensPage() {
           </Card>
         </div>
 
-        {/* Table Controls */}
         <motion.div
           className="flex flex-col gap-4"
           initial={{ opacity: 0, y: 20 }}
@@ -243,7 +256,6 @@ export default function TokensPage() {
           </div>
         </motion.div>
 
-        {/* Tokens Table */}
         <motion.div
           className="pools-motion"
           initial={{ opacity: 0, y: 20 }}
@@ -279,7 +291,6 @@ export default function TokensPage() {
                     const priceDisplay = token.price > 0 ? token.price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6}) : '-';
                     const explorer = explorerLink(token);
 
-                    // Construct token details URL
                     let detailsUrl: string;
                     if (token.symbol.toUpperCase()==='XLM') {
                       detailsUrl = `/tokens/native`;
@@ -298,7 +309,6 @@ export default function TokensPage() {
                         <TableCell className="h-10 px-4 align-middle">
                           <div className="flex-center-g-2" title={token.symbol}>
                             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden relative">
-                             
                               {token.symbol.slice(0,1).toUpperCase()}
                             </div>
                             <div>

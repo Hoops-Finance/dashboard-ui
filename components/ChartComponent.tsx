@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useMemo } from 'react';
-import { createChart, IChartApi, UTCTimestamp, SeriesType, ISeriesApi, ColorType, ChartOptions, Time } from "lightweight-charts";
+import React, { useEffect, useRef, useMemo, useState } from 'react';
+import { createChart, IChartApi, UTCTimestamp, SeriesType, ISeriesApi, ColorType, ChartOptions } from "lightweight-charts";
 import { ema, calcMACD, calcRSI, calcSMA, calcBollinger } from "@/utils/indicators";
+import { Button } from "@/components/ui/button";
 
 type Candle = { time: UTCTimestamp; open:number; high:number; low:number; close:number };
 type Volume = { time:UTCTimestamp; value:number; color:string };
@@ -10,31 +11,21 @@ type Volume = { time:UTCTimestamp; value:number; color:string };
 interface ChartProps {
   candleData: Candle[];
   volumeData: Volume[];
-  chartStyle: 'candlestick' | 'line' | 'area';
-  showMACD: boolean;
-  showRSI: boolean;
-  showSMA: boolean;
-  showEMA: boolean;
-  showBollinger: boolean;
-  inverted: boolean;
 }
 
-export default function ChartComponent({
-  candleData,
-  volumeData,
-  chartStyle,
-  showMACD,
-  showRSI,
-  showSMA,
-  showEMA,
-  showBollinger,
-  inverted
-}: ChartProps) {
-
+export default function ChartComponent({ candleData, volumeData }: ChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
 
-  // Series refs
+  // Indicator & chart style states now managed here
+  const [chartStyle, setChartStyle] = useState<'candlestick'|'line'|'area'>('candlestick');
+  const [showMACD, setShowMACD] = useState(false);
+  const [showRSI, setShowRSI] = useState(false);
+  const [showSMA, setShowSMA] = useState(false);
+  const [showEMA, setShowEMA] = useState(false);
+  const [showBollinger, setShowBollinger] = useState(false);
+  const [inverted, setInverted] = useState(false);
+
   const mainSeriesRef = useRef<ISeriesApi<SeriesType>|null>(null);
   const volumeSeriesRef = useRef<ISeriesApi<"Histogram">|null>(null);
   const macdSeriesRef = useRef<ISeriesApi<"Line">|null>(null);
@@ -46,7 +37,6 @@ export default function ChartComponent({
   const bollMiddleRef = useRef<ISeriesApi<"Line">|null>(null);
   const bollLowerRef = useRef<ISeriesApi<"Line">|null>(null);
 
-  // Compute final candle data if inverted
   const finalCandleData = useMemo(()=>{
     if(!inverted) return candleData;
     return candleData.map(d=>{
@@ -58,7 +48,6 @@ export default function ChartComponent({
     });
   },[candleData,inverted]);
 
-  // Create chart once
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
@@ -102,7 +91,7 @@ export default function ChartComponent({
         background:{type:ColorType.Solid,color:'#1e1e2f'},
         fontSize:12,
         fontFamily:'Arial',
-        attributionLogo:true,
+        attributionLogo:false,
       },
       rightPriceScale:{
         borderVisible:false,
@@ -171,14 +160,14 @@ export default function ChartComponent({
       },
       autoSize:true,
       watermark:{
-        visible:true,
+        visible:false,
         color:'',
         text:'',
         fontSize:0,
         fontFamily:'',
         fontStyle:'',
-        horzAlign:'left',
-        vertAlign:'bottom',
+        horzAlign:'center',
+        vertAlign:'center',
       },
       width: container.clientWidth,
       height: container.clientHeight,
@@ -204,12 +193,10 @@ export default function ChartComponent({
     };
   }, []);
 
-  // Update series when data or props change
   useEffect(() => {
     const chart = chartRef.current;
     if(!chart) return;
 
-    // Remove old series
     [mainSeriesRef, volumeSeriesRef, macdSeriesRef, macdSignalSeriesRef, rsiSeriesRef, smaSeriesRef, emaSeriesRef, bollUpperRef, bollMiddleRef, bollLowerRef].forEach(ref=>{
       if(ref.current){
         chart.removeSeries(ref.current);
@@ -221,7 +208,6 @@ export default function ChartComponent({
       return;
     }
 
-    // Main series
     let mainSeries:ISeriesApi<SeriesType>;
     if (chartStyle==='candlestick'){
       mainSeries=chart.addCandlestickSeries({
@@ -250,7 +236,6 @@ export default function ChartComponent({
     mainSeries.priceScale().applyOptions({scaleMargins:{top:0.1,bottom:0.4}});
     mainSeriesRef.current=mainSeries;
 
-    // Volume series
     const volSeries=chart.addHistogramSeries({
       color:'#26a69a',priceFormat:{type:'volume'},priceScaleId:''
     });
@@ -260,7 +245,6 @@ export default function ChartComponent({
 
     const closes=finalCandleData.map(d=>d.close);
 
-    // MACD
     if(showMACD && closes.length>0){
       const {macd,signal}=calcMACD(closes);
       if(macd.length>0 && signal.length>0){
@@ -279,7 +263,6 @@ export default function ChartComponent({
       }
     }
 
-    // RSI
     if(showRSI && closes.length>0){
       const rsiVals=calcRSI(closes);
       if(rsiVals.length>0){
@@ -292,7 +275,6 @@ export default function ChartComponent({
       }
     }
 
-    // SMA (20-period)
     if(showSMA && closes.length>20){
       const smaVals=calcSMA(closes,20);
       const startIndex=finalCandleData.length - smaVals.length;
@@ -302,7 +284,6 @@ export default function ChartComponent({
       smaSeriesRef.current=smaLine;
     }
 
-    // EMA (20-period)
     if(showEMA && closes.length>20){
       const emaVals=ema(closes,20);
       const startIndex=finalCandleData.length - emaVals.length;
@@ -312,13 +293,10 @@ export default function ChartComponent({
       emaSeriesRef.current=emaLine;
     }
 
-    // Bollinger Bands (20-period, multiplier=2)
     if(showBollinger && closes.length>20){
       const {upper,middle,lower}=calcBollinger(closes,20,2);
-      if(upper.length>0 && middle.length>0 && lower.length>0){
-        // Note: upper,middle,lower arrays start after period-1 bars
-        const startIndex=finalCandleData.length - upper.length; 
-        // Because calcBollinger returns arrays aligned with data.length (minus period-1)
+      if(upper.length>0&&middle.length>0&&lower.length>0){
+        const startIndex=finalCandleData.length - upper.length;
         const upperData=upper.map((v,i)=>({time:finalCandleData[startIndex+i].time,value:v}));
         const midData=middle.map((v,i)=>({time:finalCandleData[startIndex+i].time,value:v}));
         const lowerData=lower.map((v,i)=>({time:finalCandleData[startIndex+i].time,value:v}));
@@ -327,7 +305,7 @@ export default function ChartComponent({
         upperLine.setData(upperData);
         bollUpperRef.current=upperLine;
 
-        const midLine=chart.addLineSeries({color:'#FF5722',lineWidth:1, lineStyle:0});
+        const midLine=chart.addLineSeries({color:'#FF5722',lineWidth:1,lineStyle:0});
         midLine.setData(midData);
         bollMiddleRef.current=midLine;
 
@@ -340,5 +318,46 @@ export default function ChartComponent({
     chart.timeScale().fitContent();
   }, [chartStyle, finalCandleData, volumeData, showMACD, showRSI, showSMA, showEMA, showBollinger, inverted]);
 
-  return <div className="w-full h-full" ref={chartContainerRef}></div>;
+  return (
+    <div className="w-full h-full relative">
+      {/* Chart Controls at the top-right or top-left inside the component */}
+      <div className="absolute top-2 left-2 z-10 flex flex-wrap items-center gap-2 bg-background/80 p-2 rounded">
+        <div className="flex-center-g-2">
+          <Button variant={inverted?'default':'secondary'} onClick={()=>setInverted(!inverted)}>
+            Switch Base Price
+          </Button>
+        </div>
+        <div className="flex-center-g-2">
+          <Button variant={chartStyle === 'candlestick'?'default':'secondary'} onClick={()=>setChartStyle('candlestick')}>
+            Candlestick
+          </Button>
+          <Button variant={chartStyle === 'line'?'default':'secondary'} onClick={()=>setChartStyle('line')}>
+            Line
+          </Button>
+          <Button variant={chartStyle === 'area'?'default':'secondary'} onClick={()=>setChartStyle('area')}>
+            Area
+          </Button>
+        </div>
+        <div className="flex-center-g-2">
+          <Button variant={showMACD?'default':'secondary'} onClick={()=>setShowMACD(!showMACD)}>
+            MACD
+          </Button>
+          <Button variant={showRSI?'default':'secondary'} onClick={()=>setShowRSI(!showRSI)}>
+            RSI
+          </Button>
+          <Button variant={showSMA?'default':'secondary'} onClick={()=>setShowSMA(!showSMA)}>
+            SMA
+          </Button>
+          <Button variant={showEMA?'default':'secondary'} onClick={()=>setShowEMA(!showEMA)}>
+            EMA
+          </Button>
+          <Button variant={showBollinger?'default':'secondary'} onClick={()=>setShowBollinger(!showBollinger)}>
+            Bollinger
+          </Button>
+        </div>
+      </div>
+
+      <div ref={chartContainerRef} className="w-full h-full absolute inset-0"></div>
+    </div>
+  );
 }
