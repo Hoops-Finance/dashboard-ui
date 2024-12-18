@@ -59,10 +59,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 app/app.tsx.old
-
-#IDE
 .idea
+.vscode
+.history
 .env
 !.env.example
 log.txt
 .eslintrc.json.old
+*.*.old
+*.*old
+*.not
+tailold
+unstaged_changes.txt

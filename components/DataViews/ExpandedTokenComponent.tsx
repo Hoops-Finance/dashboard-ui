@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ExpanderComponentProps } from "react-data-table-component";
-import { ProcessedToken, TokenMarket } from "../../utils/newTypes";
+import { ProcessedToken, TokenMarket } from "@/utils/newTypes";
 
 export const ExpandedTokenComponent: React.FC<ExpanderComponentProps<ProcessedToken>> = ({ data }) => (
   <div className="p-4 bg-white dark:bg-gray-800 text-black dark:text-white">

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const period = searchParams.get('period');
-  const apiUrl = `${process.env.API_URL}/getmetrics?period=${period}`;
+  const apiUrl = `https://api.hoops.finance/getmetrics?period=${period}`;
   
   try {
     const response = await fetch(apiUrl, {

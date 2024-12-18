@@ -253,4 +253,3 @@ const strategies: Strategy[] = [
     apr: "9,501.63"
   }
 ]
-

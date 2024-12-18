@@ -3,7 +3,7 @@ import { UTCTimestamp } from 'lightweight-charts';
 
 import { useEffect, useRef } from 'react'
 import { createChart, ColorType } from 'lightweight-charts'
-import { useTheme } from "@/components/ThemeContext"
+import { useTheme } from "@/contexts/ThemeContext"
 
 export function TradingViewChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null)

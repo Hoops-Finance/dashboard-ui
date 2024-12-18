@@ -1,5 +1,5 @@
 import { TableColumn } from "react-data-table-component";
-import { MyWalletData } from "../../utils/newTypes";
+import { MyWalletData } from "@/utils/newTypes";
 
 export const walletColumns: TableColumn<MyWalletData>[] = [
   { name: "Asset Type", selector: (row) => row.assetType, sortable: true },

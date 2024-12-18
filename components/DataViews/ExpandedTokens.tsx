@@ -1,10 +1,10 @@
 import React from "react";
 import DataTable from "react-data-table-component";
 import { ExpanderComponentProps } from "react-data-table-component";
-import { Pair, ProcessedToken, TokenMarket } from "../../utils/newTypes";
-import { pairColumns } from "../DataViews/PairColumns";
-import { useTheme } from "../ThemeContext";
-import { customTableStyles } from "../DataViews/TableStyles";
+import { Pair, ProcessedToken, TokenMarket } from "@/utils/newTypes";
+import { pairColumns } from "@/components/DataViews/PairColumns";
+import { useTheme } from "@/contexts/ThemeContext";
+import { customTableStyles } from "@/components/DataViews/TableStyles";
 
 interface ExpandedTokenComponentProps extends ExpanderComponentProps<ProcessedToken> {
   handleRowClick: (row: Pair, tab: string) => void;

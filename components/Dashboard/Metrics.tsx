@@ -1,19 +1,9 @@
 import React from "react";
-import { MetricCard, Card } from "../ui";
-import { GlobalMetrics } from "../../utils/newTypes";
+import { MetricCard, Card } from "@/components/ui";
+import { GlobalMetrics } from "@/utils/newTypes";
 
-interface MetricsProps {
-  totalValueLocked: number
-  poolsIndexed: number
-  totalVolume: number
-  liquidityProviders: number
-  top5volume: number
-  top5tvl: number
-  top5apr: number
-  period: "24h" | "7d" | "14d" | "30d" | "90d" | "180d" | "360d"
+interface MetricsProps extends GlobalMetrics {
   setPeriod: (period: MetricsProps["period"]) => void
-  bestaprpair?: string
-  bestapraddress?: string
 }
 
 export function Metrics({ 

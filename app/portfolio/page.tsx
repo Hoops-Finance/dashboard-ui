@@ -185,7 +185,7 @@ export default function PortfolioPage() {
                         onClick={() => setExpandedId(expandedId === strategy.id ? null : strategy.id)}
                       >
                         <div className="p-4">
-                          <div className="flex items-start justify-between">
+                          <div className="card-content-base">
                             <div className="flex items-center gap-3">
                               <div className="flex -space-x-2">
                                 {strategy.tokens.map((token, i) => (
@@ -198,7 +198,7 @@ export default function PortfolioPage() {
                                 ))}
                               </div>
                               <div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex-center-g-2">
                                   <h3 className="font-medium">{strategy.name}</h3>
                                   {strategy.isAutomated && (
                                     <Bot className="h-4 w-4 text-primary" aria-label="Fully Automated" />

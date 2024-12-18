@@ -28,9 +28,16 @@ export interface Token {
   logoUrl?: string;
   lastUpdated: number; // Converted to epoch timestamp
 }
+export interface TokenDetails {
+  symbol: string;
+  name: string;  // "SYMBOL:ISSUER" format
+  decimals: number;
+}
+
+// Represents a trading pair fetched from the API
 export interface PairApiResponseObject {
   _id: string;
-  lastUpdated: string;
+  lastUpdated: string; // Converted to epoch timestamp
   lpHolders: string[];
   lptSupply: number;
   protocol: string;
@@ -38,14 +45,15 @@ export interface PairApiResponseObject {
   reserve1: number;
   t0usd: string;
   t1usd: string;
-  token0: string;
-  token1: string;
+  token0: string; // Token ID
+  token1: string; // Token ID
+  token0Details: TokenDetails;  // <- Add this
+  token1Details: TokenDetails;  // <- Add this
   tvl: number;
   lpToken: string;
-  pairtype?: string;
+  pairType?: string;
 }
 
-// Represents a trading pair fetched from the API
 export interface Pair {
   id: string; // Renamed from _id
   lastUpdated: number; // Converted to epoch timestamp
@@ -58,10 +66,13 @@ export interface Pair {
   t1usd: string;
   token0: string; // Token ID
   token1: string; // Token ID
+  token0Details: TokenDetails;  // <- Add this
+  token1Details: TokenDetails;  // <- Add this
   tvl: number;
   lpToken: string;
   pairType?: string;
 }
+
 export interface MarketApiResponseObject {
   marketLabel: string;
   token0: string;
@@ -171,7 +182,7 @@ export interface AssetDetails {
   price: number;
   volume: number;
   volume7d: number;
-  price7d: any[]; // Adjust based on actual data structure
+  price7d: { time: number; price: number }[]; // Adjust based on actual data structure
   contract: string;
   toml_info: {
     code: string;
@@ -216,7 +227,7 @@ export interface CandleData {
 }
 
 export interface SxCandleResponse {
-  time: string; //Unix timestamp
+  time: number; //Unix timestamp
   open: number; //Open price
   high: number; //High price
   low: number; //Low price
@@ -263,4 +274,58 @@ export interface GlobalMetrics {
   bestaprpair: string;
   bestapraddress: string;
   period: "24h" | "7d" | "14d" | "30d" | "90d" | "180d" | "360d";
+}
+
+export interface BalanceLineLiquidityPool {
+  liquidity_pool_id: string;
+  asset_type: "liquidity_pool_shares";
+  balance: string;
+  limit: string;
+  last_modified_ledger: number;
+  is_authorized: boolean;
+  is_authorized_to_maintain_liabilities: boolean;
+  is_clawback_enabled: boolean;
+  sponsor?: string;
+}
+
+export interface BalanceLineAsset<T extends "credit_alphanum4" | "credit_alphanum12"> {
+  balance: string;
+  limit: string;
+  asset_type: T;
+  asset_code: string;
+  asset_issuer: string;
+  buying_liabilities: string;
+  selling_liabilities: string;
+  last_modified_ledger: number;
+  is_authorized: boolean;
+  is_authorized_to_maintain_liabilities: boolean;
+  is_clawback_enabled: boolean;
+  sponsor?: string;
+}
+export interface WalletContextType {
+  isConnected: boolean;
+  address: string | null;
+  balance: string | null;
+  otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null;
+  updateWalletInfo: (
+      isConnected: boolean,
+      address: string | null,
+      balance: string | null,
+      otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null
+  ) => void;
+}
+
+export interface BalanceLineNative {
+  balance: string;
+  asset_type: "native";
+  buying_liabilities: string;
+  selling_liabilities: string;
+}
+
+export type BalanceLine = BalanceLineNative | BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool;
+
+export interface AccountResponse {
+  id: string;
+  account_id: string;
+  balances: BalanceLine[];
 }

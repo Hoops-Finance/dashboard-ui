@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { createChart, IChartApi, ISeriesApi, TimeScaleOptions, ChartOptions, DeepPartial } from "lightweight-charts";
-import { useTheme } from "../ThemeContext"; // Import the theme context
+import { createChart, IChartApi, ISeriesApi, TimeScaleOptions, ChartOptions, DeepPartial, HorzAlign, VertAlign, ColorType } from "lightweight-charts";
+import { useTheme } from "@/contexts/ThemeContext"; // Import the theme context
 import { CandleData } from "utils/newTypes";
 
 interface LineSeriesData {
@@ -20,36 +20,260 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ lineSeries }) => {
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRefs = useRef<ISeriesApi<"Candlestick" | "Line">[]>([]);
   const { theme } = useTheme(); // Access the current theme
-
-  // Function to configure chart options based on the theme
-  const getChartOptions = (theme: string): DeepPartial<ChartOptions> => ({
-    width: chartContainerRef.current?.clientWidth || 0,
-    height: 400,
+  const chartOptions: ChartOptions = {
+    overlayPriceScales: {
+      mode: 0,
+      invertScale: false,
+      alignLabels: true,
+      borderVisible: false,
+      borderColor: '#2c2c3e',
+      entireTextOnly: false,
+      ticksVisible: true,
+      minimumWidth: 50,
+      scaleMargins: {
+        top: 0.1,
+        bottom: 0.1,
+      },
+    },
+    handleScroll: {
+      pressedMouseMove: true,
+      horzTouchDrag: true,
+      vertTouchDrag: false,
+      mouseWheel: true,
+    },
+    handleScale: {
+      axisDoubleClickReset: { time:true, price:true },
+      axisPressedMouseMove: { time:true, price:true },
+      mouseWheel: true,
+      pinch: true,
+    },
+    kineticScroll: {
+      touch: true,
+      mouse: true,
+    },
+    trackingMode: {
+      exitMode: 1,
+    },
     layout: {
-      background: { color: theme === "dark" ? "#2B2B2B" : "#ffffff" },
-      textColor: theme === "dark" ? "#D9D9D9" : "#000000"
-    },
-    grid: {
-      vertLines: { color: theme === "dark" ? "#4E4E4E" : "#e1e1e1" },
-      horzLines: { color: theme === "dark" ? "#4E4E4E" : "#e1e1e1" }
-    },
-    crosshair: {
-      mode: 0
-    },
-    timeScale: {
-      borderColor: theme === "dark" ? "#777777" : "#cccccc",
-      timeVisible: true,
-      secondsVisible: false,
-      rightOffset: 0, // Aligns candles close to the edge
-      fixLeftEdge: true // Ensures alignment starts from the left
-    } as TimeScaleOptions,
-    leftPriceScale: {
-      visible: true, // Ensure the price scale adjusts properly
-      borderColor: theme === "dark" ? "#777777" : "#cccccc"
+      textColor: '#D9D9D9',
+      background: { type: ColorType.Solid, color: '#1e1e2f' },
+      fontSize: 12,
+      fontFamily: 'Arial',
+      attributionLogo: false,
     },
     rightPriceScale: {
-      visible: false // Optional, depending on your layout
-    }
+      borderVisible: false,
+      borderColor: '#2c2c3e',
+      entireTextOnly: false,
+      visible: true,
+      ticksVisible: true,
+      minimumWidth: 50,
+      autoScale: true,
+      mode: 0,
+      invertScale: false,
+      alignLabels: true,
+      scaleMargins: {
+        top: 0.1,
+        bottom: 0.1,
+      },
+    },
+    leftPriceScale: {
+      visible: false,
+      autoScale: true,
+      mode: 0,
+      invertScale: false,
+      alignLabels: true,
+      borderVisible: false,
+      borderColor: '#2c2c3e',
+      entireTextOnly: false,
+      ticksVisible: true,
+      minimumWidth: 50,
+      scaleMargins: {
+        top: 0.1,
+        bottom: 0.1,
+      },
+    },
+    timeScale: {
+      borderVisible: false,
+      rightOffset: 5,
+      barSpacing: 6,
+      minBarSpacing: 1,
+      fixLeftEdge: false,
+      fixRightEdge: false,
+      lockVisibleTimeRangeOnResize: false,
+      rightBarStaysOnScroll: false,
+      borderColor: '#2c2c3e',
+      visible: true,
+      timeVisible: true,
+      secondsVisible: false,
+      shiftVisibleRangeOnNewBar: true,
+      ticksVisible: true,
+      allowShiftVisibleRangeOnWhitespaceReplacement: true,
+      uniformDistribution: false,
+      minimumHeight: 0,
+      allowBoldLabels: true,
+    },
+    grid: {
+      vertLines: { color: '#2c2c3e', style: 0, visible: true },
+      horzLines: { color: '#2c2c3e', style: 0, visible: true },
+    },
+    crosshair: {
+      mode: 1,
+      vertLine: {
+        color: '#758696', width: 1, style: 0, visible: true, labelVisible: true,
+        labelBackgroundColor: '#121212' // Provide a valid color
+      },
+      horzLine: {
+        color: '#758696', width: 1, style: 0, visible: true, labelVisible: true,
+        labelBackgroundColor: '#121212' // Provide a valid color here too
+      },
+    },
+    localization: {
+      dateFormat: 'yyyy/MM/dd',
+      locale: 'en-US',
+    },
+    autoSize: true,
+    watermark: {
+      visible: false,
+      color: '',
+      text: '',
+      fontSize: 0,
+      fontFamily: '',
+      fontStyle: '',
+      horzAlign: 'center',
+      vertAlign: 'center',
+    },
+    width: chartContainerRef.current?.clientWidth || 0,
+    height: chartContainerRef.current?.clientHeight || 0,
+  };
+  // Function to configure chart options based on the theme
+  const getChartOptions = (theme: string): DeepPartial<ChartOptions> => (
+    
+    {
+      overlayPriceScales: {
+        mode: 0,
+        invertScale: false,
+        alignLabels: true,
+        borderVisible: false,
+        borderColor: '#2c2c3e',
+        entireTextOnly: false,
+        ticksVisible: true,
+        minimumWidth: 50,
+        scaleMargins: {
+          top: 0.1,
+          bottom: 0.1,
+        },
+      },
+      handleScroll: {
+        pressedMouseMove: true,
+        horzTouchDrag: true,
+        vertTouchDrag: false,
+        mouseWheel: true,
+      },
+      handleScale: {
+        axisDoubleClickReset: { time:true, price:true },
+        axisPressedMouseMove: { time:true, price:true },
+        mouseWheel: true,
+        pinch: true,
+      },
+      kineticScroll: {
+        touch: true,
+        mouse: true,
+      },
+      trackingMode: {
+        exitMode: 1,
+      },
+      layout: {
+        textColor: '#D9D9D9',
+        background: { type: ColorType.Solid, color: '#1e1e2f' },
+        fontSize: 12,
+        fontFamily: 'Arial',
+        attributionLogo: false,
+      },
+      rightPriceScale: {
+        borderVisible: false,
+        borderColor: '#2c2c3e',
+        entireTextOnly: false,
+        visible: true,
+        ticksVisible: true,
+        minimumWidth: 50,
+        autoScale: true,
+        mode: 0,
+        invertScale: false,
+        alignLabels: true,
+        scaleMargins: {
+          top: 0.1,
+          bottom: 0.1,
+        },
+      },
+      leftPriceScale: {
+        visible: false,
+        autoScale: true,
+        mode: 0,
+        invertScale: false,
+        alignLabels: true,
+        borderVisible: false,
+        borderColor: '#2c2c3e',
+        entireTextOnly: false,
+        ticksVisible: true,
+        minimumWidth: 50,
+        scaleMargins: {
+          top: 0.1,
+          bottom: 0.1,
+        },
+      },
+      timeScale: {
+        borderVisible: false,
+        rightOffset: 5,
+        barSpacing: 6,
+        minBarSpacing: 1,
+        fixLeftEdge: false,
+        fixRightEdge: false,
+        lockVisibleTimeRangeOnResize: false,
+        rightBarStaysOnScroll: false,
+        borderColor: '#2c2c3e',
+        visible: true,
+        timeVisible: true,
+        secondsVisible: false,
+        shiftVisibleRangeOnNewBar: true,
+        ticksVisible: true,
+        allowShiftVisibleRangeOnWhitespaceReplacement: true,
+        uniformDistribution: false,
+        minimumHeight: 0,
+        allowBoldLabels: true,
+      },
+      grid: {
+        vertLines: { color: '#2c2c3e', style: 0, visible: true },
+        horzLines: { color: '#2c2c3e', style: 0, visible: true },
+      },
+      crosshair: {
+        mode: 1,
+        vertLine: {
+          color: '#758696', width: 1, style: 0, visible: true, labelVisible: true,
+          labelBackgroundColor: '#121212' // Provide a valid color
+        },
+        horzLine: {
+          color: '#758696', width: 1, style: 0, visible: true, labelVisible: true,
+          labelBackgroundColor: '#121212' // Provide a valid color here too
+        },
+      },
+      localization: {
+        dateFormat: 'yyyy/MM/dd',
+        locale: 'en-US',
+      },
+      autoSize: true,
+      watermark: {
+        visible: false,
+        color: '',
+        text: '',
+        fontSize: 0,
+        fontFamily: '',
+        fontStyle: '',
+        horzAlign: 'center',
+        vertAlign: 'center',
+      },
+      width: chartContainerRef.current?.clientWidth || 0,
+      height: chartContainerRef.current?.clientHeight || 0,
   });
 
   // Initialize the chart on mount

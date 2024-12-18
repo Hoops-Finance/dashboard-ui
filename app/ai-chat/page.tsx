@@ -1,7 +1,7 @@
 "use client"
 
-import { AIChat } from "@/components/ai-chat"
-import { StrategiesSidebar } from "@/components/strategies-sidebar"
+import { AIChat } from "@/components/Assistant/ai-chat"
+import { StrategiesSidebar } from "@/components/Assistant/strategies-sidebar"
 import { PageLayout } from "@/components/ui/PageLayout"
 import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"

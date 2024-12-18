@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { LinkSlashIcon, InformationCircleIcon, ArrowsUpDownIcon } from "@heroicons/react/24/outline";
 import ChartComponent from "./DetailsView/ChartComponent";
-import { fetchMarketCandles } from "../utils/fetchCandles"; // Adjust the path if necessary
-import { useTheme } from "./ThemeContext";
+import { fetchMarketCandles } from "@/utils/fetchCandles"; // Adjust the path if necessary
+import { useTheme } from "@/contexts/ThemeContext";
 import { Pair, CandleData, ProcessedToken, PoolRiskApiResponseObject, AssetDetails } from "utils/newTypes";
 import Image from "next/image";
 
