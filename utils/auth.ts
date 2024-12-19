@@ -45,6 +45,8 @@ declare module "next-auth/jwt" {
     accessToken: string;
     refreshToken: string;
     subId: string;
+    exp?: number;
+    error?: string;
   }
 }
 
@@ -70,7 +72,7 @@ const authOptions: NextAuthConfig = {
           if (error instanceof Error) {
             console.error("Error during credentials authentication:", error.message);
           } else {
-            console.error("Unknown error during credentials authentication");
+            console.error("Unknown error during credentials authentication", error);
           }
           return null;
         }
@@ -118,6 +120,12 @@ const authOptions: NextAuthConfig = {
         token.refreshToken = user.refreshToken;
         token.subId = user.subId;
       }
+
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (token.exp && token.exp < currentTime) {
+        return await refreshAccessToken(token);
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -145,6 +153,32 @@ const authOptions: NextAuthConfig = {
     strategy: "jwt",
   },
 };
+
+async function refreshAccessToken(token: JWT): Promise<JWT> {
+  const res = await fetch(`${process.env.AUTH_API_URL}/auth/refresh`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': `${process.env.AUTH_API_KEY}`
+    },
+    body: JSON.stringify({ refreshToken: token.refreshToken }),
+  });
+
+  if (!res.ok) {
+    return { ...token, error: "RefreshAccessTokenError" };
+  }
+
+  const data = await res.json();
+  if (!data.success || !data.token || !data.refreshToken) {
+    return { ...token, error: "RefreshAccessTokenError" };
+  }
+
+  return {
+    ...token,
+    accessToken: data.token,
+    refreshToken: data.refreshToken
+  };
+}
 
 async function fetchCredentialsUser(url: string, email: string, password: string): Promise<UserResponseType | null> {
   const res = await fetch(url, {
@@ -185,10 +219,19 @@ async function fetchCredentialsUser(url: string, email: string, password: string
 }
 
 async function fetchSocialUser(localUrl: string, provider: string, code: string): Promise<UserResponseType | null> {
+  // read state from cookie if any
+  let state = "";
+  if (typeof document !== 'undefined') {
+    const match = document.cookie.match(/oauth_state=([^;]+)/);
+    if (match) {
+      state = match[1];
+    }
+  }
+
   const res = await fetch(localUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ provider: provider, code: code }),
+    body: JSON.stringify({ provider: provider, code: code, state })
   });
 
   if (!res.ok) {

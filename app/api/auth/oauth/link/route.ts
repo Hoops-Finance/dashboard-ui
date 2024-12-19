@@ -4,15 +4,16 @@ import { auth } from "@/utils/auth";
 interface OauthLinkRequest {
   provider: string;
   code: string;
+  state: string;
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const session = await auth();
   if (!session || !session.user?.accessToken) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const { provider, code } = await req.json() as OauthLinkRequest;
+  const { provider, code, state } = await req.json() as OauthLinkRequest;
 
   const res = await fetch(`${process.env.AUTH_API_URL}/auth/oauth/link`, {
     method: "POST",
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
       "x-api-key": `${process.env.AUTH_API_KEY}`,
       "Authorization": `Bearer ${session.user.accessToken}`
     },
-    body: JSON.stringify({ provider: provider, code: code })
+    body: JSON.stringify({ provider, code, state })
   });
 
   const data = await res.json();
