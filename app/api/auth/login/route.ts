@@ -7,7 +7,7 @@ interface LoginRequestBody {
   type?: "credentials" | "social";
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const data = await req.json() as LoginRequestBody;
   const { username, password, type } = data;
 

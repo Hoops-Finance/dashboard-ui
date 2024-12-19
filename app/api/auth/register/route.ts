@@ -3,17 +3,26 @@ import { NextRequest, NextResponse } from "next/server";
 interface RegisterRequestBody {
   email: string;
   password: string;
+  recaptchaToken?: string;
 }
 
-interface RegisterResponse {
-  ok: boolean;
-  message?: string;
-  error?: string;
+async function verifyRecaptcha(token: string): Promise<boolean> {
+  const secret = process.env.RECAPTCHA_SECRET;
+  if (!secret) return true;
+  const res = await fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${token}`, {
+    method: 'POST'
+  });
+  const data = await res.json() as { success?: boolean };
+  return data.success === true;
 }
 
-export async function POST(request: NextRequest): Promise<NextResponse<RegisterResponse>> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const { email, password } = await request.json() as RegisterRequestBody;
+    const { email, password, recaptchaToken } = await request.json() as RegisterRequestBody;
+
+    if (recaptchaToken && !(await verifyRecaptcha(recaptchaToken))) {
+      return NextResponse.json({ ok: false, error: "Recaptcha failed" }, { status: 400 });
+    }
 
     const response = await fetch(`${process.env.AUTH_API_URL}/auth/signup`, {
       method: "POST",

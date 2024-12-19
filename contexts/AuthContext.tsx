@@ -1,7 +1,6 @@
 'use client';
 
-import { createContext, useContext } from 'react';
-import type { ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import type { Session } from 'next-auth';
 import { useSession, signIn, signOut } from "@/utils/auth";
 
@@ -24,7 +23,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');

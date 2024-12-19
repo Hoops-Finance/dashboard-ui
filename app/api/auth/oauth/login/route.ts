@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 interface OAuthLoginRequest {
   provider: string;
   code: string;
+  state: string;
 }
 
 interface OAuthLoginSuccessResponse {
@@ -15,8 +16,8 @@ interface OAuthLoginSuccessResponse {
   refreshToken: string;
 }
 
-export async function POST(req: NextRequest) {
-  const { provider, code } = (await req.json()) as OAuthLoginRequest;
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  const { provider, code, state } = (await req.json()) as OAuthLoginRequest;
 
   const res = await fetch(`${process.env.AUTH_API_URL}/auth/oauth/login`, {
     method: "POST",
@@ -24,25 +25,22 @@ export async function POST(req: NextRequest) {
       "Content-Type": "application/json",
       "x-api-key": `${process.env.AUTH_API_KEY}`,
     },
-    body: JSON.stringify({ provider, code }),
+    body: JSON.stringify({ provider, code, state }),
   });
 
   const data = await res.json();
 
   if (!res.ok) {
-    // Expect { success: false, message: "No account for this OAuth email", email: "..."} if no account
     return NextResponse.json(data, { status: res.status });
   }
 
-  // data should contain { success: true, token, refreshToken, ... } plus at least email and id
-  // Transform for createUser format in auth.ts:
   return NextResponse.json({
     id: data.id,
     email: data.email,
     name: data.email?.split("@")[0] || "User",
     avatar: null,
     premium_subscription: false,
-    accessToken: data.token,
+    accessToken: data.accessToken ?? data.token,
     refreshToken: data.refreshToken
   } as OAuthLoginSuccessResponse);
 }
