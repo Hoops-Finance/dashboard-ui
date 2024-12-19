@@ -50,7 +50,7 @@ declare module "next-auth/jwt" {
   }
 }
 
-const authOptions: NextAuthConfig = {
+export const authOptions: NextAuthConfig = {
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -120,12 +120,10 @@ const authOptions: NextAuthConfig = {
         token.refreshToken = user.refreshToken;
         token.subId = user.subId;
       }
-
       const currentTime = Math.floor(Date.now() / 1000);
       if (token.exp && token.exp < currentTime) {
         return await refreshAccessToken(token);
       }
-
       return token;
     },
     async session({ session, token }) {

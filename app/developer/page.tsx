@@ -4,11 +4,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/contexts/AuthContext";
 import { ClipboardDocumentIcon, KeyIcon, TrashIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 
 interface ApiKey {
-  id: string;
+  id?: string; 
   name: string;
   key: string;
   createdAt: string;
@@ -16,42 +16,34 @@ interface ApiKey {
 }
 
 export default function DeveloperPage() {
-  const { data: session } = useSession();
+  const { session } = useAuth();
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [newKeyName, setNewKeyName] = useState("");
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  
+
   const fetchKeys = useCallback(async () => {
-    if (!session?.user?.accessToken) return;
-    const res = await fetch(`${process.env.AUTH_API_URL}/auth/apikey/list`, {
-      headers: {
-        "x-api-key": `${process.env.AUTH_API_KEY}`,
-        "Authorization": `Bearer ${session.user.accessToken}`
-      }
-    });
+    // Call our local endpoint which will proxy to the backend
+    const res = await fetch(`/api/developer/apikey/list`);
     if (res.ok) {
       const data = await res.json();
       setApiKeys(data.keys || []);
     }
-  }, [session]);
+  }, []);
 
   useEffect(() => {
-    fetchKeys();
+    if (session?.user) {
+      fetchKeys();
+    }
   }, [session, fetchKeys]);
 
- 
-
   const generateApiKey = async () => {
-    if (!session?.user?.accessToken) return;
     setIsCreating(true);
-    const res = await fetch(`${process.env.AUTH_API_URL}/auth/apikey/create`, {
+    const res = await fetch(`/api/developer/apikey/create`, {
       method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": `${process.env.AUTH_API_KEY}`,
-        "Authorization": `Bearer ${session.user.accessToken}`
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({ name: newKeyName })
     });
@@ -88,7 +80,7 @@ export default function DeveloperPage() {
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
             />
-            <Button onClick={generateApiKey} disabled={!newKeyName.trim() || isCreating}>
+            <Button onClick={generateApiKey} disabled={!newKeyName.trim() || isCreating || !session?.user}>
               <KeyIcon className="h-4 w-4 mr-2" />
               Create API Key
             </Button>
