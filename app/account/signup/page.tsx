@@ -2,6 +2,7 @@
 
 import AuthForm from "@/components/auth/AuthForm";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from 'react'
 
 export default function SignupPage() {
   const searchParams = useSearchParams();
@@ -13,6 +14,8 @@ export default function SignupPage() {
   const oauthCode = searchParams.get('code') || "";
 
   return (
+    <Suspense>
+
     <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
       <AuthForm
         isLogin={isLogin}
@@ -23,5 +26,7 @@ export default function SignupPage() {
         recaptchaSiteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       />
     </div>
+    </Suspense>
+
   );
 }
