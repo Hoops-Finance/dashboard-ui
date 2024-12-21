@@ -1,12 +1,12 @@
 "use client";
 
-import { BookOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { PageLayout } from "@/components/ui/PageLayout.tsx";
-import { TokenTable } from "@/components/TokenTable";
-import { TopTokens } from "@/components/TopTokens";
-import { motion } from "framer-motion";
 import { useDataContext } from "@/contexts/DataContext";
+import { motion } from "framer-motion";
+import { BookOpen } from "lucide-react";
+import { PageLayout } from "@/components/ui/PageLayout.tsx";
+import { Button } from "@/components/ui/button";
+import { TopTokens } from "@/components/TopTokens";
+import { TokenTable } from "@/components/TokenTable";
 
 export default function TokensPage() {
   const { poolRiskData, pairs, tokens, loading } = useDataContext();
@@ -38,7 +38,11 @@ export default function TokensPage() {
         </motion.div>
 
         {/* Top Tokens metrics */}
-        <TopTokens tokens={tokens} pairs={pairs} poolRiskData={poolRiskData} />
+        <TopTokens
+          tokens={tokens}
+          pairs={pairs}
+          poolRiskData={poolRiskData}
+        />
 
         {/* A "Read the docs" button similar to pools */}
         <div className="flex items-center justify-end">
@@ -53,7 +57,11 @@ export default function TokensPage() {
         </div>
 
         {/* Tokens Table */}
-        <TokenTable tokens={tokens} pairs={pairs} poolRiskData={poolRiskData} />
+        <TokenTable
+          tokens={tokens}
+          pairs={pairs}
+          poolRiskData={poolRiskData}
+        />
       </motion.div>
     </PageLayout>
   );

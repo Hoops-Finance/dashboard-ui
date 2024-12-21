@@ -1,11 +1,12 @@
 "use client";
 
+import { useDataContext } from "@/contexts/DataContext";
+import { motion } from "framer-motion";
+
 import { PageLayout } from "@/components/ui/PageLayout.tsx";
 import { PoolsTable } from "@/components/PoolsTable";
-import { STABLECOIN_IDS } from "@/utils/utilities";
 import { TopPools } from "@/components/TopPools";
-import { motion } from "framer-motion";
-import { useDataContext } from "@/contexts/DataContext";
+import { STABLECOIN_IDS } from "@/utils/utilities";
 
 export default function PoolsPage() {
   const { poolRiskData, period, loading, pairs, tokens } = useDataContext();
@@ -13,7 +14,9 @@ export default function PoolsPage() {
   if (loading) {
     return (
       <section className="relative">
-        <div className="container max-w-7xl mx-auto px-4 py-6 space-y-6">Loading pools data...</div>
+        <div className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
+          Loading pools data...
+        </div>
       </section>
     );
   }
@@ -36,7 +39,13 @@ export default function PoolsPage() {
           <p className="text-muted-foreground">Find the most profitable LPs across protocols</p>
         </motion.div>
 
-        <TopPools data={poolRiskData} pairs={pairs} tokens={tokens} stablecoinIds={STABLECOIN_IDS} period={period} />
+        <TopPools 
+          data={poolRiskData}
+          pairs={pairs}
+          tokens={tokens}
+          stablecoinIds={STABLECOIN_IDS}
+          period={period}
+        />
 
         <motion.div
           className="pools-motion"
@@ -44,7 +53,11 @@ export default function PoolsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.4 }}
         >
-          <PoolsTable data={poolRiskData} pairs={pairs} tokens={tokens} />
+          <PoolsTable
+            data={poolRiskData}
+            pairs={pairs}
+            tokens={tokens}
+          />
         </motion.div>
       </motion.div>
     </PageLayout>
