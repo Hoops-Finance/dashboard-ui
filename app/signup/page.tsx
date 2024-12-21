@@ -9,8 +9,8 @@ import { useTheme } from "@/contexts/ThemeContext"
 import { useAuth } from "@/contexts/AuthContext"
 import GetLoginFromParams from "@/components/GetLoginFromParams"
 
-const GoogleIcon = () => <Image src="/GoogleIcon.svg" alt="Google" width={24} height={24} />
-const DiscordIcon = () => <Image src="/discord.svg" alt="Discord" width={24} height={24} />
+const GoogleIcon = () => <Image src="/icons/google.svg" alt="Google" width={24} height={24} />
+const DiscordIcon = () => <Image src="/icons/discord.svg" alt="Discord" width={24} height={24} />
 
 const AuthHeader = ({ isLogin }: { isLogin: boolean }) => (
   <div className="text-center">
@@ -291,7 +291,7 @@ export default function Component() {
   }
 
   return (
-    <div className="page-container">
+    <div className="page-container flex items-center justify-center">
       {/* GetLoginFromParams handles all search param reading under Suspense */}
       <GetLoginFromParams onParamsLoaded={handleParamsLoaded} />
       <div className="absolute top-4 right-4">

@@ -377,14 +377,14 @@ export default function Home() {
             </Button>
             <Button 
               className="w-full bg-card hover:bg-muted text-primary border border-primary"
-              onClick={() => router.push("/login")}
+              onClick={() => router.push("/signup?mode=login")}
             >
               Log In
             </Button>
             <div className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <Link 
-                href="/login" 
+                href="/signup?mode=login"
                 className="text-primary hover:text-primary/90 font-medium"
                 onClick={() => setShowAuthPrompt(false)}
               >

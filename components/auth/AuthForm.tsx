@@ -246,11 +246,11 @@ export default function AuthForm({
 
         <div className="grid grid-cols-2 gap-3">
           <button onClick={loginWithGoogle} type="button" className="auth-button">
-            <Image src="/GoogleIcon.svg" alt="Google" width={24} height={24} />
+            <Image src="/icons/google.svg" alt="Google" width={24} height={24} />
             Google
           </button>
           <button onClick={loginWithDiscord} type="button" className="auth-button">
-            <Image src="/discord.svg" alt="Discord" width={24} height={24} />
+            <Image src="/icons/discord.svg" alt="Discord" width={24} height={24} />
             Discord
           </button>
         </div>
