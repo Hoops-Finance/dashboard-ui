@@ -1,7 +1,7 @@
-import React from "react";
+import { FC } from "react";
 import { MagnifyingGlassCircleIcon } from "@heroicons/react/24/outline";
 
-const MapWidget: React.FC = () => {
+const MapWidget: FC = () => {
   return (
     <div className="p-6 rounded-lg">
       <div className="flex items-center mb-4">

@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import { FC, useState } from "react";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 
-const ManageLiquidity: React.FC = () => {
+const ManageLiquidity: FC = () => {
   const [activeTab, setActiveTab] = useState<"deposit" | "withdraw">("deposit");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [amount, setAmount] = useState("");

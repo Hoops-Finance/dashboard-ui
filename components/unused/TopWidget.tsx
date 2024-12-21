@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import { FC } from "react";
 import Image from "next/image";
 import "./TopWidget.css";
 
@@ -15,7 +15,7 @@ const formatNumber = (number: number): string => {
   return number.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-const TopWidget: React.FC<{ metrics: Metrics | null; loadingMetrics: boolean }> = ({ metrics, loadingMetrics }) => {
+const TopWidget: FC<{ metrics: Metrics | null; loadingMetrics: boolean }> = ({ metrics, loadingMetrics }) => {
   return (
     <div
       className="relative bg-cover bg-center h-48 mobile:h-[224px] mobile-landscape:h-[224px] w-full md:max-w-screen-2xl md:mx-auto md:rounded-2xl rounded-b-2xl md:rounded-t-2xl"

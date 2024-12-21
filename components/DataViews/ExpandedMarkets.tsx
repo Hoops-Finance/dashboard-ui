@@ -1,4 +1,4 @@
-import React from "react";
+import {FC} from "react";
 import DataTable from "react-data-table-component";
 import { Market, Pair } from "@/utils/newTypes";
 import { pairColumns } from "@/components/DataViews/PairColumns";
@@ -10,7 +10,7 @@ interface ExpandedMarketComponentProps extends ExpanderComponentProps<Market> {
   handleRowClick: (row: Pair, tab: string) => void;
 }
 
-export const ExpandedMarketComponent: React.FC<ExpandedMarketComponentProps> = ({ data, handleRowClick }) => {
+export const ExpandedMarketComponent: FC<ExpandedMarketComponentProps> = ({ data, handleRowClick }) => {
   const { theme } = useTheme();
 
   const token0Symbol = data.token0.symbol || "Token0";

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef, FC } from "react";
 import { createChart, IChartApi, ISeriesApi, TimeScaleOptions, ChartOptions, DeepPartial, HorzAlign, VertAlign, ColorType } from "lightweight-charts";
 import { useTheme } from "@/contexts/ThemeContext"; // Import the theme context
 import { CandleData } from "utils/newTypes";
@@ -15,7 +15,7 @@ interface ChartComponentProps {
   lineSeries: LineSeriesData[]; // Array of line series data
 }
 
-const ChartComponent: React.FC<ChartComponentProps> = ({ lineSeries }) => {
+const ChartComponent: FC<ChartComponentProps> = ({ lineSeries }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRefs = useRef<ISeriesApi<"Candlestick" | "Line">[]>([]);

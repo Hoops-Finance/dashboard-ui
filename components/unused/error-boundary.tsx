@@ -1,16 +1,16 @@
 "use client"
 
-import React from 'react'
+import {ReactNode, Component, ErrorInfo} from 'react'
 
 interface ErrorBoundaryProps {
-  children: React.ReactNode
+  children: ReactNode
 }
 
 interface ErrorBoundaryState {
   hasError: boolean
 }
 
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props)
     this.state = { hasError: false }
@@ -20,7 +20,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     return { hasError: true }
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.log('ErrorBoundary caught an error:', error, errorInfo)
   }
 

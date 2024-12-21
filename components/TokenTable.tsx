@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, ChangeEvent } from 'react';
 import { Token, Pair, PoolRiskApiResponseObject } from "@/utils/newTypes";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -175,7 +175,7 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
             placeholder="Search by token name or symbol"
             className="pl-10 h-9"
             value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
             aria-label="Search tokens"
           />
         </div>

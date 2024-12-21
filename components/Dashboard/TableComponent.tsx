@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import DataTable from "react-data-table-component";
 import { useWallet } from "@/contexts/WalletContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -24,9 +24,9 @@ interface TableComponentProps {
   explorerData: ExplorerTableData | null;
   processedTokens: ProcessedToken[];
   poolData: PoolRiskApiResponseObject[];
-  setPoolData: React.Dispatch<React.SetStateAction<PoolRiskApiResponseObject[]>>;
+  setPoolData: Dispatch<SetStateAction<PoolRiskApiResponseObject[]>>;
   loadingPools: boolean;
-  setLoadingPools: React.Dispatch<React.SetStateAction<boolean>>;
+  setLoadingPools: Dispatch<SetStateAction<boolean>>;
   onSelectPair: (pairData: Pair, poolRiskData: PoolRiskApiResponseObject) => void;
 }
 

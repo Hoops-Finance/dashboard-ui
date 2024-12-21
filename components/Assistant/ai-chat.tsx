@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, FormEvent, ChangeEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,6 +11,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 interface Message {
   role: "assistant" | "user"
   content: string
+}
+
+interface FormProps {
+  onSubmit: (e: FormEvent) => void;
+  input: string;
+  setInput: (value: string) => void;
+  isTyping: boolean;
 }
 
 const initialMessages: Message[] = [
@@ -26,7 +33,7 @@ export function AIChat() {
   const [isTyping, setIsTyping] = useState(false)
   const [hoveredMessage, setHoveredMessage] = useState<number | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!input.trim()) return
 
@@ -45,6 +52,29 @@ export function AIChat() {
       setIsTyping(false)
     }, 1000)
   }
+
+  const Form: React.FC<FormProps> = ({ onSubmit, input, setInput, isTyping }) => (
+    <form onSubmit={onSubmit} className="flex gap-3">
+      <Input
+      placeholder="Ask about strategies, market conditions, or optimization..."
+      value={input}
+      onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+      className="flex-1 transition-all duration-300 focus:ring-2 focus:ring-primary text-base py-6"
+      disabled={isTyping}
+      />
+      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+      <Button 
+        type="submit" 
+        size="icon"
+        className="h-12 w-12 bg-primary hover:bg-primary/90 transition-colors duration-300"
+        disabled={isTyping || !input.trim()}
+        aria-label="Send message"
+      >
+        <Send className="h-5 w-5" />
+      </Button>
+      </motion.div>
+    </form>
+  );
 
   return (
     <div className="flex-1 flex flex-col">
@@ -187,26 +217,12 @@ export function AIChat() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        <form onSubmit={handleSubmit} className="flex gap-3">
-          <Input
-            placeholder="Ask about strategies, market conditions, or optimization..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-1 transition-all duration-300 focus:ring-2 focus:ring-primary text-base py-6"
-            disabled={isTyping}
-          />
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button 
-              type="submit" 
-              size="icon"
-              className="h-12 w-12 bg-primary hover:bg-primary/90 transition-colors duration-300"
-              disabled={isTyping || !input.trim()}
-              aria-label="Send message"
-            >
-              <Send className="h-5 w-5" />
-            </Button>
-          </motion.div>
-        </form>
+        <Form 
+          onSubmit={handleSubmit} 
+          input={input} 
+          setInput={setInput} 
+          isTyping={isTyping} 
+        />
       </motion.div>
     </div>
   )

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { FC, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Bars4Icon, XMarkIcon, SunIcon, MoonIcon, UserCircleIcon } from "@heroicons/react/24/outline";
@@ -22,7 +22,7 @@ const navigationItems = [
   { name: "Portfolio", path: "/portfolio" }
 ];
 
-const Navbar: React.FC = () => {
+const Navbar: FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, toggleTheme }: { theme: 'light' | 'dark'; toggleTheme: () => void } = useTheme();

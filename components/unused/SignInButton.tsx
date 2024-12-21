@@ -1,9 +1,10 @@
 "use client";
 
+import { FC } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/contexts/ThemeContext";
 
-export const SignInButton: React.FC = () => {
+export const SignInButton: FC = () => {
   const router = useRouter();
   const { theme } = useTheme();
 

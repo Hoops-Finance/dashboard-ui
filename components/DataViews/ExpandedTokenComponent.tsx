@@ -1,10 +1,10 @@
 // ExpandedTokenComponent.tsx
 
-import React from "react";
+import {FC} from "react";
 import { ExpanderComponentProps } from "react-data-table-component";
 import { ProcessedToken, TokenMarket } from "@/utils/newTypes";
 
-export const ExpandedTokenComponent: React.FC<ExpanderComponentProps<ProcessedToken>> = ({ data }) => (
+export const ExpandedTokenComponent: FC<ExpanderComponentProps<ProcessedToken>> = ({ data }) => (
   <div className="p-4 bg-white dark:bg-gray-800 text-black dark:text-white">
     {data.markets.map((market: TokenMarket, index: number) => (
       <div key={index} className="mb-4 border-b pb-2">

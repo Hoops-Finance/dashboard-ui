@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, FC } from "react";
 import { LinkSlashIcon, InformationCircleIcon, ArrowsUpDownIcon } from "@heroicons/react/24/outline";
 import ChartComponent from "./DetailsView/ChartComponent";
 import { fetchMarketCandles } from "@/utils/fetchCandles"; // Adjust the path if necessary
@@ -14,7 +14,7 @@ interface DetailedInfoProps {
   processedTokens: ProcessedToken[];
 }
 
-const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, processedTokens }) => {
+const DetailedInfo: FC<DetailedInfoProps> = ({ pairData, poolRiskData, processedTokens }) => {
   const { theme } = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
   const [clientSideDate, setClientSideDate] = useState<string | null>(null);
@@ -30,7 +30,7 @@ const DetailedInfo: React.FC<DetailedInfoProps> = ({ pairData, poolRiskData, pro
   const [tokenMetadata, setTokenMetadata] = useState<{ [key: string]: AssetDetails }>({});
 
   // Helper function to get token name from processed tokens
-  const getTokenName = React.useCallback((tokenId: string): string => {
+  const getTokenName = useCallback((tokenId: string): string => {
     const token = processedTokens.find((t) => t.token.id === tokenId);
     return token ? token.token.name : "Unknown Token";
   }, [processedTokens]);
@@ -190,7 +190,7 @@ interface InfoCardProps {
   value: string;
 }
 
-const InfoCard: React.FC<InfoCardProps> = ({ title, value }) => {
+const InfoCard: FC<InfoCardProps> = ({ title, value }) => {
   const { theme } = useTheme();
   return (
     <div className={`info-card-base ${theme === "dark" ? "info-card-light" : "info-card-dark"}`}>
@@ -208,7 +208,7 @@ interface ReserveCardProps {
   tokenMetadata?: AssetDetails;
 }
 
-const ReserveCard: React.FC<ReserveCardProps> = ({ title, token, reserve, usdValue, tokenMetadata }) => {
+const ReserveCard: FC<ReserveCardProps> = ({ title, token, reserve, usdValue, tokenMetadata }) => {
   const { theme } = useTheme();
   return (
     <div className={`info-card-base ${theme === "dark" ? "info-card-light" : "info-card-dark"}`}>
@@ -232,7 +232,7 @@ interface ContractCardProps {
   address: string;
 }
 
-const ContractCard: React.FC<ContractCardProps> = ({ title, address }) => {
+const ContractCard: FC<ContractCardProps> = ({ title, address }) => {
   const { theme } = useTheme();
   return (
     <div className={`info-card-base ${theme === "dark" ? "info-card-light" : "info-card-dark"}`}>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { WalletConnection } from "@/components/Dashboard/WalletConnection";
 import { Metrics } from "@/components/Dashboard/Metrics";
 import { TableComponent } from "@/components/Dashboard/TableComponent";

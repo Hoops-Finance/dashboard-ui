@@ -1,4 +1,3 @@
-import React from "react";
 import { MetricCard, Card } from "@/components/ui";
 import { GlobalMetrics } from "@/utils/newTypes";
 

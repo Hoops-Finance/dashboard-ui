@@ -1,7 +1,7 @@
-import React from "react";
+import {FC} from "react";
 import Image from "next/image";
 
-const Balances: React.FC = () => {
+const Balances: FC = () => {
   return (
     <div className="p-6">
       <div className="tabs flex space-x-8 mb-4">

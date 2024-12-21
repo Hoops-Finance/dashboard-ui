@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -78,7 +78,7 @@ export default function DeveloperPage() {
             <Input
               placeholder="API Key Name"
               value={newKeyName}
-              onChange={(e) => setNewKeyName(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setNewKeyName(e.target.value)}
             />
             <Button onClick={generateApiKey} disabled={!newKeyName.trim() || isCreating || !session?.user}>
               <KeyIcon className="h-4 w-4 mr-2" />

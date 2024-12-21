@@ -1,5 +1,3 @@
-import React from "react";
-
 export function Privacy() {
   return (
     <div className="space-y-4 text-sm text-foreground">

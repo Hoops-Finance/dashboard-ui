@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, ReactNode, ChangeEvent } from 'react';
 import { useRouter } from "next/navigation";
 import { useDataContext } from "@/contexts/DataContext";
 import { PoolRiskApiResponseObject, Pair, Token } from "@/utils/newTypes";
@@ -124,7 +124,7 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
     sortKey,
     align = 'left'
   }: {
-    children: React.ReactNode;
+    children: ReactNode;
     sortKey: SortKey;
     align?: 'left'|'right';
   }) => (
@@ -170,7 +170,7 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
             placeholder="Search by token/pair/pool address"
             className="pl-10 h-9"
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>)  => setSearchQuery(e.target.value)}
             aria-label="Search pools"
           />
         </div>

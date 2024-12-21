@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import { ReactNode, } from 'react'
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
 
 interface ResponsiveTableProps {
   headers: string[]
-  data: Record<string, React.ReactNode>[]
+  data: Record<string, ReactNode>[]
 }
 
 export function ResponsiveTable({ headers, data }: ResponsiveTableProps) {
