@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, FC, ReactNode } from 'react';
 import type { 
   GlobalMetrics, 
   PoolRiskApiResponseObject, 
@@ -31,7 +31,7 @@ interface DataContextValue {
 
 const DataContext = createContext<DataContextValue | undefined>(undefined);
 
-export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [globalMetrics, setGlobalMetrics] = useState<GlobalMetrics | null>(null);
   const [poolRiskData, setPoolRiskData] = useState<PoolRiskApiResponseObject[]>([]);

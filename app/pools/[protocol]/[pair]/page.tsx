@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, BarChart3, ChevronRight, Copy, ExternalLink, FileCode, LineChart, Lock, Plus, Settings, Share2, Shield, Tag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ interface StatCardProps {
   title: string;
   value: string | number;
   tooltip?: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
 }
 
 const StatCard = ({ title, value, tooltip, icon }: StatCardProps) => (

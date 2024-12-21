@@ -1,6 +1,6 @@
-import React from "react";
+import { FC } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-const SavingsWidget: React.FC = () => {
+const SavingsWidget: FC = () => {
   return (
     <div className="bg-black text-white p-6 rounded-2xl shadow-lg relative" style={{ width: "350px", flexShrink: 0, maxWidth: "450px" }}>
       <div className="flex justify-between items-center mb-4 relative">

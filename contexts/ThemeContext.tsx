@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 
 type Theme = 'light' | 'dark';
 
 interface ThemeProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
   defaultTheme?: Theme;
   storageKey?: string;
 }
@@ -20,7 +21,7 @@ const initialState: ThemeProviderState = {
   toggleTheme: () => null,
 };
 
-const ThemeProviderContext = React.createContext<ThemeProviderState>(initialState);
+const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
   children,
@@ -28,14 +29,14 @@ export function ThemeProvider({
   storageKey = "ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = React.useState<Theme>(() => {
+  const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== 'undefined' && window.localStorage) {
       return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
     }
     return defaultTheme;
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (typeof window !== 'undefined' && window.localStorage) {
       const root = window.document.documentElement;
       root.classList.remove("light", "dark");
@@ -44,7 +45,7 @@ export function ThemeProvider({
     }
   }, [theme, storageKey]);
 
-  const toggleTheme = React.useCallback(() => {
+  const toggleTheme = useCallback(() => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
   }, []);
 
@@ -61,7 +62,7 @@ export function ThemeProvider({
 }
 
 export const useTheme = () => {
-  const context = React.useContext(ThemeProviderContext);
+  const context = useContext(ThemeProviderContext);
 
   if (context === undefined)
     throw new Error("useTheme must be used within a ThemeProvider");

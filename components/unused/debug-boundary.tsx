@@ -1,10 +1,10 @@
 "use client"
 
-import React from 'react'
+import { ReactNode } from 'react'
 
 interface DebugBoundaryProps {
   name: string
-  children: React.ReactNode
+  children: ReactNode
 }
 
 export function DebugBoundary({ name, children }: DebugBoundaryProps) {

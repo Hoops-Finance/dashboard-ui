@@ -1,4 +1,4 @@
-import React from "react";
+import {FC} from "react";
 import { Switch, Popover, Transition, PopoverButton, PopoverPanel, PopoverBackdrop } from "@headlessui/react";
 import { CogIcon } from "@heroicons/react/24/outline";
 
@@ -14,7 +14,7 @@ interface FilterOptionsPopoverProps {
   setPoolPeriod?: (value: string) => void;
 }
 
-export const FilterOptionsPopover: React.FC<FilterOptionsPopoverProps> = ({
+export const FilterOptionsPopover: FC<FilterOptionsPopoverProps> = ({
   showTrackedOnly,
   showZeroBalances,
   showZeroLiquidity,

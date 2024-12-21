@@ -1,4 +1,4 @@
-import React from "react";
+import {FC} from "react";
 import DataTable from "react-data-table-component";
 import { ExpanderComponentProps } from "react-data-table-component";
 import { Pair, ProcessedToken, TokenMarket } from "@/utils/newTypes";
@@ -10,7 +10,7 @@ interface ExpandedTokenComponentProps extends ExpanderComponentProps<ProcessedTo
   handleRowClick: (row: Pair, tab: string) => void;
 }
 
-export const ExpandedTokenComponent: React.FC<ExpandedTokenComponentProps> = ({ data, handleRowClick }) => {
+export const ExpandedTokenComponent: FC<ExpandedTokenComponentProps> = ({ data, handleRowClick }) => {
   const { theme } = useTheme(); // Access theme to apply custom styles
 
   return (

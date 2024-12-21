@@ -1,5 +1,6 @@
+import { ReactNode } from "react";
 interface PageLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 

@@ -1,8 +1,8 @@
 "use client";
 
 import { WalletProvider } from '@/contexts/WalletContext';
-import { ReactNode } from 'react';
+import { ReactNode, FC } from 'react';
 
-export const ClientWalletProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const ClientWalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
   return <WalletProvider>{children}</WalletProvider>;
 };

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, ChangeEvent } from 'react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ArrowUp, Copy, RotateCcw, ThumbsUp, ThumbsDown, ArrowRight, Vault, ArrowLeft } from 'lucide-react'
@@ -289,7 +289,7 @@ export default function Home() {
               <div className="relative max-w-2xl mx-auto w-full">
                 <Input
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
                   placeholder="Ask about pools, risks, or optimizations..."
                   className="w-full pl-12 pr-12 py-6 text-lg bg-background border-border rounded-xl 
                     focus:ring-2 focus:ring-primary focus:border-transparent 
@@ -345,8 +345,8 @@ export default function Home() {
                   placeholder:text-muted-foreground transition-all duration-300"
                 placeholder="Ask a follow-up question..."
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
+                />
               <Button 
                 size="icon"
                 className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-lg 

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import {ReactNode} from "react";
 import { ClientWalletProvider } from "@/components/ClientWalletProvider";
 import Navbar from "@/components/Navbar";
 import { Footer } from "@/components/ui/Footer";
@@ -21,7 +21,7 @@ const inter = Inter({
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <html lang="en" className={inter.variable}>

@@ -247,7 +247,7 @@ export default function SwapComponent() {
 }
 
 /*
-const InfoCard: React.FC<InfoCardProps> = ({ title, value }) => (
+const InfoCard: FC<InfoCardProps> = ({ title, value }) => (
   <div className="bg-gray-50 p-4 rounded-lg">
     <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
     <p className="text-xl font-bold text-gray-800">{value}</p>
@@ -256,7 +256,7 @@ const InfoCard: React.FC<InfoCardProps> = ({ title, value }) => (
 */
 
 /*
-const ReserveCard: React.FC<ReserveCardProps> = ({ title, token, reserve, usdValue }) => (
+const ReserveCard: FC<ReserveCardProps> = ({ title, token, reserve, usdValue }) => (
   <div className="bg-gray-50 p-4 rounded-lg">
     <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
     <p className="text-xs text-gray-400 break-all">{token}</p>
@@ -266,7 +266,7 @@ const ReserveCard: React.FC<ReserveCardProps> = ({ title, token, reserve, usdVal
 );
 */
 /*
-const ContractCard: React.FC<ContractCardProps> = ({ title, address }) => (
+const ContractCard: FC<ContractCardProps> = ({ title, address }) => (
   <div className="bg-gray-50 p-4 rounded-lg">
     <h3 className="text-sm font-medium text-gray-500 mb-1">{title}</h3>
     <div className="flex items-center justify-between">
