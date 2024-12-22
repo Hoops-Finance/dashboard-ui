@@ -101,7 +101,7 @@ export default function Home() {
   }, [conversation.length]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col pt-[72px]">
+    <div className="min-h-screen bg-background text-foreground flex flex-col sm:pt-14 md:pt-28">
       <main className="flex-1 flex flex-col items-center justify-start p-8 max-w-4xl mx-auto w-full">
         {conversation.length > 0 && (
           <motion.div
@@ -291,7 +291,7 @@ export default function Home() {
                   value={query}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
                   placeholder="Ask about pools, risks, or optimizations..."
-                  className="w-full pl-12 pr-12 py-6 text-lg bg-background border-border rounded-xl 
+                  className="w-full sm:px-6 md:px-12 py-6 md:text-lg bg-background border-border rounded-xl
                     focus:ring-2 focus:ring-primary focus:border-transparent 
                     placeholder:text-muted-foreground text-foreground transition-all duration-300"
                 />
