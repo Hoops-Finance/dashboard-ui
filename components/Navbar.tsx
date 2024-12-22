@@ -3,7 +3,7 @@
 import { FC, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bars4Icon, XMarkIcon, SunIcon, MoonIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { Bars4Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "@/contexts/ThemeContext";
 import Image from "next/image";
 import "./Navbar.css";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { useAuth } from "@/contexts/AuthContext";
+import { ThemeSwitch } from "@/components/Navbar/ThemeSwitch.tsx";
 
 const navigationItems = [
   { name: "Home", path: "/ai-home" },
@@ -26,7 +27,7 @@ const Navbar: FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, toggleTheme }: { theme: 'light' | 'dark'; toggleTheme: () => void } = useTheme();
-  const [isMenuOpen, setIsMenuOpen] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { session, signOut } = useAuth();  
   const isLoggedIn = !!session?.user?.accessToken;
@@ -131,35 +132,25 @@ const Navbar: FC = () => {
             </div>
           )}
 
-          <button
-            onClick={toggleTheme}
-            className={`p-2 rounded-lg transition-colors ${theme === "dark" ? "hover:bg-gray-800" : "hover:bg-gray-100"}`}
-            aria-label="Toggle theme"
-          >
-            {theme === "light" ? (
-              <MoonIcon className={`w-5 h-5 ${
-                'text-gray-600'
-              }`} />
-            ) : (
-              <SunIcon className={`w-5 h-5 ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-              }`} />
-            )}
-          </button>
+          <ThemeSwitch isMobile={false}/>
         </div>
 
         {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className={`lg:hidden p-2 rounded-lg transition-colors ${theme === "dark" ? "hover:bg-gray-800" : "hover:bg-gray-100"}`}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? (
-            <XMarkIcon className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />
-          ) : (
-            <Bars4Icon className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />
-          )}
-        </button>
+        <div className={"lg:hidden"}>
+          <ThemeSwitch isMobile={true}/>
+
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className={`p-2 rounded-lg transition-colors ${theme === "dark" ? "hover:bg-gray-800" : "hover:bg-gray-100"}`}
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? (
+              <XMarkIcon className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />
+            ) : (
+              <Bars4Icon className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}

@@ -178,7 +178,7 @@
   }
 
   .page-container {
-    @apply pt-28 min-h-screen;
+    @apply sm:pt-14 md:pt-28 min-h-screen;
   }
 
   .ai-container {
