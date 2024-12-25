@@ -33,7 +33,7 @@ export default function SharedAuthPage() {
   }, []);
 
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
+    <div className="page-container flex items-center justify-center">
       {/* Let GetAuthParams read and parse URL query, storing results in our states */}
       <GetAuthParams onParamsLoaded={handleParamsLoaded} />
 
