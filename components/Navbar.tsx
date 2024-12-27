@@ -33,12 +33,19 @@ const Navbar: FC = () => {
   const isLoggedIn = !!session?.user?.accessToken;
 
   const handleLogin = () => {
+    handleMenuMobile();
     router.push("/signup?mode=login");
   };
 
   const handleLogout = () => {
     signOut();
     router.push("/");
+  };
+
+  const handleMenuMobile = () => {
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
+    }
   };
 
   return (
@@ -73,6 +80,10 @@ const Navbar: FC = () => {
               {item.name}
             </Link>
           ))}
+        </div>
+
+        <div className="hidden lg:flex items-center gap-6">
+          <ThemeSwitch isMobile={false} />
 
           {isLoggedIn ? (
             <div className="flex-center-g-4">
@@ -131,13 +142,11 @@ const Navbar: FC = () => {
               </Link>
             </div>
           )}
-
-          <ThemeSwitch isMobile={false}/>
         </div>
 
         {/* Mobile Menu Button */}
         <div className={"lg:hidden"}>
-          <ThemeSwitch isMobile={true}/>
+          <ThemeSwitch isMobile={true} />
 
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -195,6 +204,7 @@ const Navbar: FC = () => {
                 </button>
                 <Link
                   href="/signup"
+                  onClick={() => handleMenuMobile()}
                   className={`px-4 py-2 text-sm font-medium rounded-lg text-center transition-colors ${
                     theme === "dark" ? "bg-white text-black hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"
                   }`}
