@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import AuthForm from "@/components/auth/AuthForm";
 import GetAuthParams from "@/components/auth/GetAuthParams";
+import { PageLayout } from "@/components/ui/PageLayout.tsx";
 
 /**
  * /app/(shared)/auth/page.tsx
@@ -27,12 +28,12 @@ export default function SharedAuthPage() {
   }, []);
 
   return (
-    <div className="page-container flex items-center justify-center">
+    <PageLayout>
       {/* Let GetAuthParams read and parse URL query, storing results in our states */}
       <GetAuthParams onParamsLoadedAction={handleParamsLoaded} />
 
       {/* Now that we have isLogin, errorParam, etc., pass to AuthForm */}
       <AuthForm isLogin={isLogin} errorParam={errorParam} oauthEmail={oauthEmail} oauthProvider={oauthProvider} oauthCode={oauthCode} recaptchaSiteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY} />
-    </div>
+    </PageLayout>
   );
 }
