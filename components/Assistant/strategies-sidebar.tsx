@@ -114,7 +114,7 @@ export function StrategiesSidebar() {
       ))}
 
       <Link href="/strategies/create">
-        <Card className="p-6 border-dashed border-2 hover:border-primary/50 hover:bg-muted/50 transition-all duration-300 flex flex-col items-center justify-center gap-3 cursor-pointer group">
+        <Card className="mt-4 p-6 border-dashed border-2 hover:border-primary/50 hover:bg-muted/50 transition-all duration-300 flex flex-col items-center justify-center gap-3 cursor-pointer group">
           <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center group-hover:bg-background transition-colors duration-300">
             <Plus className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
           </div>
