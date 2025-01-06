@@ -75,6 +75,7 @@ const Navbar: FC = () => {
                   : theme === "dark"
                     ? "text-gray-400 hover:text-white"
                     : "text-gray-600 hover:text-black"
+              } ${item.name !== "Pools" && item.name !== "Tokens" ? "hidden" : ""
               }`}
             >
               {item.name}
