@@ -1,6 +1,5 @@
 import { UTCTimestamp } from "lightweight-charts";
 import { NextRequest, NextResponse } from "next/server";
-//import { SxCandleResponse } from "utils/newTypes";
 
 const API_BASE_URL = "https://api.stellar.expert/explorer/public/asset";
 const API_KEY = process.env.SXX_API_KEY;

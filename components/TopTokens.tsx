@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Token, Pair, PoolRiskApiResponseObject } from "@/utils/newTypes";
+import { Token, Pair, PoolRiskApiResponseObject } from "@/utils/types";
 import { STABLECOIN_IDS } from "@/utils/utilities";
 
 function LightningIcon() {

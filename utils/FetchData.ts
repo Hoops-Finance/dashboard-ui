@@ -1,6 +1,6 @@
 // fetchData.ts
 
-import { PairApiResponseObject, Token, ExplorerTableData, ProcessedToken, TokenMarket, Pair, Market, MarketApiResponseObject, TokenApiResponseObject } from "./newTypes";
+import { PairApiResponseObject, Token, ExplorerTableData, ProcessedToken, TokenMarket, Pair, Market, MarketApiResponseObject, TokenApiResponseObject } from "./types";
 
 // Utility function to convert date strings to epoch timestamps
 const convertToEpoch = (dateStr: string): number => new Date(dateStr).getTime();
@@ -54,24 +54,6 @@ export const fetchData = async (setExplorerTableData: (data: ExplorerTableData) 
           totalTVL += pair.tvl || 0;
           return pair;
         }
-        // Handle cases where the pair might not be found // the pair will never be underfined so this is not needed
-        /*
-        return {
-          id: pool.pair,
-          lpHolders: [],
-          lptSupply: 0,
-          lastUpdated: Date.now(),
-          protocol: pool.protocol,
-          reserve0: 0,
-          reserve1: 0,
-          t0usd: "0",
-          t1usd: "0",
-          token0: "",
-          token1: "",
-          tvl: 0,
-          lpToken: "",
-          pairType: "constant_product"
-        };*/
         throw new Error(`Pair not found for ID: ${pool.pair}`);
       });
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { TransformedCandleData } from "utils/newTypes";
+import { TransformedCandleData } from "@/utils/types";
 import { UTCTimestamp } from "lightweight-charts";
 
 type CandleDataRaw = [number, number, number, number, number, number, number, number];

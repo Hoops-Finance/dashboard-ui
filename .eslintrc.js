@@ -1,16 +1,16 @@
 module.exports = {
   root: true,
-  parser: '@typescript-eslint/parser',
+  parser: '@typescript-eslint/parser', // Specifies the ESLint parser
   parserOptions: {
-    ecmaVersion: 2020,
-    sourceType: 'module',
+    ecmaVersion: 2020, // Allows for the parsing of modern ECMAScript features
+    sourceType: 'module', // Allows for the use of imports
     ecmaFeatures: {
-      jsx: true,
+      jsx: true, // Allows for the parsing of JSX
     },
   },
   settings: {
     react: {
-      version: 'detect',
+      version: 'detect', // Automatically detect the React version
     },
   },
   env: {
@@ -20,14 +20,16 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
-    'plugin:react/recommended',
-    'plugin:@typescript-eslint/recommended',
-    'next/core-web-vitals'
+    'plugin:react/recommended', // Uses the recommended rules from @eslint-plugin-react
+    'plugin:@typescript-eslint/recommended', // Uses the recommended rules from @typescript-eslint/eslint-plugin
+    'next/core-web-vitals', // Next.js specific linting rules
   ],
   plugins: ['@typescript-eslint', 'react'],
   rules: {
-    'react/react-in-jsx-scope': 'off',
+     // Add or override any rules here
+    'react/react-in-jsx-scope': 'off', // Next.js handles React import
     '@typescript-eslint/no-unused-vars': ['off', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/no-explicit-any': 'warn',
+     // Add other custom rules as needed
   },
 };

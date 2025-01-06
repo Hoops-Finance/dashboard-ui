@@ -1,7 +1,7 @@
 // /app/api/getstatistics/[route].tsx
 
 import { NextRequest, NextResponse } from "next/server";
-import { PoolRiskApiResponseObject } from "@/utils/newTypes"; // Adjust the import path
+import { PoolRiskApiResponseObject } from "@/utils/types"; // Adjust the import path
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);

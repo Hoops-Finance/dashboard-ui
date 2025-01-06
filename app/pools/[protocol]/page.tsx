@@ -60,7 +60,7 @@ const PROTOCOL_INFO: Record<Protocol, {
   }
 };
 
-function getProtocolStats(pools: import('@/utils/newTypes').PoolRiskApiResponseObject[]) {
+function getProtocolStats(pools: import('@/utils/types').PoolRiskApiResponseObject[]) {
   if (!pools?.length) {
     return {
       tvl: 0,

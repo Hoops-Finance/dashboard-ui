@@ -1,4 +1,4 @@
-import { PoolRiskApiResponseObject } from "./newTypes";
+import { PoolRiskApiResponseObject } from "./types";
 export const fetchPoolData = async (setPoolsData: (data: PoolRiskApiResponseObject[]) => void, setLoading: (value: boolean) => void, period: string) => {
   try {
     setLoading(true);

@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, ReactNode, ChangeEvent } from 'react';
 import { useRouter } from "next/navigation";
 import { useDataContext } from "@/contexts/DataContext";
-import { PoolRiskApiResponseObject, Pair, Token } from "@/utils/newTypes";
+import { PoolRiskApiResponseObject, Pair, Token } from "@/utils/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

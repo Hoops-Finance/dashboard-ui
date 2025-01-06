@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
-import type { AssetDetails, Pair, Token, PoolRiskApiResponseObject } from "@/utils/newTypes";
+import type { AssetDetails, Pair, Token, PoolRiskApiResponseObject } from "@/utils/types";
 import { useDataContext } from "@/contexts/DataContext";
 import ChartComponent from "@/components/ChartComponent";
 import { PoolsTable } from "@/components/PoolsTable";
