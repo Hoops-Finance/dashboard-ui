@@ -24,6 +24,11 @@ const navigationItems = [
   { name: "Portfolio", path: "/portfolio" }
 ];
 
+const navigationProfileItems = [
+  { name: "Profile", path: "/profile" },
+  { name: "Developer", path: "/developer" }
+];
+
 const Navbar: FC = () => {
   const router = useRouter();
   const pathname = usePathname();
@@ -100,22 +105,11 @@ const Navbar: FC = () => {
                     </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => {
-                      router.push("/profile");
-                    }}
-                  >
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => {
-                      router.push("/developer");
-                    }}
-                  >
-                    Developer
-                  </DropdownMenuItem>
+                  {navigationProfileItems.map((item) => (
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(item.path)} key={item.name}>
+                      {item.name}
+                    </DropdownMenuItem>
+                  ))}
                   <DropdownMenuSeparator />
                   <div className="p-2">
                     <ConnectWallet />
@@ -178,6 +172,26 @@ const Navbar: FC = () => {
                 {item.name}
               </Link>
             ))}
+            <div className="flex flex-col gap-4 pt-4 border-t border-border">
+              {navigationProfileItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.path}
+                  className={`text-sm font-medium transition-colors ${
+                    pathname === item.path
+                      ? theme === "dark"
+                        ? "text-white"
+                        : "text-black"
+                      : theme === "dark"
+                        ? "text-gray-400 hover:text-white"
+                        : "text-gray-600 hover:text-black"
+                  }`}
+                  onClick={() => handleMenuMobile()}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
             {isLoggedIn ? (
               <div className="flex flex-col gap-4 pt-4 border-t border-border">
                 <button
