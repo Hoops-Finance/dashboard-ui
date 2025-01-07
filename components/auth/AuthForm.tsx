@@ -264,15 +264,16 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
       </form>
 
       <div className="mt-6 text-center">
+        {isLogin ? "Don't have an account? " : 'Already have an account? '}
         <button
           onClick={() => {
             // If user is on Sign Up, let them go to /signup?mode=login => the login variant
             const newPath = `/signup${!isLogin ? "?mode=login" : ""}`;
             router.push(newPath);
           }}
-          className="auth-toggle"
+          className="auth-toggle text-primary hover:underline"
         >
-          {isLogin ? "Don't have an account? Sign up" : "Already have an account? Log in"}
+          <u>{isLogin ? "Sign up" : "Log in"}</u>
         </button>
       </div>
 
