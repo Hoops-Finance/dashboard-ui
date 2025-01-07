@@ -1,7 +1,7 @@
 "use client";
 
 // library imports
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, FormEvent, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,46 +13,79 @@ import { UserCircleIcon, PencilIcon } from "@heroicons/react/24/outline";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
+import { ProfileType } from "@/types/user.ts";
 
 export default function Profile() {
   const router = useRouter();
   const pathname = usePathname();
-
   const { data: session } = useSession();
-
   const [loadingProfile, setLoadingProfile] = useState(false);
+  const [profile, setProfile] = useState<ProfileType>();
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const fetchProfile = useCallback(async () => {
+    setLoadingProfile(true);
+    const res = await fetch(`/api/auth/profile/one`);
+    if (res.ok) {
+      setLoadingProfile(false);
+      const data = await res.json();
+      setProfile(data || {});
+    }
+  }, []);
 
   useEffect(() => {
     if (session?.user.accessToken) {
       // fetch user profile if access token is available
-      // getUserProfile(session.user.accessToken);
+      fetchProfile();
     } else {
       // Redirect to `/login` if no access token or no session
       router.push("/signup?mode=login&next=" + pathname);
     }
-  }, [session, router, pathname]);
-
-  const getUserProfile = (token: string) => {
-    setLoadingProfile(true);
-    fetch(`${process.env.AUTH_API_URL}/auth/user_profile`, {
-      headers: { Authorization: "Bearer " + token }
-    })
-      .then(() => {
-        setLoadingProfile(false);
-      })
-      .catch((error: unknown) => {
-        if (error instanceof Error) {
-          console.error(error.message);
-        } else {
-          console.error("Unknown error fetching user profile");
-        }
-      });
-  };
+  }, [session, router, pathname, fetchProfile]);
 
   // Handle form submission
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Add your form submission logic here
+    const formData = new FormData(e.currentTarget);
+
+    // Handle image conversion to base64
+    const imageFile = formData.get('avatar') as File;
+    if (imageFile && imageFile.size > 0) {
+      const base64Image = await convertToBase64(imageFile);
+      formData.delete('avatar');
+      formData.append('avatar', base64Image);
+    }
+
+    updateProfile(formData);
+  };
+
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const updateProfile = async (formData: FormData) => {
+    setIsUpdating(true);
+    const jsonData = Object.fromEntries(formData.entries());
+
+    const res = await fetch(`/api/auth/profile/update`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(jsonData)
+    });
+
+    setIsUpdating(false);
+
+    if (res.ok) {
+      const data = await res.json();
+      await fetchProfile();
+    }
   };
 
   return (
@@ -83,16 +116,16 @@ export default function Profile() {
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                       <div className="grid gap-2">
+                        <Label htmlFor="avatar">Profile Picture</Label>
+                        <Input id="avatar" name="avatar" type="file" accept="image/*" className="cursor-pointer" aria-label="Profile picture" />
+                      </div>
+                      <div className="grid gap-2">
                         <Label htmlFor="name">Name</Label>
-                        <Input id="name" name="name" defaultValue="John Doe" aria-label="Full name" required disabled />
+                        <Input id="name" name="name" defaultValue={profile?.name || ""} aria-label="Full name" required />
                       </div>
                       <div className="grid gap-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input id="email" name="email" defaultValue={session?.user.email ?? ""} type="email" aria-label="Email address" required />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="phone">Phone</Label>
-                        <Input id="phone" name="phone" defaultValue="+1 (555) 000-0000" type="tel" aria-label="Phone number" />
+                        <Label htmlFor="phoneNumber">Phone</Label>
+                        <Input id="phoneNumber" name="phoneNumber" defaultValue={profile?.phoneNumber || ""} type="tel" aria-label="Phone number" />
                       </div>
                     </div>
                     <DialogFooter>
@@ -118,17 +151,42 @@ export default function Profile() {
                 <CardContent>
                   <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
                     <Avatar className="h-24 w-24">
-                      <AvatarFallback className="AvatarFallback">{(session?.user.email ?? "Hoop").charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarImage src={profile?.avatar || "/images/avatar-test.png"} alt="Profile picture" className="object-cover" />
+                      <AvatarFallback className="AvatarFallback">
+                        {(session?.user?.email || "Hoop").charAt(0).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="space-y-1 text-center sm:text-left">
-                      <h3 className="text-2xl font-semibold">John Doe</h3>
-                      <p className="text-sm text-muted-foreground">{session?.user.email}</p>
-                      <p className="text-sm text-muted-foreground">+1 (555) 000-0000</p>
+                      <h3 className="text-2xl font-semibold">{ profile?.name || 'Jhon Doe' }</h3>
+                      <p className="text-sm text-muted-foreground">{ profile?.email || 'email@example.com' }</p>
+                      <p className="text-sm text-muted-foreground">{ profile?.phoneNumber || '+1 (555) 000-0000' }</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
+              {/* Social Media Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Linked Accounts</CardTitle>
+                  <CardDescription>Your linked accounts.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {profile?.oauthAccounts?.map((oauthAccount) => (
+                    <>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="space-y-0.5">
+                          <Label>{oauthAccount.provider}</Label>
+                          <p className="text-sm text-muted-foreground">
+                            since {new Date(oauthAccount.linkedAt).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <Separator className="my-4" />
+                    </>
+                  ))}
+                </CardContent>
+              </Card>
               {/* Social Media Card */}
               <Card>
                 <CardHeader>
