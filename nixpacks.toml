@@ -2,9 +2,6 @@ providers = ["node"]
 buildImage = "ghcr.io/railwayapp/nixpacks:ubuntu-1736208272"
 
 [variables]
-# Force Node 22.10 for the Node provider
-NIXPACKS_NODE_VERSION = "22.10.0"
-
 CI = "true"
 NIXPACKS_METADATA = "node"
 NODE_ENV = "production"
@@ -22,12 +19,11 @@ cacheDirectories = ["/root/.npm"]
 paths = ["/app/node_modules/.bin"]
 
 [phases.setup]
-nixPkgs = ["python311Full", "gnumake", "gcc-unwrapped"]
+nixPkgs = ["nodejs_22", "python311Full", "gnumake", "gcc-unwrapped"]
 nixLibs = ["libuuid", "libGL"]
 nixOverlays = [
   "https://github.com/railwayapp/nix-npm-overlay/archive/main.tar.gz",
 ]
-nixpkgsArchive = "a7f995b43a750ec19846cbac39ff61943b6d6f6f"
 
 [phases.setup.env]
 PYTHON = "python3"
