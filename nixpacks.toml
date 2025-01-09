@@ -24,7 +24,7 @@ nixLibs = ["libuuid", "libGL"]
 nixOverlays = [
   "https://github.com/railwayapp/nix-npm-overlay/archive/main.tar.gz",
 ]
-nixpkgsArchive = "5624e1334b26ddc18da37e132b6fa8e93b481468"
+nixpkgsArchive = "a7f995b43a750ec19846cbac39ff61943b6d6f6f"
 
 [phases.setup.env]
 PYTHON = "python3"
