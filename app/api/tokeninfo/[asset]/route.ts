@@ -1,5 +1,4 @@
 // /app/api/tokeninfo/[asset]/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import { AssetDetails } from "@/utils/types";
 

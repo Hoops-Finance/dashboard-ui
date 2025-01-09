@@ -84,7 +84,7 @@ export default function Profile() {
                     <div className="grid gap-4 py-4">
                       <div className="grid gap-2">
                         <Label htmlFor="name">Name</Label>
-                        <Input id="name" name="name" defaultValue="John Doe" aria-label="Full name" required />
+                        <Input id="name" name="name" defaultValue="John Doe" aria-label="Full name" required disabled/>
                       </div>
                       <div className="grid gap-2">
                         <Label htmlFor="email">Email</Label>

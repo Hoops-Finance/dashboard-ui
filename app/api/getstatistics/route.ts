@@ -1,12 +1,11 @@
 // /app/api/getstatistics/[route].tsx
-
 import { NextRequest, NextResponse } from "next/server";
 import { PoolRiskApiResponseObject } from "@/utils/types"; // Adjust the import path
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const period = searchParams.get("period");
-  const apiUrl = `https://api.hoops.finance/getstatistics?period=${period}`;
+  const apiUrl = `${process.env.NEXT_PUBLIC_BASE_DATA_URI}/getstatistics?period=${period}`;
 
   try {
     const response = await fetch(apiUrl, {

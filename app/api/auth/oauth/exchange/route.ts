@@ -8,6 +8,8 @@ interface ExchangeRequest {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  console.log(`[OAUTH-EXCHANGE] POST /api/auth/oauth/exchange`);
+  console.log(`[OAUTH-EXCHANGE] Request body: ${JSON.stringify(req.body)}`);
   const session = await auth();
   const { provider, code, state } = await req.json() as ExchangeRequest;
 
@@ -21,6 +23,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     ? `${process.env.AUTH_API_URL}/auth/oauth/link`
     : `${process.env.AUTH_API_URL}/auth/oauth/login`;
 
+    console.log(`Exchange request to ${url} with provider ${provider} and code ${code}`);
   const headers: Record<string,string> = {
     "Content-Type": "application/json",
     "x-api-key": `${process.env.AUTH_API_KEY}`

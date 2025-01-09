@@ -35,7 +35,7 @@ export default function SharedAuthPage() {
   return (
     <div className="page-container flex items-center justify-center">
       {/* Let GetAuthParams read and parse URL query, storing results in our states */}
-      <GetAuthParams onParamsLoaded={handleParamsLoaded} />
+      <GetAuthParams onParamsLoadedAction={handleParamsLoaded} />
 
       {/* Now that we have isLogin, errorParam, etc., pass to AuthForm */}
       <AuthForm

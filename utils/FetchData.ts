@@ -10,9 +10,9 @@ export const fetchData = async (setExplorerTableData: (data: ExplorerTableData) 
   try {
     // Fetch markets, pairs, and tokens concurrently
     const [marketsResponse, pairsResponse, tokensResponse] = await Promise.all([
-      fetch("https://api.hoops.finance/markets"),
-      fetch("https://api.hoops.finance/pairs"),
-      fetch("https://api.hoops.finance/tokens")
+      fetch(`${process.env.NEXT_PUBLIC_BASE_DATA_URI}/markets`),
+      fetch(`${process.env.NEXT_PUBLIC_BASE_DATA_URI}/pairs`),
+      fetch(`${process.env.NEXT_PUBLIC_BASE_DATA_URI}/tokens`)
     ]);
 
     // Parse JSON responses

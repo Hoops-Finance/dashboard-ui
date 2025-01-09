@@ -28,7 +28,6 @@ export default function RootLayout({
       <body className={cn("min-h-screen bg-background antialiased")}>
         <ThemeProvider defaultTheme="dark">
           <SessionProvider>
-            <AuthProvider>
               <ClientWalletProvider>
                 <DataProvider>
                   <Navbar />
@@ -36,7 +35,6 @@ export default function RootLayout({
                   <Footer />
                 </DataProvider>
               </ClientWalletProvider>
-            </AuthProvider>
           </SessionProvider>
         </ThemeProvider>
       </body>
