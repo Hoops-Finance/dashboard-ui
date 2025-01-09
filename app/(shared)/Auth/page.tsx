@@ -18,13 +18,7 @@ export default function SharedAuthPage() {
   const [oauthCode, setOauthCode] = useState("");
 
   // Called once the query params are read:
-  const handleParamsLoaded = useCallback((res: {
-    isLogin: boolean;
-    errorParam: string;
-    oauthEmail?: string;
-    oauthProvider?: string;
-    oauthCode?: string;
-  }) => {
+  const handleParamsLoaded = useCallback((res: { isLogin: boolean; errorParam: string; oauthEmail?: string; oauthProvider?: string; oauthCode?: string }) => {
     setIsLogin(res.isLogin);
     setErrorParam(res.errorParam);
     if (res.oauthEmail) setOauthEmail(res.oauthEmail);

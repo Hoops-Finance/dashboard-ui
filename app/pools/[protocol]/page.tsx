@@ -13,22 +13,25 @@ import { PoolsTable } from "@/components/PoolsTable";
 import { TopPools } from "@/components/TopPools";
 import { STABLECOIN_IDS, AllowedPeriods } from "@/utils/utilities";
 
-const PROTOCOLS = ['soroswap', 'aquarius', 'blend', 'phoenix'] as const;
-type Protocol = typeof PROTOCOLS[number];
+const PROTOCOLS = ["soroswap", "aquarius", "blend", "phoenix"] as const;
+type Protocol = (typeof PROTOCOLS)[number];
 
-const PROTOCOL_INFO: Record<Protocol, {
-  name: string;
-  description: string;
-  logo: string;
-  links: { name: string; url: string; }[];
-}> = {
+const PROTOCOL_INFO: Record<
+  Protocol,
+  {
+    name: string;
+    description: string;
+    logo: string;
+    links: { name: string; url: string }[];
+  }
+> = {
   soroswap: {
     name: "Soroswap",
     description: "Soroswap is a decentralized exchange protocol built on the Stellar network, offering automated market making and liquidity provision services.",
     logo: "/images/protocols/soroswap.svg",
     links: [
       { name: "Website", url: "https://soroswap.finance" },
-      { name: "Docs", url: "https://docs.soroswap.finance" },
+      { name: "Docs", url: "https://docs.soroswap.finance" }
     ]
   },
   aquarius: {
@@ -37,7 +40,7 @@ const PROTOCOL_INFO: Record<Protocol, {
     logo: "/images/protocols/aqua.svg",
     links: [
       { name: "Website", url: "https://aquarius.finance" },
-      { name: "Documentation", url: "https://docs.aquarius.finance" },
+      { name: "Documentation", url: "https://docs.aquarius.finance" }
     ]
   },
   blend: {
@@ -46,7 +49,7 @@ const PROTOCOL_INFO: Record<Protocol, {
     logo: "/images/protocols/blend.svg",
     links: [
       { name: "Website", url: "https://blend.finance" },
-      { name: "Docs", url: "https://docs.blend.finance" },
+      { name: "Docs", url: "https://docs.blend.finance" }
     ]
   },
   phoenix: {
@@ -55,28 +58,29 @@ const PROTOCOL_INFO: Record<Protocol, {
     logo: "/images/protocols/phoenix.svg",
     links: [
       { name: "Website", url: "https://phoenix.finance" },
-      { name: "Documentation", url: "https://docs.phoenix.finance" },
+      { name: "Documentation", url: "https://docs.phoenix.finance" }
     ]
   }
 };
 
-function getProtocolStats(pools: import('@/utils/types').PoolRiskApiResponseObject[]) {
-  if (!pools?.length) {
+function getProtocolStats(pools: import("@/utils/types").PoolRiskApiResponseObject[]) {
+  if (!pools.length) {
     return {
       tvl: 0,
       volume24h: 0,
       poolCount: 0,
-      averageApy: 0,
+      averageApy: 0
     };
   }
 
-  const tvl = pools.reduce((sum, pool) => sum + parseFloat(pool.totalValueLocked || '0'), 0);
-  const volume24h = pools.reduce((sum, pool) => sum + parseFloat(pool.volume || '0'), 0);
+  const tvl = pools.reduce((sum, pool) => sum + parseFloat(pool.totalValueLocked || "0"), 0);
+  const volume24h = pools.reduce((sum, pool) => sum + parseFloat(pool.volume || "0"), 0);
   const poolCount = pools.length;
-  const averageApy = pools.reduce((sum, pool) => {
-    const apr = parseFloat(pool.apr?.replace('%', '') || '0');
-    return sum + apr;
-  }, 0) / poolCount;
+  const averageApy =
+    pools.reduce((sum, pool) => {
+      const apr = parseFloat(pool.apr.replace("%", "") || "0");
+      return sum + apr;
+    }, 0) / poolCount;
 
   return { tvl, volume24h, poolCount, averageApy };
 }
@@ -89,10 +93,8 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
 
   const protocolPools = useMemo(() => {
     if (!isValidProtocol) return [];
-    const mappedProtocol = protocol === 'aquarius' ? 'aqua' : protocol;
-    return poolRiskData.filter(pool =>
-      pool.protocol.toLowerCase() === mappedProtocol.toLowerCase()
-    );
+    const mappedProtocol = protocol === "aquarius" ? "aqua" : protocol;
+    return poolRiskData.filter((pool) => pool.protocol.toLowerCase() === mappedProtocol.toLowerCase());
   }, [poolRiskData, protocol, isValidProtocol]);
 
   const stats = getProtocolStats(protocolPools);
@@ -102,20 +104,14 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
       <main className="container mx-auto p-4 space-y-8">
         <Alert variant="destructive" role="alert">
           <MessageCircleWarning className="h-4 w-4" aria-hidden="true" />
-          <AlertDescription>
-            Invalid protocol specified.
-          </AlertDescription>
+          <AlertDescription>Invalid protocol specified.</AlertDescription>
         </Alert>
       </main>
     );
   }
 
   if (loading) {
-    return (
-      <main className="container mx-auto p-4 space-y-8">
-        Loading pools data...
-      </main>
-    );
+    return <main className="container mx-auto p-4 space-y-8">Loading pools data...</main>;
   }
 
   return (
@@ -143,16 +139,11 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 flex items-center justify-center" aria-hidden="true">
-                <ProtocolLogo 
-                  logo={protocolInfo!.logo} 
-                  name={protocolInfo!.name} 
-                />
+                <ProtocolLogo logo={protocolInfo!.logo} name={protocolInfo!.name} />
               </div>
               <div>
                 <CardTitle>{protocolInfo!.name}</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-                  {protocolInfo!.description}
-                </p>
+                <p className="text-sm text-muted-foreground mt-1 max-w-2xl">{protocolInfo!.description}</p>
               </div>
             </div>
           </CardHeader>
@@ -162,80 +153,48 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
         <div className="stat-card">
           <Card>
             <CardHeader className="card-header">
-              <CardTitle className="text-sm font-medium">
-                Total Value Locked
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Total Value Locked</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {formatDollarAmount(stats.tvl)}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Across {stats.poolCount} pools
-              </p>
+              <div className="text-2xl font-bold">{formatDollarAmount(stats.tvl)}</div>
+              <p className="text-xs text-muted-foreground">Across {stats.poolCount} pools</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="card-header">
-              <CardTitle className="text-sm font-medium">
-                Volume ({period.toUpperCase()})
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Volume ({period.toUpperCase()})</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {formatDollarAmount(stats.volume24h)}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Last {period.toUpperCase()}
-              </p>
+              <div className="text-2xl font-bold">{formatDollarAmount(stats.volume24h)}</div>
+              <p className="text-xs text-muted-foreground">Last {period.toUpperCase()}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="card-header">
-              <CardTitle className="text-sm font-medium">
-                Active Pools
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Active Pools</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.poolCount}</div>
-              <p className="text-xs text-muted-foreground">
-                Total pools
-              </p>
+              <p className="text-xs text-muted-foreground">Total pools</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="card-header">
-              <CardTitle className="text-sm font-medium">
-                Average APY ({period.toUpperCase()})
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Average APY ({period.toUpperCase()})</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {formatPercentage(stats.averageApy)}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Across all pools
-              </p>
+              <div className="text-2xl font-bold text-green-600">{formatPercentage(stats.averageApy)}</div>
+              <p className="text-xs text-muted-foreground">Across all pools</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Top Pools for this protocol */}
-        <TopPools
-          data={protocolPools}
-          pairs={pairs}
-          tokens={tokens}
-          stablecoinIds={STABLECOIN_IDS}
-          period={period}
-        />
+        <TopPools data={protocolPools} pairs={pairs} tokens={tokens} stablecoinIds={STABLECOIN_IDS} period={period} />
 
         {/* Pools Table Section */}
         <section aria-label="Pools data" className="space-y-4">
-          <PoolsTable
-            data={protocolPools}
-            pairs={pairs}
-            tokens={tokens}
-          />
+          <PoolsTable data={protocolPools} pairs={pairs} tokens={tokens} />
         </section>
       </div>
     </main>

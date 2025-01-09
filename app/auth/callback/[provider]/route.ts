@@ -7,10 +7,7 @@ import { auth, signIn } from "@/utils/auth";
 import { cookies } from "next/headers";
 import { AuthError } from "next-auth";
 
-export async function GET(
-  req: NextRequest,
-  context: { params: Promise<{ provider: string }> }
-) {
+export async function GET(req: NextRequest, context: { params: Promise<{ provider: string }> }) {
   const { provider } = await context.params;
 
   const { searchParams } = new URL(req.url);
@@ -52,23 +49,22 @@ export async function GET(
       redirect: false,
       provider,
       code,
-      state: returnedState,
+      state: returnedState
     });
-  } catch(err){ 
+  } catch (err) {
     if (err instanceof AuthError) {
       return NextResponse.redirect(new URL(`/signup?error=${encodeURIComponent(err.message)}`, req.url));
     }
   }
-  
 
   console.log("[OAUTH-CALLBACK] signIn('social') returned URL:", redirectUrl);
   if (!redirectUrl) {
     throw new Error("Failed to retrieve redirect URL from signIn");
   }
-  console.log('calling session in the authcallback');
+  console.log("calling session in the authcallback");
   const session = await auth();
-  console.log('called session in the auth callback');
-  const isLoggedIn = !!session?.user?.accessToken;
+  console.log("called session in the auth callback");
+  const isLoggedIn = !!session?.user.accessToken;
   console.log(`[OAUTH-CALLBACK] User is logged in: ${isLoggedIn}`);
   if (!isLoggedIn) {
     return NextResponse.redirect(new URL(`/signup?error=UnknownFailure`, req.url));

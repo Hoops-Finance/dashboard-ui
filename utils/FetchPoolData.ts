@@ -17,14 +17,14 @@ export const fetchPoolData = async (setPoolsData: (data: PoolRiskApiResponseObje
 
 export async function fetchPoolData1() {
   try {
-    const res = await fetch('/api/pools', {
+    const res = await fetch("/api/pools", {
       next: { revalidate: 60 }
     });
 
-    if (!res.ok) throw new Error('Failed to fetch pool data');
+    if (!res.ok) throw new Error("Failed to fetch pool data");
     return res.json();
   } catch (error) {
-    console.error('Error fetching pool data:', error);
+    console.error("Error fetching pool data:", error);
     return null;
   }
 }

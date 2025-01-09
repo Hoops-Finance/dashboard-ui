@@ -1,25 +1,15 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, FC, ReactNode } from 'react';
-import type { 
-  GlobalMetrics, 
-  PoolRiskApiResponseObject, 
-  Market, 
-  Pair, 
-  Token, 
-  MarketApiResponseObject,  
-  TokenApiResponseObject,
-  AssetDetails,
-  PairApiResponseObject
-} from '@/utils/types';
-import { AllowedPeriods } from '@/utils/utilities';
+import { createContext, useContext, useState, useEffect, useCallback, FC, ReactNode } from "react";
+import type { GlobalMetrics, PoolRiskApiResponseObject, Market, Pair, Token, MarketApiResponseObject, TokenApiResponseObject, AssetDetails, PairApiResponseObject } from "@/utils/types";
+import { AllowedPeriods } from "@/utils/utilities";
 
 interface DataContextValue {
   loading: boolean;
   globalMetrics: GlobalMetrics | null;
   poolRiskData: PoolRiskApiResponseObject[];
   markets: Market[];
-  pairs: Pair[];  
+  pairs: Pair[];
   tokens: Token[];
   period: AllowedPeriods;
   setPeriod: (p: AllowedPeriods) => void;
@@ -38,42 +28,46 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [markets, setMarkets] = useState<Market[]>([]);
   const [pairs, setPairs] = useState<Pair[]>([]);
   const [tokens, setTokens] = useState<Token[]>([]);
-  const [period, setPeriodState] = useState<AllowedPeriods>('14d'); // default
+  const [period, setPeriodState] = useState<AllowedPeriods>("14d"); // default
 
   const convertToEpoch = (dateStr: string): number => new Date(dateStr).getTime();
 
   const processCoreData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/data');
-      if (!res.ok) throw new Error('Failed to fetch core data');
+      const res = await fetch("/api/data");
+      if (!res.ok) throw new Error("Failed to fetch core data");
 
-      const { markets: marketsData, pairs: pairsData, tokens: tokensData } = await res.json() as {
-        markets: MarketApiResponseObject[],
-        pairs: PairApiResponseObject[],
-        tokens: TokenApiResponseObject[]
+      const {
+        markets: marketsData,
+        pairs: pairsData,
+        tokens: tokensData
+      } = (await res.json()) as {
+        markets: MarketApiResponseObject[];
+        pairs: PairApiResponseObject[];
+        tokens: TokenApiResponseObject[];
       };
 
-      const convertedTokens: Token[] = tokensData.map(token => ({
+      const convertedTokens: Token[] = tokensData.map((token) => ({
         ...token,
         id: token._id,
         lastUpdated: convertToEpoch(token.lastupdated)
       }));
 
-      const convertedPairs: Pair[] = pairsData.map(pair => ({
+      const convertedPairs: Pair[] = pairsData.map((pair) => ({
         ...pair,
         id: pair._id,
         lastUpdated: convertToEpoch(pair.lastUpdated)
       }));
-      
-      const tokenMap = new Map(convertedTokens.map(t => [t.id, t]));
-      const pairMap = new Map(convertedPairs.map(p => [p.id, p]));
 
-      const convertedMarkets: Market[] = marketsData.map(m => {
+      const tokenMap = new Map(convertedTokens.map((t) => [t.id, t]));
+      const pairMap = new Map(convertedPairs.map((p) => [p.id, p]));
+
+      const convertedMarkets: Market[] = marketsData.map((m) => {
         const token0 = tokenMap.get(m.token0);
         const token1 = tokenMap.get(m.token1);
         let totalTVL = 0;
-        const enrichedPools = m.pools.map(poolRef => {
+        const enrichedPools = m.pools.map((poolRef) => {
           const p = pairMap.get(poolRef.pair);
           if (p) {
             totalTVL += p.tvl || 0;
@@ -96,9 +90,8 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
       setMarkets(convertedMarkets);
       setPairs(convertedPairs);
       setTokens(convertedTokens);
-
     } catch (error) {
-      console.error('Error processing core data:', error);
+      console.error("Error processing core data:", error);
       setMarkets([]);
       setPairs([]);
       setTokens([]);
@@ -109,22 +102,19 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const fetchPeriodData = useCallback(async (p: AllowedPeriods) => {
     try {
-      const [metricsRes, statsRes] = await Promise.all([
-        fetch(`/api/getmetrics?period=${p}`),
-        fetch(`/api/getstatistics?period=${p}`)
-      ]);
+      const [metricsRes, statsRes] = await Promise.all([fetch(`/api/getmetrics?period=${p}`), fetch(`/api/getstatistics?period=${p}`)]);
 
       if (!metricsRes.ok || !statsRes.ok) {
-        throw new Error('Failed to fetch period-based data');
+        throw new Error("Failed to fetch period-based data");
       }
 
-      const gm = await metricsRes.json() as GlobalMetrics;
-      const ps = await statsRes.json() as PoolRiskApiResponseObject[];
+      const gm = (await metricsRes.json()) as GlobalMetrics;
+      const ps = (await statsRes.json()) as PoolRiskApiResponseObject[];
 
       setGlobalMetrics(gm);
       setPoolRiskData(ps);
     } catch (error) {
-      console.error('Error fetching period data:', error);
+      console.error("Error fetching period data:", error);
       setGlobalMetrics(null);
       setPoolRiskData([]);
     }
@@ -145,8 +135,7 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const fetchCandles = async (token0: string, token1: string | null, from: number, to: number): Promise<unknown> => {
-    const normalize = (t: string): string =>
-      t.toLowerCase() === 'xlm' || t.toLowerCase() === 'native' ? 'XLM' : t.replace(/:/g, '-');
+    const normalize = (t: string): string => (t.toLowerCase() === "xlm" || t.toLowerCase() === "native" ? "XLM" : t.replace(/:/g, "-"));
 
     const t0 = normalize(token0);
     let endpoint: string;
@@ -160,13 +149,13 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const res = await fetch(endpoint);
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
-      throw new Error((errData as {error?:string}).error || 'Failed to fetch candles');
+      throw new Error((errData as { error?: string }).error || "Failed to fetch candles");
     }
     return res.json();
   };
 
   const fetchTokenDetails = async (asset: string): Promise<AssetDetails | null> => {
-    const a = asset.toLowerCase() === 'xlm' || asset.toLowerCase() === 'native' ? 'XLM' : asset.replace(/:/g, '-');
+    const a = asset.toLowerCase() === "xlm" || asset.toLowerCase() === "native" ? "XLM" : asset.replace(/:/g, "-");
     const res = await fetch(`/api/tokeninfo/${a}`);
     if (!res.ok) {
       console.error(`Failed to fetch token details for ${asset}`);
@@ -176,29 +165,29 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const getPairsForToken = (token: Token): Pair[] => {
-    const pairMap = new Map<string, Pair>(pairs.map(p=>[p.id,p]));
+    const pairMap = new Map<string, Pair>(pairs.map((p) => [p.id, p]));
     const tokenPairsList: Pair[] = [];
-    for(const tokenPairPrice of token.pairs) {
+    for (const tokenPairPrice of token.pairs) {
       const foundPair = pairMap.get(tokenPairPrice.pairId);
-      if(foundPair) tokenPairsList.push(foundPair);
+      if (foundPair) tokenPairsList.push(foundPair);
     }
     return tokenPairsList;
   };
 
   const buildPoolRoute = (pool: PoolRiskApiResponseObject): string => {
-    const p = pairs.find(pr => pr.id === pool.pairId);
+    const p = pairs.find((pr) => pr.id === pool.pairId);
     if (!p) {
-      const urlSafePair = pool.market.replace(/\//g, '-');
+      const urlSafePair = pool.market.replace(/\//g, "-");
       return `/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`;
     }
-    const t0 = tokens.find(t=>t.id===p.token0);
-    const t1 = tokens.find(t=>t.id===p.token1);
-    if(!t0||!t1){
-      const urlSafePair = pool.market.replace(/\//g,'-');
+    const t0 = tokens.find((t) => t.id === p.token0);
+    const t1 = tokens.find((t) => t.id === p.token1);
+    if (!t0 || !t1) {
+      const urlSafePair = pool.market.replace(/\//g, "-");
       return `/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`;
     }
-    const t0Name = t0.name.replace(/:/g,'-');
-    const t1Name = t1.name.replace(/:/g,'-');
+    const t0Name = t0.name.replace(/:/g, "-");
+    const t1Name = t1.name.replace(/:/g, "-");
     return `/pools/${pool.protocol.toLowerCase()}/${t0Name}-${t1Name}?period=${period}`;
   };
 
@@ -223,7 +212,7 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
 export function useDataContext() {
   const context = useContext(DataContext);
   if (!context) {
-    throw new Error('useDataContext must be used within DataProvider');
+    throw new Error("useDataContext must be used within DataProvider");
   }
   return context;
 }

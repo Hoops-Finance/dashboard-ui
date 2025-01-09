@@ -10,7 +10,7 @@ interface UserType {
   emailVerified?: Date | null;
 }
 
-type UserResponseType = {
+interface UserResponseType {
   id: string;
   name: string;
   email: string;
@@ -19,6 +19,6 @@ type UserResponseType = {
   accessToken: string;
   refreshToken: string;
   sub_id: string;
-};
+}
 
 export type { UserType, UserResponseType };

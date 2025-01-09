@@ -28,16 +28,7 @@ declare global {
   }
 }
 
-export default function AuthForm({
-  isLogin,
-  defaultEmail = "",
-  defaultError = "",
-  oauthEmail,
-  oauthProvider,
-  oauthCode,
-  errorParam,
-  recaptchaSiteKey,
-}: AuthFormProps) {
+export default function AuthForm({ isLogin, defaultEmail = "", defaultError = "", oauthEmail, oauthProvider, oauthCode, errorParam, recaptchaSiteKey }: AuthFormProps) {
   const router = useRouter();
   const plausible = usePlausible();
   const [email, setEmail] = useState(defaultEmail);
@@ -90,16 +81,16 @@ export default function AuthForm({
       let recaptchaToken = "";
       if (recaptchaSiteKey && typeof window !== "undefined" && window.grecaptcha) {
         recaptchaToken = await window.grecaptcha.execute(recaptchaSiteKey, {
-          action: "submit",
+          action: "submit"
         });
       }
 
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email: email, password: password, recaptchaToken }),
+        body: JSON.stringify({ email: email, password: password, recaptchaToken })
       });
 
       if (res.ok) {
@@ -119,7 +110,7 @@ export default function AuthForm({
           const linkRes = await fetch("/api/auth/oauth/link", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ provider: oauthProvider, code: oauthCode, state: csrfToken }),
+            body: JSON.stringify({ provider: oauthProvider, code: oauthCode, state: csrfToken })
           });
 
           if (!linkRes.ok) {
@@ -142,7 +133,7 @@ export default function AuthForm({
       const signInRes = await signIn("credentials", {
         redirect: false,
         email,
-        password,
+        password
       });
 
       if (signInRes?.ok) {
@@ -186,7 +177,9 @@ export default function AuthForm({
           className="auth-input"
           placeholder="Email address"
           value={email}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            setEmail(e.target.value);
+          }}
           autoComplete="username"
         />
         <div className="relative">
@@ -196,13 +189,17 @@ export default function AuthForm({
             className="auth-input"
             placeholder="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
             autoComplete="current-password"
           />
           <button
             type="button"
             className="absolute inset-y-0 right-3 flex items-center"
-            onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+            onClick={() => {
+              setIsPasswordVisible(!isPasswordVisible);
+            }}
             tabIndex={-1}
           >
             {isPasswordVisible ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
@@ -229,7 +226,13 @@ export default function AuthForm({
               />
               <label className="text-sm text-muted-foreground">
                 I agree to the{" "}
-                <button type="button" onClick={() => setShowTos(true)} className="text-primary hover:underline">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowTos(true);
+                  }}
+                  className="text-primary hover:underline"
+                >
                   Terms of Service
                 </button>
                 .
@@ -248,21 +251,11 @@ export default function AuthForm({
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={loginWithGoogle}
-            type="button"
-            className="auth-button"
-            disabled={!agreed}
-          >
+          <button onClick={loginWithGoogle} type="button" className="auth-button" disabled={!agreed}>
             <Image src="/icons/google.svg" alt="Google" width={24} height={24} />
             Google
           </button>
-          <button
-            onClick={loginWithDiscord}
-            type="button"
-            className="auth-button"
-            disabled={!agreed}
-          >
+          <button onClick={loginWithDiscord} type="button" className="auth-button" disabled={!agreed}>
             <Image src="/icons/discord.svg" alt="Discord" width={24} height={24} />
             Discord
           </button>
@@ -281,7 +274,12 @@ export default function AuthForm({
         </button>
       </div>
 
-      <TosModal open={showTos} onClose={() => setShowTos(false)} />
+      <TosModal
+        open={showTos}
+        onClose={() => {
+          setShowTos(false);
+        }}
+      />
     </div>
   );
 }

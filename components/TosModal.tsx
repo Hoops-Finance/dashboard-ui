@@ -17,7 +17,9 @@ export function TosModal({ open, onClose }: TosModalProps) {
         <DialogHeader>
           <DialogTitle>Terms of Service</DialogTitle>
           <DialogDescription>
-          <Link href="/tos" className="hover:text-primary transition-colors duration-300 text-xs">(View Page)</Link>
+            <Link href="/tos" className="hover:text-primary transition-colors duration-300 text-xs">
+              (View Page)
+            </Link>
             {/* Date included in TOS component */}
           </DialogDescription>
         </DialogHeader>

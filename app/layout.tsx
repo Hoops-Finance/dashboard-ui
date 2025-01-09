@@ -1,6 +1,6 @@
 "use client";
 
-import {ReactNode} from "react";
+import { ReactNode } from "react";
 import { ClientWalletProvider } from "@/components/ClientWalletProvider";
 import Navbar from "@/components/Navbar";
 import { Footer } from "@/components/ui/Footer";
@@ -18,23 +18,19 @@ const inter = Inter({
   variable: "--font-inter"
 });
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
       <body className={cn("min-h-screen bg-background antialiased")}>
         <ThemeProvider defaultTheme="dark">
           <SessionProvider>
-              <ClientWalletProvider>
-                <DataProvider>
-                  <Navbar />
-                  <main className="flex-1">{children}</main>
-                  <Footer />
-                </DataProvider>
-              </ClientWalletProvider>
+            <ClientWalletProvider>
+              <DataProvider>
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </DataProvider>
+            </ClientWalletProvider>
           </SessionProvider>
         </ThemeProvider>
       </body>

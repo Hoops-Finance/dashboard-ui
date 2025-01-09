@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import { ChangeEvent, useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronUp, Plus, Search } from 'lucide-react'
-import { cn } from "@/lib/utils"
+import { ChangeEvent, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp, Plus, Search } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Playlist {
-  id: number
-  name: string
-  icon: string
-  description: string
-  apr: number
-  totalValue: number
-  profit: number
-  pools: Array<{
-    name: string
-    allocation: number
-    apr: number
-  }>
+  id: number;
+  name: string;
+  icon: string;
+  description: string;
+  apr: number;
+  totalValue: number;
+  profit: number;
+  pools: {
+    name: string;
+    allocation: number;
+    apr: number;
+  }[];
 }
 
 const playlists: Playlist[] = [
@@ -76,15 +76,13 @@ const playlists: Playlist[] = [
       { name: "XLM/USDC", allocation: 20, apr: 7.6 }
     ]
   }
-]
+];
 
 export default function FinancialPlaylistList() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  const filteredPlaylists = playlists.filter((playlist) =>
-    playlist.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredPlaylists = playlists.filter((playlist) => playlist.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <Card className="h-full bg-background">
@@ -100,7 +98,9 @@ export default function FinancialPlaylistList() {
           <Input
             placeholder="Search playlists"
             value={searchTerm}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setSearchTerm(e.target.value);
+            }}
             className="pl-9"
           />
         </div>
@@ -108,11 +108,10 @@ export default function FinancialPlaylistList() {
           {filteredPlaylists.map((playlist) => (
             <Card
               key={playlist.id}
-              className={cn(
-                "transition-all duration-200 hover:bg-muted/50 cursor-pointer",
-                expandedId === playlist.id && "bg-muted/50"
-              )}
-              onClick={() => setExpandedId(expandedId === playlist.id ? null : playlist.id)}
+              className={cn("transition-all duration-200 hover:bg-muted/50 cursor-pointer", expandedId === playlist.id && "bg-muted/50")}
+              onClick={() => {
+                setExpandedId(expandedId === playlist.id ? null : playlist.id);
+              }}
             >
               <CardContent className="p-4">
                 <div className="card-content-base">
@@ -123,13 +122,9 @@ export default function FinancialPlaylistList() {
                       <p className="text-sm text-muted-foreground">{playlist.description}</p>
                     </div>
                   </div>
-                  {expandedId === playlist.id ? (
-                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                  )}
+                  {expandedId === playlist.id ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
                 </div>
-                
+
                 {expandedId === playlist.id && (
                   <div className="mt-4 pt-4 border-t space-y-4">
                     <div className="grid grid-cols-2 gap-4">
@@ -168,6 +163,5 @@ export default function FinancialPlaylistList() {
         </div>
       </div>
     </Card>
-  )
+  );
 }
-

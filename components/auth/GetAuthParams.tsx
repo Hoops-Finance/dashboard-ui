@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 interface ParamsResult {
   isLogin: boolean;
@@ -15,20 +15,20 @@ function InternalModeSetter({ onParamsLoadedAction }: { onParamsLoadedAction: (r
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const mode = searchParams.get('mode');
-    const errorParam = searchParams.get('error') || '';
-    const isLogin = (mode === 'login');
+    const mode = searchParams.get("mode");
+    const errorParam = searchParams.get("error") || "";
+    const isLogin = mode === "login";
 
-    let oauthEmail = '';
-    let oauthProvider = '';
-    let oauthCode = '';
+    let oauthEmail = "";
+    let oauthProvider = "";
+    let oauthCode = "";
 
-    if (errorParam.startsWith('NO_ACCOUNT')) {
-      const parts = errorParam.split('|')[1]; // e.g. "email=xxx&provider=xxx&code=xxx"
+    if (errorParam.startsWith("NO_ACCOUNT")) {
+      const parts = errorParam.split("|")[1]; // e.g. "email=xxx&provider=xxx&code=xxx"
       const qp = new URLSearchParams(parts);
-      oauthEmail = qp.get('email') || '';
-      oauthProvider = qp.get('provider') || '';
-      oauthCode = qp.get('code') || '';
+      oauthEmail = qp.get("email") || "";
+      oauthProvider = qp.get("provider") || "";
+      oauthCode = qp.get("code") || "";
     }
 
     onParamsLoadedAction({

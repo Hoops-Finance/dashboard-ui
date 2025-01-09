@@ -28,11 +28,11 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     console.log(`[OAUTH-START] Google auth URL: ${authUrl}`);
   } else if (provider === "discord") {
     if (!process.env.AUTH_DISCORD_ID || !process.env.AUTH_DISCORD_REDIRECT_URI) {
-      console.log('no env apparently');
+      console.log("no env apparently");
       console.log(!process.env.AUTH_DISCORD_ID);
       console.log(!process.env.AUTH_DISCORD_REDIRECT_URI);
       throw new Error("Missing Discord OAuth configuration");
-    }else{
+    } else {
       const clientId = process.env.AUTH_DISCORD_ID || "";
       const redirectUri = process.env.AUTH_DISCORD_REDIRECT_URI || "";
       const scope = "identify email";
@@ -41,7 +41,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       authUrl = `https://discord.com/api/oauth2/authorize?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}`;
       console.log(`[OAUTH-START] Discord auth URL: ${authUrl}`);
     }
-   
   } else {
     return NextResponse.json({ error: "Unknown provider" }, { status: 400 });
   }

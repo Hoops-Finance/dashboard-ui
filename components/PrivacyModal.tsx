@@ -16,10 +16,10 @@ export function PrivacyModal({ open, onClose }: PrivacyModalProps) {
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Privacy Policy</DialogTitle>
-                  <Link href="/privacy" className="hover:text-primary transition-colors duration-300 text-xs">(View Page)</Link>
-          <DialogDescription>
-            {/* Date included in Privacy component */}
-          </DialogDescription>
+          <Link href="/privacy" className="hover:text-primary transition-colors duration-300 text-xs">
+            (View Page)
+          </Link>
+          <DialogDescription>{/* Date included in Privacy component */}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 text-sm text-foreground max-h-[60vh] overflow-auto">
           <Privacy />

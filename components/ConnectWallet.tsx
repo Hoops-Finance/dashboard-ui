@@ -1,6 +1,6 @@
 "use client";
 
-import {FC} from "react";
+import { FC } from "react";
 import { StellarWalletsKit, WalletNetwork, allowAllModules, XBULL_ID } from "@creit.tech/stellar-wallets-kit";
 import { useWallet } from "@/contexts/WalletContext";
 import { AccountResponse, BalanceLine, BalanceLineNative, BalanceLineAsset, BalanceLineLiquidityPool } from "@/utils/types";
@@ -36,7 +36,7 @@ export const ConnectWallet: FC = () => {
                 if (balance.asset_type === "native") {
                   xlmBalance = balance;
                 } else {
-                  otherBalances.push(balance as BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool);
+                  otherBalances.push(balance);
                 }
               })
             );
@@ -59,12 +59,10 @@ export const ConnectWallet: FC = () => {
   };
 
   return (
-    <button 
-      onClick={isConnected ? disconnectWallet : connectWallet} 
+    <button
+      onClick={isConnected ? disconnectWallet : connectWallet}
       className={`w-full px-2 py-1.5 text-sm rounded-md ${
-        isConnected 
-          ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" 
-          : "bg-primary text-primary-foreground hover:bg-primary/90"
+        isConnected ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : "bg-primary text-primary-foreground hover:bg-primary/90"
       }`}
     >
       {isConnected ? "Disconnect Wallet" : "Connect Wallet"}

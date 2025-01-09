@@ -42,7 +42,7 @@ export default function DeveloperPage() {
       fetchKeys();
     }
   }, [status, session, fetchKeys]);
-  
+
   if (status === "loading") {
     return <p>Loading session...</p>;
   }
@@ -72,7 +72,9 @@ export default function DeveloperPage() {
   const copyToClipboard = async (key: string) => {
     await navigator.clipboard.writeText(key);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
   return (
@@ -85,7 +87,13 @@ export default function DeveloperPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Input placeholder="API Key Name" value={newKeyName} onChange={(e: ChangeEvent<HTMLInputElement>) => setNewKeyName(e.target.value)} />
+            <Input
+              placeholder="API Key Name"
+              value={newKeyName}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                setNewKeyName(e.target.value);
+              }}
+            />
             <Button onClick={generateApiKey} disabled={!newKeyName.trim() || isCreating || !session?.user}>
               <KeyIcon className="h-4 w-4 mr-2" />
               Create API Key

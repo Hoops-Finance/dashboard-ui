@@ -30,7 +30,7 @@ export interface Token {
 }
 export interface TokenDetails {
   symbol: string;
-  name: string;  // "SYMBOL:ISSUER" format
+  name: string; // "SYMBOL:ISSUER" format
   decimals: number;
 }
 
@@ -47,8 +47,8 @@ export interface PairApiResponseObject {
   t1usd: string;
   token0: string; // Token ID
   token1: string; // Token ID
-  token0Details: TokenDetails;  // <- Add this
-  token1Details: TokenDetails;  // <- Add this
+  token0Details: TokenDetails; // <- Add this
+  token1Details: TokenDetails; // <- Add this
   tvl: number;
   lpToken: string;
   pairType?: string;
@@ -66,8 +66,8 @@ export interface Pair {
   t1usd: string;
   token0: string; // Token ID
   token1: string; // Token ID
-  token0Details: TokenDetails;  // <- Add this
-  token1Details: TokenDetails;  // <- Add this
+  token0Details: TokenDetails; // <- Add this
+  token1Details: TokenDetails; // <- Add this
   tvl: number;
   lpToken: string;
   pairType?: string;
@@ -308,10 +308,10 @@ export interface WalletContextType {
   balance: string | null;
   otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null;
   updateWalletInfo: (
-      isConnected: boolean,
-      address: string | null,
-      balance: string | null,
-      otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null
+    isConnected: boolean,
+    address: string | null,
+    balance: string | null,
+    otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null
   ) => void;
 }
 

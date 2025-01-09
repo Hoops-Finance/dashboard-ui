@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { CircleDashed } from "lucide-react"
-import Image from 'next/image'
+import { CircleDashed } from "lucide-react";
+import Image from "next/image";
 
 interface ProtocolLogoProps {
   logo?: string;
@@ -30,8 +30,8 @@ export function ProtocolLogo({ logo, name }: ProtocolLogoProps) {
         height={48}
         className="w-12 h-12"
         onError={(e) => {
-          e.currentTarget.style.display = 'none';
-          e.currentTarget.parentElement?.querySelector('.placeholder')?.classList.remove('hidden');
+          e.currentTarget.style.display = "none";
+          e.currentTarget.parentElement?.querySelector(".placeholder")?.classList.remove("hidden");
         }}
       />
       <div className="placeholder hidden absolute inset-0">
@@ -39,4 +39,4 @@ export function ProtocolLogo({ logo, name }: ProtocolLogoProps) {
       </div>
     </div>
   );
-} 
+}

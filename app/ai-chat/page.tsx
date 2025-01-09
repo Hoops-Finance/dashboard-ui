@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { AIChat } from "@/components/Assistant/ai-chat"
-import { StrategiesSidebar } from "@/components/Assistant/strategies-sidebar"
-import { PageLayout } from "@/components/ui/PageLayout"
-import { Button } from "@/components/ui/button"
-import { Menu } from "lucide-react"
-import { useState } from "react"
-import { cn } from "@/lib/utils"
+import { AIChat } from "@/components/Assistant/ai-chat";
+import { StrategiesSidebar } from "@/components/Assistant/strategies-sidebar";
+import { PageLayout } from "@/components/ui/PageLayout";
+import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export default function AIChatPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
     <PageLayout className="p-0">
@@ -19,7 +19,9 @@ export default function AIChatPage() {
           variant="ghost"
           size="icon"
           className="absolute top-4 left-4 lg:hidden z-50"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
+          onClick={() => {
+            setSidebarOpen(!sidebarOpen);
+          }}
         >
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle sidebar</span>
@@ -40,9 +42,7 @@ export default function AIChatPage() {
           <div className="flex flex-col h-full">
             <div className="px-6 py-4 border-b border-border">
               <h2 className="text-lg font-semibold text-foreground">Strategies</h2>
-              <p className="text-sm text-muted-foreground">
-                Your automated DeFi investment plans
-              </p>
+              <p className="text-sm text-muted-foreground">Your automated DeFi investment plans</p>
             </div>
             <div className="flex-1 overflow-hidden px-4">
               <StrategiesSidebar />
@@ -55,9 +55,7 @@ export default function AIChatPage() {
           <header className="border-b border-border px-6 py-4">
             <div className="ml-12 lg:ml-0">
               <h1 className="text-xl font-semibold text-foreground">Chat with Hoops AI</h1>
-              <p className="text-sm text-muted-foreground">
-                Get insights and optimize your DeFi strategies
-              </p>
+              <p className="text-sm text-muted-foreground">Get insights and optimize your DeFi strategies</p>
             </div>
           </header>
           <div className="flex-1 overflow-hidden">
@@ -69,11 +67,13 @@ export default function AIChatPage() {
         {sidebarOpen && (
           <div
             className="fixed inset-0 bg-background/80 backdrop-blur-sm z-30 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
+            onClick={() => {
+              setSidebarOpen(false);
+            }}
             aria-hidden="true"
           />
         )}
       </div>
     </PageLayout>
-  )
+  );
 }

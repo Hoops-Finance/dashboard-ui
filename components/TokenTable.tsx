@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useMemo, useEffect, ChangeEvent } from 'react';
+import { useState, useMemo, useEffect, ChangeEvent } from "react";
 import { Token, Pair, PoolRiskApiResponseObject } from "@/utils/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import { STABLECOIN_IDS } from '@/utils/utilities';
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { STABLECOIN_IDS } from "@/utils/utilities";
 
-type TokenFilter = 'all' | 'stablecoins' | 'hot';
+type TokenFilter = "all" | "stablecoins" | "hot";
 
 interface TokenTableProps {
   tokens: Token[];
@@ -18,8 +18,8 @@ interface TokenTableProps {
 }
 
 export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
-  const [selectedTab, setSelectedTab] = useState<TokenFilter>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTab, setSelectedTab] = useState<TokenFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -74,14 +74,14 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
 
   const topPairCountTokens = useMemo(() => {
     const arr = Array.from(tokenPairCountMap.entries());
-    arr.sort((a,b)=>b[1]-a[1]);
-    return new Set<string>(arr.slice(0,10).map(i=>i[0]));
+    arr.sort((a, b) => b[1] - a[1]);
+    return new Set<string>(arr.slice(0, 10).map((i) => i[0]));
   }, [tokenPairCountMap]);
 
   const topVolumeTokens = useMemo(() => {
     const arr = Array.from(volumeMap.entries());
-    arr.sort((a,b)=>b[1]-a[1]);
-    return new Set<string>(arr.slice(0,10).map(i=>i[0]));
+    arr.sort((a, b) => b[1] - a[1]);
+    return new Set<string>(arr.slice(0, 10).map((i) => i[0]));
   }, [volumeMap]);
 
   const hotTokens = useMemo(() => {
@@ -112,16 +112,16 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
   const displayedTokens = filteredTokens.slice(startIndex, startIndex + rowsPerPage);
 
   const handleReset = () => {
-    setSearchQuery('');
-    setSelectedTab('all');
+    setSearchQuery("");
+    setSelectedTab("all");
     setCurrentPage(1);
   };
 
   const explorerLink = (token: Token) => {
-    if (token.symbol.toUpperCase() === 'XLM') {
+    if (token.symbol.toUpperCase() === "XLM") {
       return `https://stellar.expert/explorer/public/asset/native`;
     } else {
-      const [sym, iss] = token.name.split(':');
+      const [sym, iss] = token.name.split(":");
       return `https://stellar.expert/explorer/public/asset/${sym}-${iss}`;
     }
   };
@@ -149,21 +149,30 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
       <div className="flex flex-wrap gap-2 items-center">
         <Button
           variant={selectedTab === "all" ? "default" : "secondary"}
-          onClick={() => { setSelectedTab("all"); setCurrentPage(1); }}
+          onClick={() => {
+            setSelectedTab("all");
+            setCurrentPage(1);
+          }}
           className="h-9"
         >
           All Tokens
         </Button>
         <Button
           variant={selectedTab === "stablecoins" ? "default" : "secondary"}
-          onClick={() => { setSelectedTab("stablecoins"); setCurrentPage(1); }}
+          onClick={() => {
+            setSelectedTab("stablecoins");
+            setCurrentPage(1);
+          }}
           className="h-9"
         >
           Stablecoins
         </Button>
         <Button
           variant={selectedTab === "hot" ? "default" : "secondary"}
-          onClick={() => { setSelectedTab("hot"); setCurrentPage(1); }}
+          onClick={() => {
+            setSelectedTab("hot");
+            setCurrentPage(1);
+          }}
           className="h-9"
         >
           Hot Tokens
@@ -175,7 +184,10 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
             placeholder="Search by token name or symbol"
             className="pl-10 h-9"
             value={searchQuery}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             aria-label="Search tokens"
           />
         </div>
@@ -206,32 +218,23 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
               </TableRow>
             ) : (
               displayedTokens.map((token) => {
-                const [symbolName] = token.name.split(':');
-                const priceDisplay = token.price && token.price > 0 
-                  ? token.price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6}) 
-                  : '0.00';
+                const [symbolName] = token.name.split(":");
+                const priceDisplay = token.price && token.price > 0 ? token.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 }) : "0.00";
                 const tvl = getTokenTVL(token);
                 const counterCount = getCounterAssetsCount(token);
 
                 let detailsUrl: string;
-                if (token.symbol.toUpperCase() === 'XLM') {
+                if (token.symbol.toUpperCase() === "XLM") {
                   detailsUrl = `/tokens/native`;
                 } else {
-                  detailsUrl = `/tokens/${token.name.replace(/:/g,'-')}`;
+                  detailsUrl = `/tokens/${token.name.replace(/:/g, "-")}`;
                 }
 
                 return (
-                  <TableRow
-                    key={token.id}
-                    className="hoverable-row group"
-                    style={{cursor:'pointer'}}
-                    onClick={()=> window.location.href = detailsUrl}
-                  >
+                  <TableRow key={token.id} className="hoverable-row group" style={{ cursor: "pointer" }} onClick={() => (window.location.href = detailsUrl)}>
                     <TableCell className="h-10 px-4 align-middle">
                       <div className="flex items-center gap-2" title={token.symbol}>
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden relative">
-                          {token.symbol.slice(0,1).toUpperCase()}
-                        </div>
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden relative">{token.symbol.slice(0, 1).toUpperCase()}</div>
                         <div>
                           <div className="font-medium">{symbolName}</div>
                           <div className="text-sm text-muted-foreground">{token.symbol}</div>
@@ -241,9 +244,7 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
                     <TableCell className="text-right">${priceDisplay}</TableCell>
                     <TableCell className="text-right">${tvl.toLocaleString()}</TableCell>
                     <TableCell className="text-right">{counterCount}</TableCell>
-                    <TableCell className="text-right text-sm text-muted-foreground">
-                      {new Date(token.lastUpdated).toLocaleString()}
-                    </TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">{new Date(token.lastUpdated).toLocaleString()}</TableCell>
                     <TableCell className="text-right">
                       <a
                         href={explorerLink(token)}
@@ -251,7 +252,9 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
                         target="_blank"
                         rel="noreferrer"
                         title="View on Stellar Expert"
-                        onClick={(e)=>e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
                       >
                         Explorer
                       </a>
@@ -297,26 +300,28 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
               variant="outline"
               size="sm"
               className="h-8"
-              onClick={() => setCurrentPage(p => Math.max(1,p-1))}
-              disabled={currentPage===1}
+              onClick={() => {
+                setCurrentPage((p) => Math.max(1, p - 1));
+              }}
+              disabled={currentPage === 1}
               title="Previous page"
             >
-              <ChevronLeft className="h-4 w-4" aria-hidden="true"/>
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
               Previous
             </Button>
             <div className="flex items-center gap-1">
-              {Array.from({length: totalPages},(_,i)=>i+1)
-                .filter(page => page===1 || page===totalPages || Math.abs(page - currentPage)<=1)
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
                 .map((page, idx, arr) => (
                   <div key={page}>
-                    {idx>0 && arr[idx-1]!==page-1 && (
-                      <span className="px-2 text-sm text-muted-foreground">...</span>
-                    )}
+                    {idx > 0 && arr[idx - 1] !== page - 1 && <span className="px-2 text-sm text-muted-foreground">...</span>}
                     <Button
-                      variant={currentPage===page?"default":"outline"}
+                      variant={currentPage === page ? "default" : "outline"}
                       size="sm"
                       className="h-8 w-8 p-0"
-                      onClick={() => setCurrentPage(page)}
+                      onClick={() => {
+                        setCurrentPage(page);
+                      }}
                       title={`Go to page ${page}`}
                     >
                       {page}
@@ -328,12 +333,14 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
               variant="outline"
               size="sm"
               className="h-8"
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p+1))}
-              disabled={currentPage===totalPages}
+              onClick={() => {
+                setCurrentPage((p) => Math.min(totalPages, p + 1));
+              }}
+              disabled={currentPage === totalPages}
               title="Next page"
             >
               Next
-              <ChevronRight className="h-4 w-4" aria-hidden="true"/>
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         </div>

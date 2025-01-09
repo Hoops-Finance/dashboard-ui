@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function MetricsSummary() {
-  const [selectedPeriod, setSelectedPeriod] = useState("1d")
+  const [selectedPeriod, setSelectedPeriod] = useState("1d");
 
   const profitData = {
     "1d": 100,
     "1w": 750,
     "1m": 3000,
-    "1y": 15000,
-  }
+    "1y": 15000
+  };
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -50,15 +50,10 @@ export default function MetricsSummary() {
           </Select>
         </div>
         <div className="space-y-2">
-          <div className="text-4xl font-bold text-green-500">
-            +${profitData[selectedPeriod as keyof typeof profitData].toLocaleString()}
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Total profit for selected period
-          </div>
+          <div className="text-4xl font-bold text-green-500">+${profitData[selectedPeriod as keyof typeof profitData].toLocaleString()}</div>
+          <div className="text-sm text-muted-foreground">Total profit for selected period</div>
         </div>
       </Card>
     </div>
-  )
+  );
 }
-

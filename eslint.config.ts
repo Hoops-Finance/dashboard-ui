@@ -1,6 +1,6 @@
 import { Linter } from "eslint";
 import tseslint from "typescript-eslint";
-import nextPlugin from "@next/eslint-plugin-next"; 
+import nextPlugin from "@next/eslint-plugin-next";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 //  import tsPlugin from "@typescript-eslint/eslint-plugin";
 
@@ -45,10 +45,10 @@ const allconfigs = tseslint.config(
   { languageOptions: { parserOptions: { project: true } } },
   eslintPluginPrettierRecommended,
   {
-    files: ["./","src/**/*.ts", "src/**/*.tsx"],
-     plugins: {
+    files: ["./", "src/**/*.ts", "src/**/*.tsx"],
+    plugins: {
       "@next/eslint-plugin-next": nextPlugin
-     }
+    }
   },
   myConfig,
   {

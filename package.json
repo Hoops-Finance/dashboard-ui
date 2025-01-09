@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "npx eslint --flag unstable_ts_config",
+    "lint:fix": "npx eslint --flag unstable_ts_config --fix",
     "trace": "npx --trace-deprecation next dev -p 3043"
   },
   "dependencies": {
