@@ -1,5 +1,4 @@
-import React from "react";
-import SwapComponent from "../../components/Swap";
+import SwapComponent from "@/components/Swap";
 
 export default function SwapPage() {
   return (

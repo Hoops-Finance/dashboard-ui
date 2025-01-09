@@ -20,7 +20,7 @@ export async function fetchMarketCandles(token0: string, token1: string, from: n
     }
 
     const data = await response.json();
-    return data.map((record: any) => ({
+    return data.map((record: { time: number; open: number; high: number; low: number; close: number }) => ({
       time: record.time as UTCTimestamp,
       open: record.open,
       high: record.high,
@@ -43,7 +43,7 @@ export async function fetchTokenCandles(token0: string, from: number, to: number
     }
 
     const data = await response.json();
-    return data.map((record: any) => ({
+    return data.map((record: { time: number; open: number; high: number; low: number; close: number }) => ({
       time: record.time as UTCTimestamp,
       open: record.open,
       high: record.high,

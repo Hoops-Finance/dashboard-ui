@@ -1,8 +1,7 @@
-import { HorizonApi } from "@stellar/stellar-sdk/lib/horizon";
-import { MyWalletData, Token } from "./newTypes";
+import { BalanceLineLiquidityPool, BalanceLineAsset, MyWalletData, Token } from "./types";
 
 export const updateWalletData = (
-  otherBalances: (HorizonApi.BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | HorizonApi.BalanceLineLiquidityPool)[] | null,
+  otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null,
   showTrackedOnly: boolean,
   showZeroBalances: boolean,
   tabData: { tokens: Token[] },

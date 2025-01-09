@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, ButtonHTMLAttributes, InputHTMLAttributes, HTMLAttributes } from "react";
+import { FC, ButtonHTMLAttributes, InputHTMLAttributes, HTMLAttributes } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -26,7 +26,7 @@ export const Card: FC<CardProps> = ({ children, className = "" }) => <div classN
 
 // New MetricCard component for hover explanation text
 interface MetricCardProps extends CardProps {
-  title: string; // Explanation for the metric
+  title?: string; // Explanation for the metric
 }
 
 export const MetricCard: FC<MetricCardProps> = ({ children, className = "", title }) => (

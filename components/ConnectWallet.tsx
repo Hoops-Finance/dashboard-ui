@@ -1,12 +1,12 @@
 "use client";
 
-import React from "react";
+import {FC} from "react";
 import { StellarWalletsKit, WalletNetwork, allowAllModules, XBULL_ID } from "@creit.tech/stellar-wallets-kit";
-import { useWallet } from "./WalletContext";
+import { useWallet } from "@/contexts/WalletContext";
+import { AccountResponse, BalanceLine, BalanceLineNative, BalanceLineAsset, BalanceLineLiquidityPool } from "@/utils/types";
 import { Horizon } from "@stellar/stellar-sdk";
-import { AccountResponse, HorizonApi } from "@stellar/stellar-sdk/lib/horizon";
 
-export const ConnectWallet: React.FC = () => {
+export const ConnectWallet: FC = () => {
   const { isConnected, updateWalletInfo } = useWallet();
 
   const connectWallet = async () => {
@@ -26,17 +26,17 @@ export const ConnectWallet: React.FC = () => {
             const server = new Horizon.Server("https://horizon.stellar.org", { allowHttp: true });
 
             const account: AccountResponse = await server.loadAccount(address);
-            const balances: HorizonApi.BalanceLine[] = account.balances;
-            let xlmBalance: HorizonApi.BalanceLineNative | undefined;
+            const balances: BalanceLine[] = account.balances;
+            let xlmBalance: BalanceLineNative | undefined;
 
-            const otherBalances: (HorizonApi.BalanceLineAsset | HorizonApi.BalanceLineLiquidityPool)[] = [];
+            const otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] = [];
             // Process all balances in a single loop asynchronously
             await Promise.all(
               balances.map(async (balance) => {
                 if (balance.asset_type === "native") {
                   xlmBalance = balance;
                 } else {
-                  otherBalances.push(balance as HorizonApi.BalanceLineAsset | HorizonApi.BalanceLineLiquidityPool);
+                  otherBalances.push(balance as BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool);
                 }
               })
             );
@@ -59,7 +59,14 @@ export const ConnectWallet: React.FC = () => {
   };
 
   return (
-    <button onClick={isConnected ? disconnectWallet : connectWallet} className={`button-base hidden ${isConnected ? "button-dark" : "button-light"}`}>
+    <button 
+      onClick={isConnected ? disconnectWallet : connectWallet} 
+      className={`w-full px-2 py-1.5 text-sm rounded-md ${
+        isConnected 
+          ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" 
+          : "bg-primary text-primary-foreground hover:bg-primary/90"
+      }`}
+    >
       {isConnected ? "Disconnect Wallet" : "Connect Wallet"}
     </button>
   );
