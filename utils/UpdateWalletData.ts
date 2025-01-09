@@ -1,4 +1,4 @@
-import { BalanceLineLiquidityPool, BalanceLineAsset, MyWalletData, Token } from "./newTypes";
+import { BalanceLineLiquidityPool, BalanceLineAsset, MyWalletData, Token } from "./types";
 
 export const updateWalletData = (
   otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null,

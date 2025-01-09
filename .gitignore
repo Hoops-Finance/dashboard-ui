@@ -62,7 +62,8 @@ app/app.tsx.old
 .idea
 .vscode
 .history
-.env
+*.env*
+!.env.local.example
 !.env.example
 log.txt
 .eslintrc.json.old
@@ -71,3 +72,5 @@ log.txt
 *.not
 tailold
 unstaged_changes.txt
+auth-errors.txt
+dev-log.md

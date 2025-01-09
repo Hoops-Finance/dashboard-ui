@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Pair, PoolRiskApiResponseObject, Token } from "@/utils/newTypes";
+import { Pair, PoolRiskApiResponseObject, Token } from "@/utils/types";
 import { useDataContext } from "@/contexts/DataContext";
 
 function FlameIcon() {

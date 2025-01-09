@@ -11,7 +11,7 @@ import type {
   TokenApiResponseObject,
   AssetDetails,
   PairApiResponseObject
-} from '@/utils/newTypes';
+} from '@/utils/types';
 import { AllowedPeriods } from '@/utils/utilities';
 
 interface DataContextValue {

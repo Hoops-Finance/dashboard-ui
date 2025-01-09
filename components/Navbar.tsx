@@ -11,8 +11,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ConnectWallet } from "@/components/ConnectWallet";
-import { useAuth } from "@/contexts/AuthContext";
+// import { useAuth } from "@/contexts/AuthContext";
 import { ThemeSwitch } from "@/components/Navbar/ThemeSwitch.tsx";
+import { signOut as clientSignOut, useSession } from "next-auth/react";
 
 const navigationItems = [
   { name: "Home", path: "/ai-home" },
@@ -29,7 +30,11 @@ const Navbar: FC = () => {
   const { theme, toggleTheme }: { theme: 'light' | 'dark'; toggleTheme: () => void } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const { session, signOut } = useAuth();  
+  // const { session } = useAuth();  
+  console.log('using session in client side in navbar')
+  const { data: session, status } = useSession()
+  console.log('used session in client side in navbar')
+
   const isLoggedIn = !!session?.user?.accessToken;
 
   const handleLogin = () => {
@@ -37,9 +42,15 @@ const Navbar: FC = () => {
     router.push("/signup?mode=login");
   };
 
-  const handleLogout = () => {
-    signOut();
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      console.log("[Navbar] Logging out...");
+      await clientSignOut({ redirect: false });
+      console.log("[Navbar] Successfully signed out");
+      router.push("/"); // Handle redirect manually
+    } catch (error) {
+      console.error("[Navbar] Error during sign-out:", error);
+    }
   };
 
   const handleMenuMobile = () => {
@@ -52,14 +63,16 @@ const Navbar: FC = () => {
     <nav className={`sticky top-0 w-full border-b ${theme === "dark" ? "bg-background border-border" : "bg-white border-gray-200"} z-50`}>
       <div className="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="relative flex items-center">
-          <Image
-            src="/images/logo2.svg"
-            alt="Hoops Logo"
-            width={120}
-            height={40}
-            className={`${theme === "dark" ? "brightness-0 invert" : "brightness-0"}`}
-            priority
-          />
+          <div style={{ width: "120px", height: "40px", position: "relative" }}>
+            <Image
+              src="/images/logo2.svg"
+              alt="Hoops Logo"
+              fill={true}
+              className={`brightness-0 ${theme === "dark" ? "invert" : ""}`}
+              priority
+            />
+          </div>
+
         </Link>
 
         <div className="hidden lg:flex items-center gap-6">
@@ -67,15 +80,15 @@ const Navbar: FC = () => {
             <Link
               key={item.name}
               href={item.path}
-              className={`text-sm font-medium transition-colors ${
-                pathname === item.path
+              className={`text-sm font-medium transition-colors ${pathname === item.path
                   ? theme === "dark"
                     ? "text-white"
                     : "text-black"
                   : theme === "dark"
                     ? "text-gray-400 hover:text-white"
                     : "text-gray-600 hover:text-black"
-              }`}
+                } ${item.name !== "Pools" && item.name !== "Tokens" ? "hidden" : ""
+                }`}
             >
               {item.name}
             </Link>
@@ -172,15 +185,14 @@ const Navbar: FC = () => {
               <Link
                 key={item.name}
                 href={item.path}
-                className={`text-sm font-medium transition-colors ${
-                  pathname === item.path
+                className={`text-sm font-medium transition-colors ${pathname === item.path
                     ? theme === "dark"
                       ? "text-white"
                       : "text-black"
                     : theme === "dark"
                       ? "text-gray-400 hover:text-white"
                       : "text-gray-600 hover:text-black"
-                }`}
+                  }`}
               >
                 {item.name}
               </Link>
@@ -205,9 +217,8 @@ const Navbar: FC = () => {
                 <Link
                   href="/signup"
                   onClick={() => handleMenuMobile()}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg text-center transition-colors ${
-                    theme === "dark" ? "bg-white text-black hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"
-                  }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg text-center transition-colors ${theme === "dark" ? "bg-white text-black hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"
+                    }`}
                 >
                   Sign up
                 </Link>

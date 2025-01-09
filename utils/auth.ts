@@ -1,9 +1,9 @@
-
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { useSession as originalUseSession } from "next-auth/react";
+import { decode as authJsDecode } from "next-auth/jwt"
 
-import type { NextAuthConfig, Session } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import type { UserType, UserResponseType } from "@/types/user";
 
@@ -84,32 +84,44 @@ export const authOptions: NextAuthConfig = {
       credentials: {
         provider: { label: "Provider", type: "text" },
         code: { label: "Code", type: "text" },
+        state: { label: "State", type: "text" },
+        // baseurl: { label: "Base URL", type: "text" },
       },
       authorize: async (credentials) => {
         const provider = typeof credentials?.provider === 'string' ? credentials.provider : "";
         const code = typeof credentials?.code === 'string' ? credentials.code : "";
+        const state = typeof credentials?.state === 'string' ? credentials.state : "";
+        console.log("[NextAuth:Social] Received provider/code/state:", provider, code, state);
 
         if (!provider || !code) {
           console.error("Missing provider or code for social login");
           return null;
         }
-
         try {
-          const userResponse = await fetchSocialUser("/api/auth/oauth/exchange", provider, code);
-          return userResponse ? createUser(userResponse) : null;
+          const response = await fetchSocialUser(provider, code, state);
+          console.log("[NextAuth:Social] fetchSocialUser result:", response);
+
+          if (!response.success || !response.user) {
+            console.error("[NextAuth:Social] Social authentication failed:", response.error);
+            return null; // Return null or handle error appropriately (e.g., throw or redirect)
+          }
+
+          // Create and return user
+          return createUser(response.user);
         } catch (error: unknown) {
           if (error instanceof Error) {
-            console.error("Error during social authentication:", error.message);
+            console.error("[NextAuth:Social] Error during social authentication:", error.message);
           } else {
-            console.error("Unknown error during social authentication");
+            console.error("[NextAuth:Social] Unknown error during social authentication:", error);
           }
-          return null;
+          return null; // Return null or handle error appropriately
         }
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
+      // On initial login, store the tokens from `authorize()`.
       if (user) {
         token.id = user.id as string;
         token.avatar = user.avatar;
@@ -120,24 +132,24 @@ export const authOptions: NextAuthConfig = {
         token.refreshToken = user.refreshToken;
         token.subId = user.subId;
       }
-      const currentTime = Math.floor(Date.now() / 1000);
-      if (token.exp && token.exp < currentTime) {
-        return await refreshAccessToken(token);
-      }
-      return token;
+     
+      return validateAuthorization(token);
     },
+
     async session({ session, token }) {
+      const validAccess = await validateAuthorization(token);
       session.user = {
-        id: token.id,
-        name: token.name,
-        email: token.email,
-        avatar: token.avatar,
-        premiumSubscription: token.premiumSubscription,
-        accessToken: token.accessToken,
-        refreshToken: token.refreshToken,
-        subId: token.subId,
+        id: validAccess.id,
+        avatar: validAccess.avatar,
+        name: validAccess.name,
+        email: validAccess.email,
+        premiumSubscription: validAccess.premiumSubscription,
+        accessToken: validAccess.accessToken,
+        refreshToken: validAccess.refreshToken,
+        subId: validAccess.subId,
         emailVerified: null,
       };
+
       return session;
     },
     async redirect({ url, baseUrl }) {
@@ -152,12 +164,68 @@ export const authOptions: NextAuthConfig = {
   },
 };
 
+export async function validateAuthorization(token: JWT): Promise<JWT> {
+  const validAccess = await verifyAccessToken(token);
+      if (!validAccess) {
+        console.log('access token invalid');
+        const refreshedToken = await refreshAccessToken(token);
+        if (!refreshedToken.error) {
+          token.accessToken = refreshedToken.accessToken;
+          token.refreshToken = refreshedToken.refreshToken;
+        }
+      }
+      return token;
+}
+export async function verifyAccessToken(token: JWT): Promise<boolean>{
+  console.log('trying claims');
+  const accessTokenClaim = async (token:string) => {
+    try {
+      return await authJsDecode({
+        token: token,
+        secret: process.env.JWT_SECRET!,
+        salt: process.env.SALT_SECRET!,
+      });
+    } catch (error) {
+      console.error('Error decoding token', error);
+      return false;
+    }
+  };
+  const at = await accessTokenClaim(token.accessToken);
+  const rt = await accessTokenClaim(token.refreshToken);
+  console.log('jwt claims', accessTokenClaim);
+  /*
+  jwt claims {
+    sub: '677ef99b3ad02e8c8731779b',
+    iat: 1736388976, // issued at
+    exp: 1736399776, // expiration
+    jti: '054b5842-69f8-49ec-8f1d-0fc847ba2c20'
+    }
+  */
+  const currentTime = Math.floor(Date.now() / 1000);
+  if (!at || !rt) {
+    return false;
+  } else if (!at.exp || !rt.exp) {
+    return false;
+  } else if (token.exp && token.exp < currentTime) {
+    return false;
+  } else if (at.exp < currentTime || rt.exp < currentTime) {
+    return false;
+  } else {
+    return true
+  }
+}
+
+interface tokenValidationResponse {
+  success: boolean;
+  error?: string;
+}
+
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   const res = await fetch(`${process.env.AUTH_API_URL}/auth/refresh`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': `${process.env.AUTH_API_KEY}`
+      'x-api-key': `${process.env.AUTH_API_KEY}`,
     },
     body: JSON.stringify({ refreshToken: token.refreshToken }),
   });
@@ -173,7 +241,7 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
 
   return {
     ...token,
-    accessToken: data.token,
+    accessToken: data.accessToken,
     refreshToken: data.refreshToken
   };
 }
@@ -212,55 +280,97 @@ async function fetchCredentialsUser(url: string, email: string, password: string
     premium_subscription: false,
     accessToken: data.accessToken,
     refreshToken: data.refreshToken,
-    sub_id: ""
+    sub_id: "",
   };
 }
 
-async function fetchSocialUser(localUrl: string, provider: string, code: string): Promise<UserResponseType | null> {
-  // read state from cookie if any
-  let state = "";
-  if (typeof document !== 'undefined') {
-    const match = document.cookie.match(/oauth_state=([^;]+)/);
-    if (match) {
-      state = match[1];
-    }
-  }
+interface SocialUserResponse {
+  success: boolean;
+  user?: UserResponseType;
+  error?: string;
+}
 
-  const res = await fetch(localUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ provider: provider, code: code, state })
-  });
+async function fetchSocialUser(
+  provider: string,
+  code: string,
+  state: string
+): Promise<SocialUserResponse> {
+  console.log("[fetchSocialUser] Starting exchange logic...");
 
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    if (data && data.message === "No account for this OAuth email" && data.email) {
-      throw new Error(`NO_ACCOUNT|email=${data.email}&provider=${provider}&code=${code}`);
-    }
-    console.error("OAuth login/link failed:", data);
-    return null;
-  }
+  // 1) Check if the user is logged in
+  const session = await auth();
+  const isLoggedIn = !!session?.user?.accessToken;
+  console.log("[fetchSocialUser] isLoggedIn?", isLoggedIn);
 
-  const data = await res.json() as {
-    id: string;
-    email: string;
-    name: string;
-    avatar: string | null;
-    premium_subscription: boolean;
-    accessToken: string;
-    refreshToken: string;
+  // 2) Determine the URL based on login or linking
+  const url = isLoggedIn
+    ? `${process.env.AUTH_API_URL}/auth/oauth/link`
+    : `${process.env.AUTH_API_URL}/auth/oauth/login`;
+
+  console.log(`[fetchSocialUser] Calling express backend at ${url} with provider/code/state:`, provider, code, state);
+
+  // 3) Prepare headers
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "x-api-key": `${process.env.AUTH_API_KEY}`,
   };
 
-  return {
-    id: data.id,
-    name: data.name,
-    email: data.email,
-    avatar: data.avatar || "",
-    premium_subscription: data.premium_subscription,
-    accessToken: data.accessToken,
-    refreshToken: data.refreshToken,
-    sub_id: ""
-  };
+  if (isLoggedIn && session?.user?.accessToken) {
+    headers["Authorization"] = `Bearer ${session.user.accessToken}`;
+  }
+
+  // 4) Make the request
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ provider, code, state }),
+    });
+
+    const data = await res.json();
+    console.log("[fetchSocialUser] Express backend responded with:", data);
+
+    if (!res.ok) {
+      console.error("[fetchSocialUser] Backend responded with error:", data);
+      return {
+        success: false,
+        error: data.error || "Error communicating with backend.",
+      };
+    }
+
+    // 5) Validate the response structure
+    if (!data.id || !data.email) {
+      console.error("[fetchSocialUser] Missing user data in backend response:", data);
+      return {
+        success: false,
+        error: data.error || "Backend response missing required user data",
+      };
+    }
+
+    // 6) Construct the user object
+    const userData: UserResponseType = {
+      id: data.id,
+      email: data.email,
+      name: data.name || data.email.split("@")[0],
+      avatar: data.avatar || "",
+      premium_subscription: false,
+      accessToken: data.accessToken ?? data.token,
+      refreshToken: data.refreshToken,
+      sub_id: "",
+    };
+
+    console.log("[fetchSocialUser] Completed user data:", userData);
+    return {
+      success: true,
+      user: userData,
+    };
+  } catch (error) {
+    console.error("[fetchSocialUser] Error during fetch:", error);
+    return {
+      success: false,
+      error: (error as Error).message || "An unexpected error occurred",
+    };
+  }
 }
 
 function createUser(user: UserResponseType): UserType {

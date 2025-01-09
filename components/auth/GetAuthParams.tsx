@@ -11,7 +11,7 @@ interface ParamsResult {
   oauthCode?: string;
 }
 
-function InternalModeSetter({ onParamsLoaded }: { onParamsLoaded: (res: ParamsResult) => void }) {
+function InternalModeSetter({ onParamsLoadedAction }: { onParamsLoadedAction: (res: ParamsResult) => void }) {
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -31,14 +31,14 @@ function InternalModeSetter({ onParamsLoaded }: { onParamsLoaded: (res: ParamsRe
       oauthCode = qp.get('code') || '';
     }
 
-    onParamsLoaded({
+    onParamsLoadedAction({
       isLogin,
       errorParam,
       oauthEmail,
       oauthProvider,
       oauthCode
     });
-  }, [searchParams, onParamsLoaded]);
+  }, [searchParams, onParamsLoadedAction]);
 
   return null;
 }
@@ -50,10 +50,10 @@ function InternalModeSetter({ onParamsLoaded }: { onParamsLoaded: (res: ParamsRe
  * It uses `useSearchParams()`, which requires being wrapped in Suspense.
  * Once the params are processed, it calls `onParamsLoaded` to pass the results to the parent.
  */
-export default function GetAuthParams({ onParamsLoaded }: { onParamsLoaded: (res: ParamsResult) => void }) {
+export default function GetAuthParams({ onParamsLoadedAction }: { onParamsLoadedAction: (res: ParamsResult) => void }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <InternalModeSetter onParamsLoaded={onParamsLoaded} />
+      <InternalModeSetter onParamsLoadedAction={onParamsLoadedAction} />
     </Suspense>
   );
 }
