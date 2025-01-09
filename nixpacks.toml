@@ -1,5 +1,5 @@
 providers = ["node"]
-buildImage = "ghcr.io/railwayapp/nixpacks:ubuntu-latest"
+buildImage = "ghcr.io/railwayapp/nixpacks:ubuntu-1736208272"
 
 [variables]
 CI = "true"
