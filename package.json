@@ -6,8 +6,7 @@
     "dev": "next dev --turbopack -p 3043",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "linter": "npx eslint --flag unstable_ts_config",
+    "lint": "npx eslint --flag unstable_ts_config",
     "trace": "npx --trace-deprecation next dev -p 3043"
   },
   "dependencies": {
