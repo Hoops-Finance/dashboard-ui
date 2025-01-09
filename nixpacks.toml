@@ -7,17 +7,6 @@ NIXPACKS_METADATA = "node"
 NODE_ENV = "production"
 NPM_CONFIG_PRODUCTION = "false"
 
-[phases.build]
-dependsOn = ["install"]
-cmds = ["npm run build"]
-cacheDirectories = [".next/cache", "node_modules/.cache"]
-
-[phases.install]
-dependsOn = ["setup"]
-cmds = ["npm ci"]
-cacheDirectories = ["/root/.npm"]
-paths = ["/app/node_modules/.bin"]
-
 [phases.setup]
 nixPkgs = ["nodejs_22", "python311Full", "gnumake", "gcc", "binutils", "pkg-config", "libusb1"]
 nixLibs = ["libuuid", "libGL"]
@@ -27,6 +16,16 @@ nixOverlays = [
 
 [phases.setup.env]
 PYTHON = "python3"
+
+[phases.install]
+dependsOn = ["setup"]
+cmds = ["npm ci"]
+cacheDirectories = ["/root/.npm"]
+
+[phases.build]
+dependsOn = ["install"]
+cmds = ["npm run build"]
+cacheDirectories = [".next/cache", "node_modules/.cache"]
 
 [start]
 cmd = "npm run start"
