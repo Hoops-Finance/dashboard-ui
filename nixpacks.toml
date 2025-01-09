@@ -22,7 +22,7 @@ cacheDirectories = ["/root/.npm"]
 paths = ["/app/node_modules/.bin"]
 
 [phases.setup]
-nixPkgs = ["python3_11", "gnumake", "gcc-unwrapped"]
+nixPkgs = ["python311Full", "gnumake", "gcc-unwrapped"]
 nixLibs = ["libuuid", "libGL"]
 nixOverlays = [
   "https://github.com/railwayapp/nix-npm-overlay/archive/main.tar.gz",
