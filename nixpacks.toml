@@ -1,4 +1,4 @@
-providers = []
+providers = ["node"]
 buildImage = "ghcr.io/railwayapp/nixpacks:ubuntu-latest"
 
 [variables]
@@ -19,7 +19,6 @@ cacheDirectories = ["/root/.npm"]
 paths = ["/app/node_modules/.bin"]
 
 [phases.setup]
-# Adjust nodejs_22_x if your channel uses a different name (e.g. nodejs_22).
 nixPkgs = ["python3_11", "nodejs_22_x", "npm-9_x", "make", "gcc-unwrapped"]
 nixLibs = ["libuuid", "libGL"]
 nixOverlays = [
