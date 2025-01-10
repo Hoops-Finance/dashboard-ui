@@ -10,15 +10,15 @@ async function verifyRecaptcha(token: string): Promise<boolean> {
   const secret = process.env.RECAPTCHA_SECRET;
   if (!secret) return true;
   const res = await fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${token}`, {
-    method: 'POST'
+    method: "POST"
   });
-  const data = await res.json() as { success?: boolean };
+  const data = (await res.json()) as { success?: boolean };
   return data.success === true;
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const { email, password, recaptchaToken } = await request.json() as RegisterRequestBody;
+    const { email, password, recaptchaToken } = (await request.json()) as RegisterRequestBody;
 
     if (recaptchaToken && !(await verifyRecaptcha(recaptchaToken))) {
       return NextResponse.json({ ok: false, error: "Recaptcha failed" }, { status: 400 });
@@ -41,10 +41,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ ok: true, message: "success" }, { status: 200 });
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error('Error registering account:', error.message);
+      console.error("Error registering account:", error.message);
     } else {
-      console.error('Unknown error registering account');
+      console.error("Unknown error registering account");
     }
-    return NextResponse.json({ ok: false, error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ ok: false, error: "Internal server error" }, { status: 500 });
   }
 }

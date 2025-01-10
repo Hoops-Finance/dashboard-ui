@@ -3,7 +3,7 @@
 import * as React from "react";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 
-type Theme = 'light' | 'dark';
+type Theme = "light" | "dark";
 
 interface ThemeProviderProps {
   children: ReactNode;
@@ -18,40 +18,48 @@ interface ThemeProviderState {
 
 const initialState: ThemeProviderState = {
   theme: "dark",
-  toggleTheme: () => null,
+  toggleTheme: () => null
 };
 
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
+const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined);
 
-export function ThemeProvider({
-  children,
-  defaultTheme = "dark",
-  storageKey = "ui-theme",
-  ...props
-}: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
-    }
-    return defaultTheme;
-  });
+export function ThemeProvider({ children, defaultTheme = "dark", storageKey = "ui-theme", ...props }: ThemeProviderProps) {
+  const [theme, setTheme] = useState<Theme>(defaultTheme);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const root = window.document.documentElement;
-      root.classList.remove("light", "dark");
-      root.classList.add(theme);
-      localStorage.setItem(storageKey, theme);
-    }
-  }, [theme, storageKey]);
+    // Only enable theme logic after hydration
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
+    const storedTheme = localStorage.getItem(storageKey) as Theme | null;
+    const initialTheme = storedTheme ?? defaultTheme;
+
+    setTheme(initialTheme);
+
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(initialTheme);
+    localStorage.setItem(storageKey, initialTheme);
+  }, [isClient, defaultTheme, storageKey]);
 
   const toggleTheme = useCallback(() => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
-  }, []);
+    setTheme((prevTheme) => {
+      const newTheme = prevTheme === "light" ? "dark" : "light";
+      const root = window.document.documentElement;
+      root.classList.remove("light", "dark");
+      root.classList.add(newTheme);
+      localStorage.setItem(storageKey, newTheme);
+      return newTheme;
+    });
+  }, [storageKey]);
 
   const value = {
     theme,
-    toggleTheme,
+    toggleTheme
   };
 
   return (
@@ -63,9 +71,8 @@ export function ThemeProvider({
 
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext);
-
-  if (context === undefined)
+  if (!context) {
     throw new Error("useTheme must be used within a ThemeProvider");
-
+  }
   return context;
 };

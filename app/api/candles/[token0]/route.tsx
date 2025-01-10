@@ -1,12 +1,13 @@
+import { CandleDataRaw, TransformedCandleData } from "@/utils/types";
 import { UTCTimestamp } from "lightweight-charts";
 import { NextRequest, NextResponse } from "next/server";
-import type { NextApiRequest, NextApiResponse } from 'next'
 
-const API_BASE_URL = "https://api.stellar.expert/explorer/public/asset";
+const API_BASE_URL = `${process.env.SXX_API_BASE}/explorer/public/asset`;
 const API_KEY = process.env.SXX_API_KEY;
 
-type CandleDataRaw = [number, number, number, number, number, number, number]; // Adjusted raw data type
-
+interface ErrorResponse {
+  error: string;
+}
 export async function GET(request: NextRequest, { params }: { params: { token0: string } }) {
   let { token0 } = params;
 
@@ -36,14 +37,14 @@ export async function GET(request: NextRequest, { params }: { params: { token0: 
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      return NextResponse.json({ error: errorData }, { status: response.status });
+      const errorData = (await response.json()) as ErrorResponse;
+      return NextResponse.json({ error: errorData.error }, { status: response.status });
     }
 
-    const data: CandleDataRaw[] = await response.json(); // Assume the API returns raw candle data
+    const data = (await response.json()) as CandleDataRaw[];
 
     // Transform the data to match the expected format with UTCTimestamp
-    const transformedData = data.map((record: CandleDataRaw, index: number, array: CandleDataRaw[]) => {
+    const transformedData = data.map<TransformedCandleData>((record: CandleDataRaw, index: number, array: CandleDataRaw[]) => {
       const nextCandleOpen = index < array.length - 1 ? array[index + 1][1] : record[1];
 
       return {

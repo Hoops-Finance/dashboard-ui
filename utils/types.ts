@@ -30,7 +30,7 @@ export interface Token {
 }
 export interface TokenDetails {
   symbol: string;
-  name: string;  // "SYMBOL:ISSUER" format
+  name: string; // "SYMBOL:ISSUER" format
   decimals: number;
 }
 
@@ -47,8 +47,8 @@ export interface PairApiResponseObject {
   t1usd: string;
   token0: string; // Token ID
   token1: string; // Token ID
-  token0Details: TokenDetails;  // <- Add this
-  token1Details: TokenDetails;  // <- Add this
+  token0Details: TokenDetails; // <- Add this
+  token1Details: TokenDetails; // <- Add this
   tvl: number;
   lpToken: string;
   pairType?: string;
@@ -66,8 +66,8 @@ export interface Pair {
   t1usd: string;
   token0: string; // Token ID
   token1: string; // Token ID
-  token0Details: TokenDetails;  // <- Add this
-  token1Details: TokenDetails;  // <- Add this
+  token0Details: TokenDetails; // <- Add this
+  token1Details: TokenDetails; // <- Add this
   tvl: number;
   lpToken: string;
   pairType?: string;
@@ -207,6 +207,7 @@ export interface AssetDetails {
   };
 }
 
+export type CandleDataRaw = [number, number, number, number, number, number, number];
 export interface TransformedCandleData {
   time: UTCTimestamp;
   open: number;
@@ -220,6 +221,14 @@ export interface TransformedCandleData {
 
 export interface CandleData {
   time: UTCTimestamp;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+export interface RawCandleRecord {
+  time: number;
   open: number;
   high: number;
   low: number;
@@ -308,10 +317,10 @@ export interface WalletContextType {
   balance: string | null;
   otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null;
   updateWalletInfo: (
-      isConnected: boolean,
-      address: string | null,
-      balance: string | null,
-      otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null
+    isConnected: boolean,
+    address: string | null,
+    balance: string | null,
+    otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null
   ) => void;
 }
 
@@ -329,3 +338,49 @@ export interface AccountResponse {
   account_id: string;
   balances: BalanceLine[];
 }
+
+export interface ApiKeyListResponse {
+  success: boolean;
+  keys?: ApiKeyEntry[] | null;
+  message?: string;
+}
+
+export interface ApiKeyEntry {
+  name: string;
+  key: string;
+  createdAt: Date;
+  lastUsed: Date | null;
+}
+
+export interface MetricsResponse {
+  totalValueLocked: number;
+  poolsIndexed: number;
+  totalVolume: number;
+  liquidityProviders: number;
+  top5volume: number;
+  top5tvl: number;
+  top5apr: number;
+  bestaprpair: string;
+  bestapraddress: string;
+  period: string;
+}
+
+export interface AuthResult {
+  success: boolean;
+  result?: "socialunlinked" | "accountlinked" | "loggedin" | "newaccountcreated";
+  message?: string;
+  email?: string;
+  id?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  linkedProviders?: string[];
+  error?: string;
+}
+
+export interface OAuthLoginRequest {
+  provider: string;
+  code: string;
+  state: string;
+}
+
+export type OauthProviders = "google" | "discord";

@@ -13,7 +13,7 @@ export const updateWalletData = (
           if (!showZeroBalances && parseFloat(balance.balance) === 0) return false;
           if (showTrackedOnly) {
             if (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") {
-              const token = tabData?.tokens.find((token) => {
+              const token = tabData.tokens.find((token) => {
                 const [symbol, issuer] = token.name.split(":");
                 return token.symbol === balance.asset_code && issuer === balance.asset_issuer;
               });

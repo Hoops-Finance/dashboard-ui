@@ -1,17 +1,11 @@
-"use client"
+"use client";
 
-import { PageLayout } from "@/components/ui/PageLayout"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { PageLayout } from "@/components/ui/PageLayout";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function CreateStrategyPage() {
   const router = useRouter();
@@ -84,10 +78,12 @@ export default function CreateStrategyPage() {
             </div>
 
             <div className="flex justify-end gap-4">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => router.push("/strategies")}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  router.push("/strategies");
+                }}
               >
                 Cancel
               </Button>
@@ -97,5 +93,5 @@ export default function CreateStrategyPage() {
         </Card>
       </div>
     </PageLayout>
-  )
+  );
 }

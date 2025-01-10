@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/utils/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/utils/auth";
 
 export async function GET(request: NextRequest) {
-    console.log('calling session in the session test')
-    const session = await auth();
-    console.log('called session in the session test')
-    if (session) {
-        return NextResponse.json(session);
-    } else {
-        return NextResponse.json({ error: 'No session found' }, { status: 404 });
-    }
+  console.log("calling session in the session test");
+  const session = await auth();
+  console.log("called session in the session test");
+  if (session) {
+    return NextResponse.json(session);
+  } else {
+    return NextResponse.json({ error: "No session found" }, { status: 404 });
+  }
 }
 
 /*

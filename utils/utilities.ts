@@ -1,16 +1,16 @@
 // utils/ourutilities.ts
-import type { UTCTimestamp } from 'lightweight-charts';
+import type { UTCTimestamp } from "lightweight-charts";
 
-export type AllowedPeriods = '24h' | '7d' | '14d' | '30d' | '90d' | '180d' | '360d';
+export type AllowedPeriods = "24h" | "7d" | "14d" | "30d" | "90d" | "180d" | "360d";
 
 export const PERIOD_OPTIONS: { value: AllowedPeriods; label: string }[] = [
-  { value: '24h', label: '24H' },
-  { value: '7d', label: '7D' },
-  { value: '14d', label: '14D' },
-  { value: '30d', label: '30D' },
-  { value: '90d', label: '90D' },
-  { value: '180d', label: '180D' },
-  { value: '360d', label: '360D' }
+  { value: "24h", label: "24H" },
+  { value: "7d", label: "7D" },
+  { value: "14d", label: "14D" },
+  { value: "30d", label: "30D" },
+  { value: "90d", label: "90D" },
+  { value: "180d", label: "180D" },
+  { value: "360d", label: "360D" }
 ];
 
 export interface CandleDataPoint {
@@ -36,13 +36,21 @@ export const STABLECOIN_IDS = new Set<string>([
 
 export function formatPeriodDisplay(p: AllowedPeriods): string {
   switch (p) {
-    case '24h': return '24H';
-    case '7d': return '7D';
-    case '14d': return '14D';
-    case '30d': return '30D';
-    case '90d': return '90D';
-    case '180d': return '180D';
-    case '360d': return '360D';
-    default: return '30D';
+    case "24h":
+      return "24H";
+    case "7d":
+      return "7D";
+    case "14d":
+      return "14D";
+    case "30d":
+      return "30D";
+    case "90d":
+      return "90D";
+    case "180d":
+      return "180D";
+    case "360d":
+      return "360D";
+    default:
+      return "30D";
   }
 }

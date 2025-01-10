@@ -23,7 +23,7 @@ export interface TokenMarket {
 
 export interface SwapPairInfo {
   pairAddress: Address;
-  protocol: "aqua" | "soroswap" | "phoenix" | "comet" | string;
+  protocol: "aqua" | "soroswap" | "phoenix" | "comet";
 }
 
 export interface SwapComponentProps {
@@ -81,7 +81,9 @@ export default function SwapComponent() {
             <div className="flex items-center flex-1">
               <div className="relative">
                 <button
-                  onClick={() => setPayDropdownOpen(!payDropdownOpen)}
+                  onClick={() => {
+                    setPayDropdownOpen(!payDropdownOpen);
+                  }}
                   className="flex items-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-full py-1 px-2 mr-2"
                 >
                   <Image src={payToken.icon} alt={payToken.name} width={24} height={24} className="rounded-full mr-1" />
@@ -129,7 +131,9 @@ export default function SwapComponent() {
             <div className="flex items-center flex-1">
               <div className="relative">
                 <button
-                  onClick={() => setReceiveDropdownOpen(!receiveDropdownOpen)}
+                  onClick={() => {
+                    setReceiveDropdownOpen(!receiveDropdownOpen);
+                  }}
                   className="flex items-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-full py-1 px-2 mr-2"
                 >
                   <Image src={receiveToken.icon} alt={receiveToken.name} width={24} height={24} className="rounded-full mr-1" />
@@ -175,7 +179,9 @@ export default function SwapComponent() {
         <div className="mb-4">
           <button
             className="w-full py-2 bg-white dark:bg-gray-800 text-secondary rounded-lg font-semibold border-2 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-center"
-            onClick={() => setAdvancedOptionsOpen(!advancedOptionsOpen)}
+            onClick={() => {
+              setAdvancedOptionsOpen(!advancedOptionsOpen);
+            }}
           >
             Advanced Options
             {advancedOptionsOpen ? <ChevronUpIcon className="ml-2" /> : <ChevronDownIcon className="ml-2" />}
@@ -187,7 +193,17 @@ export default function SwapComponent() {
           <div className="space-y-4 mb-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
             <div>
               <label className="block text-sm font-medium text-secondary mb-1">Slippage Tolerance</label>
-              <input type="range" min="0" max="5" step="0.1" value={slippageTolerance} onChange={(e) => setSlippageTolerance(parseFloat(e.target.value))} className="w-full" />
+              <input
+                type="range"
+                min="0"
+                max="5"
+                step="0.1"
+                value={slippageTolerance}
+                onChange={(e) => {
+                  setSlippageTolerance(parseFloat(e.target.value));
+                }}
+                className="w-full"
+              />
               <div className="flex justify-between text-sm text-secondary">
                 <span>0%</span>
                 <span>{slippageTolerance}%</span>
@@ -199,7 +215,9 @@ export default function SwapComponent() {
               <input
                 type="text"
                 value={customFee}
-                onChange={(e) => setCustomFee(e.target.value)}
+                onChange={(e) => {
+                  setCustomFee(e.target.value);
+                }}
                 placeholder="Enter custom fee"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-1 focus:ring-[#e2be08] bg-white dark:bg-gray-800 text-primary"
               />

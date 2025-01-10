@@ -1,11 +1,12 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { useSession as originalUseSession } from "next-auth/react";
-import { decode as authJsDecode } from "next-auth/jwt"
+import { decode as authJsDecode } from "next-auth/jwt";
 
 import type { NextAuthConfig } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import type { UserType, UserResponseType } from "@/types/user";
+import { AuthResult } from "./types";
 
 declare module "next-auth" {
   interface User extends UserType {
@@ -57,12 +58,12 @@ export const authOptions: NextAuthConfig = {
       name: "Credentials",
       credentials: {
         username: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
+        password: { label: "Password", type: "password" }
       },
       authorize: async (credentials) => {
         try {
-          const email = typeof credentials?.username === 'string' ? credentials.username : "";
-          const password = typeof credentials?.password === 'string' ? credentials.password : "";
+          const email = typeof credentials.username === "string" ? credentials.username : "";
+          const password = typeof credentials.password === "string" ? credentials.password : "";
 
           if (!email || !password) return null;
 
@@ -76,7 +77,7 @@ export const authOptions: NextAuthConfig = {
           }
           return null;
         }
-      },
+      }
     }),
     CredentialsProvider({
       id: "social",
@@ -84,13 +85,13 @@ export const authOptions: NextAuthConfig = {
       credentials: {
         provider: { label: "Provider", type: "text" },
         code: { label: "Code", type: "text" },
-        state: { label: "State", type: "text" },
+        state: { label: "State", type: "text" }
         // baseurl: { label: "Base URL", type: "text" },
       },
       authorize: async (credentials) => {
-        const provider = typeof credentials?.provider === 'string' ? credentials.provider : "";
-        const code = typeof credentials?.code === 'string' ? credentials.code : "";
-        const state = typeof credentials?.state === 'string' ? credentials.state : "";
+        const provider = typeof credentials.provider === "string" ? credentials.provider : "";
+        const code = typeof credentials.code === "string" ? credentials.code : "";
+        const state = typeof credentials.state === "string" ? credentials.state : "";
         console.log("[NextAuth:Social] Received provider/code/state:", provider, code, state);
 
         if (!provider || !code) {
@@ -116,23 +117,21 @@ export const authOptions: NextAuthConfig = {
           }
           return null; // Return null or handle error appropriately
         }
-      },
-    }),
+      }
+    })
   ],
   callbacks: {
     async jwt({ token, user }) {
       // On initial login, store the tokens from `authorize()`.
-      if (user) {
-        token.id = user.id as string;
-        token.avatar = user.avatar;
-        token.name = user.name ?? "";
-        token.email = user.email ?? "";
-        token.premiumSubscription = user.premiumSubscription;
-        token.accessToken = user.accessToken;
-        token.refreshToken = user.refreshToken;
-        token.subId = user.subId;
-      }
-     
+      token.id = user.id ?? "";
+      token.avatar = user.avatar;
+      token.name = user.name ?? "";
+      token.email = user.email ?? "";
+      token.premiumSubscription = user.premiumSubscription;
+      token.accessToken = user.accessToken;
+      token.refreshToken = user.refreshToken;
+      token.subId = user.subId;
+
       return validateAuthorization(token);
     },
 
@@ -147,52 +146,55 @@ export const authOptions: NextAuthConfig = {
         accessToken: validAccess.accessToken,
         refreshToken: validAccess.refreshToken,
         subId: validAccess.subId,
-        emailVerified: null,
+        emailVerified: null
       };
 
       return session;
     },
     async redirect({ url, baseUrl }) {
       return url.startsWith(baseUrl) ? url : baseUrl;
-    },
+    }
   },
   pages: {
-    signIn: "/signup",
+    signIn: "/signup"
   },
   session: {
-    strategy: "jwt",
-  },
+    strategy: "jwt"
+  }
 };
 
 export async function validateAuthorization(token: JWT): Promise<JWT> {
   const validAccess = await verifyAccessToken(token);
-      if (!validAccess) {
-        console.log('access token invalid');
-        const refreshedToken = await refreshAccessToken(token);
-        if (!refreshedToken.error) {
-          token.accessToken = refreshedToken.accessToken;
-          token.refreshToken = refreshedToken.refreshToken;
-        }
-      }
-      return token;
+  if (!validAccess) {
+    console.log("access token invalid");
+    const refreshedToken = await refreshAccessToken(token);
+    if (!refreshedToken.error) {
+      token.accessToken = refreshedToken.accessToken;
+      token.refreshToken = refreshedToken.refreshToken;
+    }
+  }
+  return token;
 }
-export async function verifyAccessToken(token: JWT): Promise<boolean>{
-  console.log('trying claims');
-  const accessTokenClaim = async (token:string) => {
+export async function verifyAccessToken(token: JWT): Promise<boolean> {
+  console.log("trying claims");
+  const accessTokenClaim = async (token: string) => {
     try {
+      if (!process.env.JWT_SECRET || !process.env.SALT_SECRET) {
+        throw new Error("Missing JWT_SECRET or SALT_SECRET in environment");
+      }
       return await authJsDecode({
         token: token,
-        secret: process.env.JWT_SECRET!,
-        salt: process.env.SALT_SECRET!,
+        secret: process.env.JWT_SECRET,
+        salt: process.env.SALT_SECRET
       });
     } catch (error) {
-      console.error('Error decoding token', error);
+      console.error("Error decoding token", error);
       return false;
     }
   };
   const at = await accessTokenClaim(token.accessToken);
   const rt = await accessTokenClaim(token.refreshToken);
-  console.log('jwt claims', accessTokenClaim);
+  console.log("jwt claims", accessTokenClaim);
   /*
   jwt claims {
     sub: '677ef99b3ad02e8c8731779b',
@@ -211,7 +213,7 @@ export async function verifyAccessToken(token: JWT): Promise<boolean>{
   } else if (at.exp < currentTime || rt.exp < currentTime) {
     return false;
   } else {
-    return true
+    return true;
   }
 }
 
@@ -222,26 +224,26 @@ interface tokenValidationResponse {
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   const res = await fetch(`${process.env.AUTH_API_URL}/auth/refresh`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': `${process.env.AUTH_API_KEY}`,
+      "Content-Type": "application/json",
+      "x-api-key": `${process.env.AUTH_API_KEY}`
     },
-    body: JSON.stringify({ refreshToken: token.refreshToken }),
+    body: JSON.stringify({ refreshToken: token.refreshToken })
   });
 
   if (!res.ok) {
     return { ...token, error: "RefreshAccessTokenError" };
   }
 
-  const data = await res.json();
-  if (!data.success || !data.token || !data.refreshToken) {
+  const data = (await res.json()) as AuthResult;
+  if (!data.success || !data.refreshToken) {
     return { ...token, error: "RefreshAccessTokenError" };
   }
 
   return {
     ...token,
-    accessToken: data.accessToken,
+    accessToken: data.accessToken ?? token.accessToken,
     refreshToken: data.refreshToken
   };
 }
@@ -251,27 +253,21 @@ async function fetchCredentialsUser(url: string, email: string, password: string
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": `${process.env.AUTH_API_KEY}`,
+      "x-api-key": `${process.env.AUTH_API_KEY}`
     },
-    body: JSON.stringify({ email: email, password: password }),
+    body: JSON.stringify({ email: email, password: password })
   });
 
   if (!res.ok) {
     return null;
   }
 
-  const data = await res.json() as {
-    success: boolean;
-    accessToken?: string;
-    refreshToken?: string;
-    email?: string;
-    id?: string;
-  };
+  const data = (await res.json()) as AuthResult;
 
   if (!data.success || !data.accessToken || !data.refreshToken || !data.email || !data.id) {
     return null;
   }
-
+  // todo: unifiy the types better.
   return {
     id: data.id,
     name: data.email.split("@")[0],
@@ -280,7 +276,7 @@ async function fetchCredentialsUser(url: string, email: string, password: string
     premium_subscription: false,
     accessToken: data.accessToken,
     refreshToken: data.refreshToken,
-    sub_id: "",
+    sub_id: ""
   };
 }
 
@@ -290,33 +286,27 @@ interface SocialUserResponse {
   error?: string;
 }
 
-async function fetchSocialUser(
-  provider: string,
-  code: string,
-  state: string
-): Promise<SocialUserResponse> {
+async function fetchSocialUser(provider: string, code: string, state: string): Promise<SocialUserResponse> {
   console.log("[fetchSocialUser] Starting exchange logic...");
 
   // 1) Check if the user is logged in
   const session = await auth();
-  const isLoggedIn = !!session?.user?.accessToken;
+  const isLoggedIn = !!session?.user.accessToken;
   console.log("[fetchSocialUser] isLoggedIn?", isLoggedIn);
 
   // 2) Determine the URL based on login or linking
-  const url = isLoggedIn
-    ? `${process.env.AUTH_API_URL}/auth/oauth/link`
-    : `${process.env.AUTH_API_URL}/auth/oauth/login`;
+  const url = isLoggedIn ? `${process.env.AUTH_API_URL}/auth/oauth/link` : `${process.env.AUTH_API_URL}/auth/oauth/login`;
 
   console.log(`[fetchSocialUser] Calling express backend at ${url} with provider/code/state:`, provider, code, state);
 
   // 3) Prepare headers
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    "x-api-key": `${process.env.AUTH_API_KEY}`,
+    "x-api-key": `${process.env.AUTH_API_KEY}`
   };
 
-  if (isLoggedIn && session?.user?.accessToken) {
-    headers["Authorization"] = `Bearer ${session.user.accessToken}`;
+  if (isLoggedIn && session.user.accessToken) {
+    headers.Authorization = `Bearer ${session.user.accessToken}`;
   }
 
   // 4) Make the request
@@ -324,17 +314,17 @@ async function fetchSocialUser(
     const res = await fetch(url, {
       method: "POST",
       headers,
-      body: JSON.stringify({ provider, code, state }),
+      body: JSON.stringify({ provider, code, state })
     });
 
-    const data = await res.json();
+    const data = (await res.json()) as AuthResult;
     console.log("[fetchSocialUser] Express backend responded with:", data);
 
     if (!res.ok) {
       console.error("[fetchSocialUser] Backend responded with error:", data);
       return {
         success: false,
-        error: data.error || "Error communicating with backend.",
+        error: data.error ?? "Error communicating with backend."
       };
     }
 
@@ -343,7 +333,15 @@ async function fetchSocialUser(
       console.error("[fetchSocialUser] Missing user data in backend response:", data);
       return {
         success: false,
-        error: data.error || "Backend response missing required user data",
+        error: data.error ?? "Backend response missing required user data"
+      };
+    }
+
+    if (!data.accessToken || !data.refreshToken) {
+      console.error("[fetchSocialUser] Missing tokens in backend response:", data);
+      return {
+        success: false,
+        error: data.error ?? "Backend response missing required tokens"
       };
     }
 
@@ -351,24 +349,29 @@ async function fetchSocialUser(
     const userData: UserResponseType = {
       id: data.id,
       email: data.email,
-      name: data.name || data.email.split("@")[0],
-      avatar: data.avatar || "",
+      name: data.email.split("@")[0],
+      avatar: "", // needs implemented
       premium_subscription: false,
-      accessToken: data.accessToken ?? data.token,
+      accessToken: data.accessToken,
       refreshToken: data.refreshToken,
-      sub_id: "",
+      sub_id: ""
     };
 
     console.log("[fetchSocialUser] Completed user data:", userData);
     return {
       success: true,
-      user: userData,
+      user: userData
     };
-  } catch (error) {
-    console.error("[fetchSocialUser] Error during fetch:", error);
+  } catch (error: unknown) {
+    let message;
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    message = error as string;
+    console.error("[fetchSocialUser] Error during fetch:", message);
     return {
       success: false,
-      error: (error as Error).message || "An unexpected error occurred",
+      error: message
     };
   }
 }
@@ -383,7 +386,7 @@ function createUser(user: UserResponseType): UserType {
     accessToken: user.accessToken,
     refreshToken: user.refreshToken,
     subId: user.sub_id || "",
-    emailVerified: null,
+    emailVerified: null
   };
 }
 

@@ -1,4 +1,4 @@
-import {FC} from "react";
+import { FC } from "react";
 import Image from "next/image";
 
 const Balances: FC = () => {

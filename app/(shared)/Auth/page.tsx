@@ -18,13 +18,7 @@ export default function SharedAuthPage() {
   const [oauthCode, setOauthCode] = useState("");
 
   // Called once the query params are read:
-  const handleParamsLoaded = useCallback((res: {
-    isLogin: boolean;
-    errorParam: string;
-    oauthEmail?: string;
-    oauthProvider?: string;
-    oauthCode?: string;
-  }) => {
+  const handleParamsLoaded = useCallback((res: { isLogin: boolean; errorParam: string; oauthEmail?: string; oauthProvider?: string; oauthCode?: string }) => {
     setIsLogin(res.isLogin);
     setErrorParam(res.errorParam);
     if (res.oauthEmail) setOauthEmail(res.oauthEmail);
@@ -38,14 +32,7 @@ export default function SharedAuthPage() {
       <GetAuthParams onParamsLoadedAction={handleParamsLoaded} />
 
       {/* Now that we have isLogin, errorParam, etc., pass to AuthForm */}
-      <AuthForm
-        isLogin={isLogin}
-        errorParam={errorParam}
-        oauthEmail={oauthEmail || undefined}
-        oauthProvider={oauthProvider || undefined}
-        oauthCode={oauthCode || undefined}
-        recaptchaSiteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
-      />
+      <AuthForm isLogin={isLogin} errorParam={errorParam} oauthEmail={oauthEmail} oauthProvider={oauthProvider} oauthCode={oauthCode} recaptchaSiteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY} />
     </div>
   );
 }

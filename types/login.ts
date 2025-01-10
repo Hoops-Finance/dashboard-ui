@@ -1,11 +1,11 @@
-type CredentialsType = {
+interface CredentialsType {
   email: string;
   password: string;
-};
+}
 
-type SocialCredentialsType = {
+interface SocialCredentialsType {
   provider: string;
   code: string;
-};
+}
 
 export type { CredentialsType, SocialCredentialsType };

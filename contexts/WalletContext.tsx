@@ -11,7 +11,12 @@ export const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [balance, setBalance] = useState<string | null>(null);
   const [otherBalances, setOtherBalances] = useState<(BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null>(null);
 
-  const updateWalletInfo = (isConnected: boolean, address: string | null, balance: string | null, otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null) => {
+  const updateWalletInfo = (
+    isConnected: boolean,
+    address: string | null,
+    balance: string | null,
+    otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null
+  ) => {
     setIsConnected(isConnected);
     setAddress(address);
     setBalance(balance);

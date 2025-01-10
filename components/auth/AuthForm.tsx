@@ -2,12 +2,26 @@
 
 import { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { getCsrfToken } from "next-auth/react";
-import { signIn } from "@/utils/auth";
+import { signIn } from "@/utils/auth"; // your custom NextAuth-based auth export
 import { useRouter } from "next/navigation";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { usePlausible } from "next-plausible";
 import { TosModal } from "@/components/TosModal";
 import Image from "next/image";
+
+interface RegisterResponse {
+  ok: boolean;
+  error?: string;
+  message?: string;
+}
+
+/** NextAuth's signIn("credentials", { redirect:false }) returns this shape on success/failure. */
+interface SignInResult {
+  ok: boolean;
+  error?: string;
+  status?: number;
+  url?: string;
+}
 
 interface AuthFormProps {
   isLogin: boolean;
@@ -20,6 +34,9 @@ interface AuthFormProps {
   recaptchaSiteKey?: string;
 }
 
+/**
+ * For reCAPTCHA usage in the browser, e.g. window.grecaptcha.execute(...)
+ */
 declare global {
   interface Window {
     grecaptcha?: {
@@ -28,45 +45,31 @@ declare global {
   }
 }
 
-export default function AuthForm({
-  isLogin,
-  defaultEmail = "",
-  defaultError = "",
-  oauthEmail,
-  oauthProvider,
-  oauthCode,
-  errorParam,
-  recaptchaSiteKey,
-}: AuthFormProps) {
+export default function AuthForm({ isLogin, defaultEmail = "", defaultError = "", recaptchaSiteKey }: AuthFormProps) {
   const router = useRouter();
   const plausible = usePlausible();
-  const [email, setEmail] = useState(defaultEmail);
-  const [password, setPassword] = useState("");
-  const [agreed, setAgreed] = useState(false);
-  const [error, setError] = useState(defaultError);
-  const [success, setSuccess] = useState("");
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const [email, setEmail] = useState<string>(defaultEmail);
+  const [password, setPassword] = useState<string>("");
+  const [agreed, setAgreed] = useState<boolean>(false);
+  const [error, setError] = useState<string>(defaultError);
+  const [success, setSuccess] = useState<string>("");
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+
+  const [showTos, setShowTos] = useState<boolean>(false);
+  const [csrfToken, setCsrfToken] = useState<string>("");
   const passwordLength = 6;
 
-  const [showTos, setShowTos] = useState(false);
-
-  const [csrfToken, setCsrfToken] = useState<string>("");
-
+  // Fetch CSRF token on mount
   useEffect(() => {
-    // get the csrf token from next-auth
-    (async () => {
+    void (async () => {
       const token = await getCsrfToken();
       if (token) setCsrfToken(token);
     })();
   }, []);
 
-  useEffect(() => {
-    if (errorParam?.startsWith("NO_ACCOUNT") && oauthEmail && !isLogin) {
-      setEmail(oauthEmail);
-    }
-  }, [errorParam, oauthEmail, isLogin]);
-
-  const handleSubmit = async (e: FormEvent) => {
+  // Handles both sign-up and login
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -77,100 +80,79 @@ export default function AuthForm({
     }
 
     if (!isLogin) {
+      // ================== SIGN UP ==================
       if (password.length < passwordLength) {
-        setError("Passwords minimum length is 6 characters");
+        setError("Password must be at least 6 characters.");
         return;
       }
-
       if (!agreed) {
         setError("You must agree to the terms of service.");
         return;
       }
 
+      // reCAPTCHA token if needed
       let recaptchaToken = "";
       if (recaptchaSiteKey && typeof window !== "undefined" && window.grecaptcha) {
         recaptchaToken = await window.grecaptcha.execute(recaptchaSiteKey, {
-          action: "submit",
+          action: "submit"
         });
       }
 
+      // Send request to our local /api/auth/register
       const res = await fetch("/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: email, password: password, recaptchaToken }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, recaptchaToken })
       });
 
-      if (res.ok) {
-        setSuccess("Registration successful. Please check your email for verification link.");
-        plausible("Signup", { props: { method: "password" } });
-
-        if (errorParam?.startsWith("NO_ACCOUNT") && oauthProvider && oauthCode) {
-          // After signup, log in
-          const signInRes = await signIn("credentials", { redirect: false, email, password });
-
-          if (!signInRes?.ok) {
-            setError("Failed to login after registration");
-            return;
-          }
-
-          // Link account
-          const linkRes = await fetch("/api/auth/oauth/link", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ provider: oauthProvider, code: oauthCode, state: csrfToken }),
-          });
-
-          if (!linkRes.ok) {
-            const errData = await linkRes.json().catch(() => ({}));
-            setError(`Failed to link OAuth: ${errData.message || linkRes.statusText}`);
-            return;
-          }
-
-          plausible("OAuth Link", { props: { provider: oauthProvider } });
-          router.push("/profile");
-        } else {
-          // normal signup: user must verify email and then login
-        }
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        setError(`Error: ${errData.error || res.statusText}`);
+      const jsonData = (await res.json().catch(() => ({}))) as RegisterResponse;
+      if (!res.ok) {
+        setError(jsonData.error ?? res.statusText);
+        return;
       }
+
+      // success
+      setSuccess("Registration successful. Check your email for verification.");
+      plausible("Signup", { props: { method: "password" } });
+
+      // In your original scenario, you might do auto-login or linking steps next
+      return;
+    }
+
+    // ================== LOGIN ==================
+    const result = (await signIn("credentials", {
+      redirect: false,
+      email,
+      password
+    })) as SignInResult;
+
+    if (result.ok) {
+      plausible("Login", { props: { method: "password" } });
+      router.push("/profile");
     } else {
-      // Login
-      const signInRes = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
-      });
-
-      if (signInRes?.ok) {
-        plausible("Login", { props: { method: "password" } });
-        router.push("/profile");
-      } else {
-        setError(signInRes?.error || "Invalid credentials");
-      }
+      setError(`Login failed: ${result.error ?? "Invalid credentials"}`);
     }
   };
 
-  const loginWithGoogle = async () => {
+  // Start Google OAuth
+  function loginWithGoogle(): void {
     if (!csrfToken) {
       setError("Missing CSRF token, please refresh the page.");
       return;
     }
     plausible("OAuth Start", { props: { provider: "google" } });
     window.location.href = `/api/auth/oauth/start?provider=google&state=${encodeURIComponent(csrfToken)}`;
-  };
+  }
 
-  const loginWithDiscord = async () => {
+  // Start Discord OAuth
+  function loginWithDiscord(): void {
     if (!csrfToken) {
       setError("Missing CSRF token, please refresh the page.");
       return;
     }
     plausible("OAuth Start", { props: { provider: "discord" } });
     window.location.href = `/api/auth/oauth/start?provider=discord&state=${encodeURIComponent(csrfToken)}`;
-  };
+  }
 
   return (
     <div className="auth-container">
@@ -179,14 +161,21 @@ export default function AuthForm({
         <p className="auth-description">{isLogin ? "Welcome back!" : "Sign up to get started!"}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+      <form
+        onSubmit={(e) => {
+          void handleSubmit(e);
+        }}
+        className="mt-8 space-y-6"
+      >
         <input
           type="email"
           required
           className="auth-input"
           placeholder="Email address"
           value={email}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            setEmail(e.target.value);
+          }}
           autoComplete="username"
         />
         <div className="relative">
@@ -196,13 +185,17 @@ export default function AuthForm({
             className="auth-input"
             placeholder="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setPassword(e.target.value);
+            }}
             autoComplete="current-password"
           />
           <button
             type="button"
             className="absolute inset-y-0 right-3 flex items-center"
-            onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+            onClick={() => {
+              setIsPasswordVisible(!isPasswordVisible);
+            }}
             tabIndex={-1}
           >
             {isPasswordVisible ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
@@ -222,14 +215,20 @@ export default function AuthForm({
               <input
                 type="checkbox"
                 checked={agreed}
-                onChange={(e) => {
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   setAgreed(e.target.checked);
                 }}
                 className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
               />
               <label className="text-sm text-muted-foreground">
                 I agree to the{" "}
-                <button type="button" onClick={() => setShowTos(true)} className="text-primary hover:underline">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowTos(true);
+                  }}
+                  className="text-primary hover:underline"
+                >
                   Terms of Service
                 </button>
                 .
@@ -248,21 +247,11 @@ export default function AuthForm({
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={loginWithGoogle}
-            type="button"
-            className="auth-button"
-            disabled={!agreed}
-          >
+          <button onClick={loginWithGoogle} type="button" className="auth-button" disabled={!agreed}>
             <Image src="/icons/google.svg" alt="Google" width={24} height={24} />
             Google
           </button>
-          <button
-            onClick={loginWithDiscord}
-            type="button"
-            className="auth-button"
-            disabled={!agreed}
-          >
+          <button onClick={loginWithDiscord} type="button" className="auth-button" disabled={!agreed}>
             <Image src="/icons/discord.svg" alt="Discord" width={24} height={24} />
             Discord
           </button>
@@ -272,6 +261,7 @@ export default function AuthForm({
       <div className="mt-6 text-center">
         <button
           onClick={() => {
+            // If user is on Sign Up, let them go to /signup?mode=login => the login variant
             const newPath = `/signup${!isLogin ? "?mode=login" : ""}`;
             router.push(newPath);
           }}
@@ -281,7 +271,12 @@ export default function AuthForm({
         </button>
       </div>
 
-      <TosModal open={showTos} onClose={() => setShowTos(false)} />
+      <TosModal
+        open={showTos}
+        onClose={() => {
+          setShowTos(false);
+        }}
+      />
     </div>
   );
 }

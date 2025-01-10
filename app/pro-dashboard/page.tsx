@@ -1,6 +1,6 @@
-import MetricsSummary from '@/components/ProDash/metrics-summary'
-import PerformanceGraph from '@/components/ProDash/performance-graph'
-import FinancialPlaylistList from '@/components/ProDash/financial-playlist-list'
+import MetricsSummary from "@/components/ProDash/metrics-summary";
+import PerformanceGraph from "@/components/ProDash/performance-graph";
+import FinancialPlaylistList from "@/components/ProDash/financial-playlist-list";
 
 export default function DashboardPage() {
   return (
@@ -16,6 +16,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-

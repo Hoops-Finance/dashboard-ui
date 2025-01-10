@@ -23,7 +23,7 @@ export default function Profile() {
   const [loadingProfile, setLoadingProfile] = useState(false);
 
   useEffect(() => {
-    if (session?.user?.accessToken) {
+    if (session?.user.accessToken) {
       // fetch user profile if access token is available
       // getUserProfile(session.user.accessToken);
     } else {
@@ -84,11 +84,11 @@ export default function Profile() {
                     <div className="grid gap-4 py-4">
                       <div className="grid gap-2">
                         <Label htmlFor="name">Name</Label>
-                        <Input id="name" name="name" defaultValue="John Doe" aria-label="Full name" required disabled/>
+                        <Input id="name" name="name" defaultValue="John Doe" aria-label="Full name" required disabled />
                       </div>
                       <div className="grid gap-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" name="email" defaultValue={session?.user?.email || ""} type="email" aria-label="Email address" required />
+                        <Input id="email" name="email" defaultValue={session?.user.email ?? ""} type="email" aria-label="Email address" required />
                       </div>
                       <div className="grid gap-2">
                         <Label htmlFor="phone">Phone</Label>
@@ -118,13 +118,11 @@ export default function Profile() {
                 <CardContent>
                   <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
                     <Avatar className="h-24 w-24">
-                      <AvatarFallback className="AvatarFallback">
-                        {(session?.user?.email || "Hoop").charAt(0).toUpperCase()}
-                      </AvatarFallback>
+                      <AvatarFallback className="AvatarFallback">{(session?.user.email ?? "Hoop").charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="space-y-1 text-center sm:text-left">
                       <h3 className="text-2xl font-semibold">John Doe</h3>
-                      <p className="text-sm text-muted-foreground">{session?.user?.email}</p>
+                      <p className="text-sm text-muted-foreground">{session?.user.email}</p>
                       <p className="text-sm text-muted-foreground">+1 (555) 000-0000</p>
                     </div>
                   </div>

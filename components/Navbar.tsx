@@ -27,15 +27,12 @@ const navigationItems = [
 const Navbar: FC = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const { theme, toggleTheme }: { theme: 'light' | 'dark'; toggleTheme: () => void } = useTheme();
+  const { theme, toggleTheme }: { theme: "light" | "dark"; toggleTheme: () => void } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // const { session } = useAuth();  
-  console.log('using session in client side in navbar')
-  const { data: session, status } = useSession()
-  console.log('used session in client side in navbar')
+  const { data: session, status } = useSession();
 
-  const isLoggedIn = !!session?.user?.accessToken;
+  const isLoggedIn = !!session?.user.accessToken;
 
   const handleLogin = () => {
     handleMenuMobile();
@@ -64,15 +61,8 @@ const Navbar: FC = () => {
       <div className="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="relative flex items-center">
           <div style={{ width: "120px", height: "40px", position: "relative" }}>
-            <Image
-              src="/images/logo2.svg"
-              alt="Hoops Logo"
-              fill={true}
-              className={`brightness-0 ${theme === "dark" ? "invert" : ""}`}
-              priority
-            />
+            <Image src="/images/logo2.svg" alt="Hoops Logo" fill={true} className={`brightness-0 ${theme === "dark" ? "invert" : ""}`} priority />
           </div>
-
         </Link>
 
         <div className="hidden lg:flex items-center gap-6">
@@ -80,15 +70,9 @@ const Navbar: FC = () => {
             <Link
               key={item.name}
               href={item.path}
-              className={`text-sm font-medium transition-colors ${pathname === item.path
-                  ? theme === "dark"
-                    ? "text-white"
-                    : "text-black"
-                  : theme === "dark"
-                    ? "text-gray-400 hover:text-white"
-                    : "text-gray-600 hover:text-black"
-                } ${item.name !== "Pools" && item.name !== "Tokens" ? "hidden" : ""
-                }`}
+              className={`text-sm font-medium transition-colors ${
+                pathname === item.path ? (theme === "dark" ? "text-white" : "text-black") : theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"
+              } ${item.name !== "Pools" && item.name !== "Tokens" ? "hidden" : ""}`}
             >
               {item.name}
             </Link>
@@ -104,28 +88,32 @@ const Navbar: FC = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="AvatarFallback">
-                        {(session?.user?.email || "Hoop").charAt(0).toUpperCase()}
-                      </AvatarFallback>
+                      <AvatarFallback className="AvatarFallback">{session.user.email.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <div className="flex items-center justify-start gap-2 p-2">
                     <div className="flex flex-col space-y-1 leading-none">
-                      <p className={`font-medium text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-                        Welcome back
-                      </p>
-                      <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
-                        {session?.user?.email}
-                      </p>
+                      <p className={`font-medium text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>Welcome back</p>
+                      <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>{session.user.email}</p>
                     </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/profile")}>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => {
+                      router.push("/profile");
+                    }}
+                  >
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/developer")}>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => {
+                      router.push("/developer");
+                    }}
+                  >
                     Developer
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -133,7 +121,12 @@ const Navbar: FC = () => {
                     <ConnectWallet />
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer text-red-500 focus:text-red-500" onClick={handleLogout}>
+                  <DropdownMenuItem
+                    className="cursor-pointer text-red-500 focus:text-red-500"
+                    onClick={() => {
+                      void handleLogout;
+                    }}
+                  >
                     Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -141,10 +134,7 @@ const Navbar: FC = () => {
             </div>
           ) : (
             <div className="flex-center-g-4">
-              <button
-                onClick={handleLogin}
-                className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}
-              >
+              <button onClick={handleLogin} className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}>
                 Login
               </button>
               <Link
@@ -162,37 +152,28 @@ const Navbar: FC = () => {
           <ThemeSwitch isMobile={true} />
 
           <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={() => {
+              setIsMenuOpen(!isMenuOpen);
+            }}
             className={`p-2 rounded-lg transition-colors ${theme === "dark" ? "hover:bg-gray-800" : "hover:bg-gray-100"}`}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? (
-              <XMarkIcon className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />
-            ) : (
-              <Bars4Icon className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />
-            )}
+            {isMenuOpen ? <XMarkIcon className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} /> : <Bars4Icon className={`w-6 h-6 ${theme === "dark" ? "text-white" : "text-black"}`} />}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div
-          className={`lg:hidden border-t ${theme === "dark" ? "bg-background border-border" : "bg-white border-gray-200"}`}
-        >
+        <div className={`lg:hidden border-t ${theme === "dark" ? "bg-background border-border" : "bg-white border-gray-200"}`}>
           <div className="max-w-screen-2xl mx-auto px-4 py-4 flex flex-col gap-4">
             {navigationItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.path}
-                className={`text-sm font-medium transition-colors ${pathname === item.path
-                    ? theme === "dark"
-                      ? "text-white"
-                      : "text-black"
-                    : theme === "dark"
-                      ? "text-gray-400 hover:text-white"
-                      : "text-gray-600 hover:text-black"
-                  }`}
+                className={`text-sm font-medium transition-colors ${
+                  pathname === item.path ? (theme === "dark" ? "text-white" : "text-black") : theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"
+                }`}
               >
                 {item.name}
               </Link>
@@ -200,7 +181,9 @@ const Navbar: FC = () => {
             {isLoggedIn ? (
               <div className="flex flex-col gap-4 pt-4 border-t border-border">
                 <button
-                  onClick={handleLogout}
+                  onClick={() => {
+                    void handleLogout;
+                  }}
                   className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}
                 >
                   Log out
@@ -209,16 +192,21 @@ const Navbar: FC = () => {
             ) : (
               <div className="flex flex-col gap-4 pt-4 border-t border-border">
                 <button
-                  onClick={handleLogin}
+                  onClick={() => {
+                    void handleLogin;
+                  }}
                   className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}
                 >
                   Login
                 </button>
                 <Link
                   href="/signup"
-                  onClick={() => handleMenuMobile()}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg text-center transition-colors ${theme === "dark" ? "bg-white text-black hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"
-                    }`}
+                  onClick={() => {
+                    handleMenuMobile();
+                  }}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg text-center transition-colors ${
+                    theme === "dark" ? "bg-white text-black hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"
+                  }`}
                 >
                   Sign up
                 </Link>
