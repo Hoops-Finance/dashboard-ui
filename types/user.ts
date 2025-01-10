@@ -29,6 +29,12 @@ interface UserResponseType {
   sub_id: string;
 }
 
+interface SettingUserType {
+  emailNotification?: boolean | true;
+  marketingEmails?: boolean | false;
+  securityAlerts?: boolean | true;
+}
+
 interface ProfileType {
   id: string;
   name: string;
@@ -37,6 +43,7 @@ interface ProfileType {
   phoneNumber?: string;
   emailVerified?: Date | null;
   oauthAccounts: LinkedAccountType[];
+  settings?: SettingUserType;
 }
 
-export type { UserType, UserResponseType, LinkedAccountType, ProfileType };
+export type { UserType, UserResponseType, LinkedAccountType, ProfileType, SettingUserType };

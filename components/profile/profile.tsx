@@ -13,7 +13,7 @@ import { UserCircleIcon, PencilIcon } from "@heroicons/react/24/outline";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
-import { ProfileType } from "@/types/user.ts";
+import { LinkedAccountType, ProfileType, SettingUserType } from "@/types/user.ts";
 
 export default function Profile() {
   const router = useRouter();
@@ -22,6 +22,7 @@ export default function Profile() {
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [profile, setProfile] = useState<ProfileType>();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [security, setSecurity] = useState<SettingUserType>();
 
   const fetchProfile = useCallback(async () => {
     setLoadingProfile(true);
@@ -87,6 +88,14 @@ export default function Profile() {
       await fetchProfile();
     }
   };
+
+  function updateSetting(checked: boolean, settingOption: string) {
+    const updatedSettings: SettingUserType = {
+      ...profile?.settings,
+      [settingOption]: checked
+    }
+    return ;
+  }
 
   return (
     <>
@@ -172,17 +181,28 @@ export default function Profile() {
                   <CardDescription>Your linked accounts.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {profile?.oauthAccounts?.map((oauthAccount) => (
+                  {profile?.oauthAccounts?.map((oauthAccount, index, linkedAccounts: LinkedAccountType[]) => (
                     <>
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="space-y-0.5">
-                          <Label>{oauthAccount.provider}</Label>
-                          <p className="text-sm text-muted-foreground">
-                            since {new Date(oauthAccount.linkedAt).toLocaleString()}
-                          </p>
+                      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2">
+                        <Avatar className="h-11 w-11">
+                          <AvatarImage
+                            src={oauthAccount.provider === "google" ? "/icons/google.svg" : "/icons/discord.svg"}
+                            alt="Linked account picture"
+                          />
+                          <AvatarFallback className="AvatarFallback">
+                            Account
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="space-y-0.5 text-center sm:text-left">
+                          <div className="space-y-0.5">
+                            <Label>{ oauthAccount.provider.charAt(0).toUpperCase() + oauthAccount.provider.slice(1) }</Label>
+                            <p className="text-sm text-muted-foreground">
+                              since { new Date(oauthAccount.linkedAt).toLocaleDateString() }
+                            </p>
+                          </div>
                         </div>
                       </div>
-                      <Separator className="my-4" />
+                      { linkedAccounts.length === index + 1 ? <></> : <Separator className="my-4" /> }
                     </>
                   ))}
                 </CardContent>
@@ -228,7 +248,12 @@ export default function Profile() {
                       <Label htmlFor="email-notifications">Email Notifications</Label>
                       <p className="text-sm text-muted-foreground">Receive email updates about your account</p>
                     </div>
-                    <Switch id="email-notifications" defaultChecked aria-label="Toggle email notifications" />
+                    <Switch
+                      id="email-notifications"
+                      defaultChecked={profile?.settings?.emailNotification ?? true}
+                      aria-label="Toggle email notifications"
+                      onCheckedChange={(checked) => updateSetting(checked, "emailNotification")}
+                    />
                   </div>
                   <Separator className="my-4" />
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -236,7 +261,12 @@ export default function Profile() {
                       <Label htmlFor="marketing-emails">Marketing Emails</Label>
                       <p className="text-sm text-muted-foreground">Receive emails about new features and updates</p>
                     </div>
-                    <Switch id="marketing-emails" aria-label="Toggle marketing emails" />
+                    <Switch
+                      id="marketing-emails"
+                      defaultChecked={profile?.settings?.marketingEmails ?? false}
+                      aria-label="Toggle marketing emails"
+                      onCheckedChange={(checked) => updateSetting(checked, "marketingEmails")}
+                    />
                   </div>
                   <Separator className="my-4" />
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -244,7 +274,12 @@ export default function Profile() {
                       <Label htmlFor="security-alerts">Security Alerts</Label>
                       <p className="text-sm text-muted-foreground">Get notified about security updates</p>
                     </div>
-                    <Switch id="security-alerts" defaultChecked aria-label="Toggle security alerts" />
+                    <Switch
+                      id="security-alerts"
+                      defaultChecked={profile?.settings?.securityAlerts ?? false}
+                      aria-label="Toggle security alerts"
+                      onCheckedChange={(checked) => updateSetting(checked, "securityAlerts")}
+                    />
                   </div>
                 </CardContent>
               </Card>
