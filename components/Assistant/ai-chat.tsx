@@ -34,7 +34,7 @@ export function AIChat() {
   const [isTyping, setIsTyping] = useState(false);
   const [hoveredMessage, setHoveredMessage] = useState<number | null>(null);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 

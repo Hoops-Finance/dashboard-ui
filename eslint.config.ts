@@ -35,7 +35,13 @@ const myConfig: Linter.Config = {
     "@typescript-eslint/restrict-template-expressions": "off", //this has many warnings fix it later
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-namespace": "off",
-    "@typescript-eslint/no-extraneous-class": "off"
+    "@typescript-eslint/no-extraneous-class": "off",
+    "@typescript-eslint/no-misused-promises": "warn",
+    "@typescript-eslint/no-unsafe-argument": "warn",
+    "@typescript-eslint/no-unsafe-assignment": "warn",
+    "@typescript-eslint/prefer-nullish-coalescing": "warn",
+    "@typescript-eslint/no-unnecessary-condition": "warn",
+    "@typescript-eslint/no-floating-promises": "warn",
   }
 };
 
@@ -52,7 +58,7 @@ const allconfigs = tseslint.config(
   },
   myConfig,
   {
-    ignores: [".history", ".vscode", "node_modules", "dist", "build", "tests", ".next", "out"]
+    ignores: [".history", ".vscode", "node_modules", "dist", "build", "tests", ".next", "out", "usboverride.js", "postcss.config.mjs", "next.config.mjs", "eslint.config.ts", "*.js"]
   }
 );
 

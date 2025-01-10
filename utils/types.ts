@@ -207,6 +207,7 @@ export interface AssetDetails {
   };
 }
 
+export type CandleDataRaw = [number, number, number, number, number, number, number];
 export interface TransformedCandleData {
   time: UTCTimestamp;
   open: number;
@@ -220,6 +221,14 @@ export interface TransformedCandleData {
 
 export interface CandleData {
   time: UTCTimestamp;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+export interface RawCandleRecord {
+  time: number;
   open: number;
   high: number;
   low: number;
@@ -329,3 +338,49 @@ export interface AccountResponse {
   account_id: string;
   balances: BalanceLine[];
 }
+
+export interface ApiKeyListResponse {
+  success: boolean;
+  keys?: ApiKeyEntry[] | null;
+  message?: string;
+}
+
+export interface ApiKeyEntry {
+  name: string;
+  key: string;
+  createdAt: Date;
+  lastUsed: Date | null;
+}
+
+export interface MetricsResponse {
+  totalValueLocked: number;
+  poolsIndexed: number;
+  totalVolume: number;
+  liquidityProviders: number;
+  top5volume: number;
+  top5tvl: number;
+  top5apr: number;
+  bestaprpair: string;
+  bestapraddress: string;
+  period: string;
+}
+
+export interface AuthResult {
+  success: boolean;
+  result?: "socialunlinked" | "accountlinked" | "loggedin" | "newaccountcreated";
+  message?: string;
+  email?: string;
+  id?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  linkedProviders?: string[];
+  error?: string;
+}
+
+export interface OAuthLoginRequest {
+  provider: string;
+  code: string;
+  state: string;
+}
+
+export type OauthProviders = "google" | "discord";

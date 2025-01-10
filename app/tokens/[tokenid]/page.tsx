@@ -108,7 +108,7 @@ export default function TokenDetailsPage() {
         }
         const rawData = await fetchCandles(tokenAssetId, null, from, to);
         const arr = rawData as { time: number; open: number; high: number; low: number; close: number; baseVolume: number }[];
-        if (!arr || arr.length === 0) {
+        if (arr.length === 0) {
           setCandleData([]);
           setVolumeData([]);
           return;
@@ -141,7 +141,7 @@ export default function TokenDetailsPage() {
         setVolumeData([]);
       }
     };
-    loadCandles();
+    void loadCandles();
   }, [token, tokenAssetId, period, fetchCandles]);
 
   if (!token) {
@@ -176,7 +176,7 @@ export default function TokenDetailsPage() {
 
   const displaySymbol = token.symbol;
   const displayName = token.name.split(":")[0];
-  const imageUrl = tokenDetails?.toml_info.image || "";
+  const imageUrl = tokenDetails?.toml_info.image ?? "";
 
   return (
     <div className="min-h-[calc(100vh-72px)] bg-background flex flex-col">

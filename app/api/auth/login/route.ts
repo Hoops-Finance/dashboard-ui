@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { signIn } from "@/utils/auth";
+import { AuthResult } from "@/utils/types";
 
 interface LoginRequestBody {
   username?: string;
@@ -20,13 +21,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const result = await signIn("credentials", { redirect: false, username, password });
+    const result = (await signIn("credentials", {
+      redirect: false,
+      username,
+      password
+    })) as AuthResult | null;
 
-    if (!result || result.error) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
-    } else {
-      return NextResponse.json({ success: true });
+    if (!result?.success) {
+      let errMessage = "Invalid credentials";
+      if (result?.error) errMessage += `: ${result.error}`;
+      return NextResponse.json({ error: errMessage }, { status: 401 });
     }
+
+    return NextResponse.json({ success: true });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error during login", error.message);

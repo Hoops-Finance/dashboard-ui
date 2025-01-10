@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/utils/auth";
+import httpStatus from "http-status";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
 
   if (!session?.user.accessToken) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return NextResponse.json({ error: "Not authenticated" }, { status: httpStatus.UNAUTHORIZED });
   }
 
   const { name } = (await req.json()) as { name: string };
@@ -20,6 +21,9 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({ name })
   });
 
-  const data = await res.json();
+  const data = (await res.json()) as { success: boolean; key: string };
+  if (!res.ok) {
+    return new NextResponse(JSON.stringify(data), { status: res.status });
+  }
   return new NextResponse(JSON.stringify(data), { status: res.status });
 }

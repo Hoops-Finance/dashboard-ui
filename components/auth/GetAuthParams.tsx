@@ -16,7 +16,7 @@ function InternalModeSetter({ onParamsLoadedAction }: { onParamsLoadedAction: (r
 
   useEffect(() => {
     const mode = searchParams.get("mode");
-    const errorParam = searchParams.get("error") || "";
+    const errorParam = searchParams.get("error") ?? "";
     const isLogin = mode === "login";
 
     let oauthEmail = "";
@@ -26,9 +26,9 @@ function InternalModeSetter({ onParamsLoadedAction }: { onParamsLoadedAction: (r
     if (errorParam.startsWith("NO_ACCOUNT")) {
       const parts = errorParam.split("|")[1]; // e.g. "email=xxx&provider=xxx&code=xxx"
       const qp = new URLSearchParams(parts);
-      oauthEmail = qp.get("email") || "";
-      oauthProvider = qp.get("provider") || "";
-      oauthCode = qp.get("code") || "";
+      oauthEmail = qp.get("email") ?? "";
+      oauthProvider = qp.get("provider") ?? "";
+      oauthCode = qp.get("code") ?? "";
     }
 
     onParamsLoadedAction({

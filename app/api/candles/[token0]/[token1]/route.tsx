@@ -4,7 +4,7 @@ import { UTCTimestamp } from "lightweight-charts";
 
 type CandleDataRaw = [number, number, number, number, number, number, number, number];
 
-const API_BASE_URL = "https://api.stellar.expert/explorer/public/market";
+const API_BASE_URL = `${process.env.SXX_API_BASE}/explorer/public/market`;
 const API_KEY = process.env.SXX_API_KEY;
 
 export async function GET(request: NextRequest, { params }: { params: { token0: string; token1: string } }) {
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest, { params }: { params: { token0: 
       return NextResponse.json({ error: errorData }, { status: response.status });
     }
 
-    const data: CandleDataRaw[] = await response.json(); // API returns an array of arrays
+    const data = (await response.json()) as CandleDataRaw[];
 
     // Transform the raw data
     const transformedData: TransformedCandleData[] = data.map((record: CandleDataRaw, index: number, array: CandleDataRaw[]): TransformedCandleData => {

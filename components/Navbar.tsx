@@ -30,10 +30,7 @@ const Navbar: FC = () => {
   const { theme, toggleTheme }: { theme: "light" | "dark"; toggleTheme: () => void } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // const { session } = useAuth();
-  console.log("using session in client side in navbar");
   const { data: session, status } = useSession();
-  console.log("used session in client side in navbar");
 
   const isLoggedIn = !!session?.user.accessToken;
 
@@ -91,7 +88,7 @@ const Navbar: FC = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="AvatarFallback">{(session.user.email || "Hoop").charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback className="AvatarFallback">{session.user.email.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -124,7 +121,12 @@ const Navbar: FC = () => {
                     <ConnectWallet />
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer text-red-500 focus:text-red-500" onClick={handleLogout}>
+                  <DropdownMenuItem
+                    className="cursor-pointer text-red-500 focus:text-red-500"
+                    onClick={() => {
+                      void handleLogout;
+                    }}
+                  >
                     Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -178,13 +180,23 @@ const Navbar: FC = () => {
             ))}
             {isLoggedIn ? (
               <div className="flex flex-col gap-4 pt-4 border-t border-border">
-                <button onClick={handleLogout} className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}>
+                <button
+                  onClick={() => {
+                    void handleLogout;
+                  }}
+                  className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}
+                >
                   Log out
                 </button>
               </div>
             ) : (
               <div className="flex flex-col gap-4 pt-4 border-t border-border">
-                <button onClick={handleLogin} className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}>
+                <button
+                  onClick={() => {
+                    void handleLogin;
+                  }}
+                  className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}
+                >
                   Login
                 </button>
                 <Link

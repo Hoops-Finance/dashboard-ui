@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import httpStatus from "http-status";
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(req.url);
@@ -6,17 +7,17 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const state = searchParams.get("state"); // csrfToken from frontend
 
   if (!provider) {
-    return NextResponse.json({ error: "Missing provider" }, { status: 400 });
+    return NextResponse.json({ error: "Missing provider" }, { status: httpStatus.NOT_ACCEPTABLE });
   }
   if (!state) {
-    return NextResponse.json({ error: "Missing state (csrfToken)" }, { status: 400 });
+    return NextResponse.json({ error: "Missing state (csrfToken)" }, { status: httpStatus.PRECONDITION_REQUIRED });
   }
 
   let authUrl = "";
 
   if (provider === "google") {
-    const clientId = process.env.AUTH_GOOGLE_ID || "";
-    const redirectUri = process.env.AUTH_GOOGLE_REDIRECT_URI || "";
+    const clientId = process.env.AUTH_GOOGLE_ID ?? "";
+    const redirectUri = process.env.AUTH_GOOGLE_REDIRECT_URI ?? "";
     console.log(redirectUri);
 
     const scope = "email profile";
@@ -33,8 +34,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       console.log(!process.env.AUTH_DISCORD_REDIRECT_URI);
       throw new Error("Missing Discord OAuth configuration");
     } else {
-      const clientId = process.env.AUTH_DISCORD_ID || "";
-      const redirectUri = process.env.AUTH_DISCORD_REDIRECT_URI || "";
+      const clientId = process.env.AUTH_DISCORD_ID;
+      const redirectUri = process.env.AUTH_DISCORD_REDIRECT_URI;
       const scope = "identify email";
       const responseType = "code";
       console.log(redirectUri);
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       console.log(`[OAUTH-START] Discord auth URL: ${authUrl}`);
     }
   } else {
-    return NextResponse.json({ error: "Unknown provider" }, { status: 400 });
+    return NextResponse.json({ error: "Unknown provider" }, { status: httpStatus.NOT_IMPLEMENTED });
   }
 
   return NextResponse.redirect(authUrl);

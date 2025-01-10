@@ -1,7 +1,18 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, FC, ReactNode } from "react";
-import type { GlobalMetrics, PoolRiskApiResponseObject, Market, Pair, Token, MarketApiResponseObject, TokenApiResponseObject, AssetDetails, PairApiResponseObject } from "@/utils/types";
+import type {
+  GlobalMetrics,
+  PoolRiskApiResponseObject,
+  Market,
+  Pair,
+  Token,
+  MarketApiResponseObject,
+  TokenApiResponseObject,
+  AssetDetails,
+  PairApiResponseObject,
+  TransformedCandleData
+} from "@/utils/types";
 import { AllowedPeriods } from "@/utils/utilities";
 
 interface DataContextValue {
@@ -13,7 +24,7 @@ interface DataContextValue {
   tokens: Token[];
   period: AllowedPeriods;
   setPeriod: (p: AllowedPeriods) => void;
-  fetchCandles: (token0: string, token1: string | null, from: number, to: number) => Promise<unknown>;
+  fetchCandles: (token0: string, token1: string | null, from: number, to: number) => Promise<TransformedCandleData[]>;
   fetchTokenDetails: (asset: string) => Promise<AssetDetails | null>;
   getPairsForToken: (token: Token) => Pair[];
   buildPoolRoute: (pool: PoolRiskApiResponseObject) => string;
@@ -66,6 +77,9 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
       const convertedMarkets: Market[] = marketsData.map((m) => {
         const token0 = tokenMap.get(m.token0);
         const token1 = tokenMap.get(m.token1);
+        if (!token0 || !token1) {
+          throw new Error(`Token details missing for market: ${m.marketLabel}`);
+        }
         let totalTVL = 0;
         const enrichedPools = m.pools.map((poolRef) => {
           const p = pairMap.get(poolRef.pair);
@@ -75,12 +89,12 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
           }
           throw new Error(`Pair not found: ${poolRef.pair}`);
         });
-        const marketLabel = token0 && token1 ? `${token0.symbol} / ${token1.symbol}` : "Unknown";
+        const marketLabel = `${token0.symbol} / ${token1.symbol}`;
         return {
           ...m,
           id: m.marketLabel,
-          token0: token0!,
-          token1: token1!,
+          token0: token0,
+          token1: token1,
           pools: enrichedPools,
           marketLabel,
           totalTVL
@@ -121,12 +135,12 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    processCoreData();
+    void processCoreData();
   }, [processCoreData]);
 
   useEffect(() => {
     if (!loading && tokens.length > 0 && pairs.length > 0 && markets.length > 0) {
-      fetchPeriodData(period);
+      void fetchPeriodData(period);
     }
   }, [period, fetchPeriodData, loading, tokens.length, pairs.length, markets.length]);
 
@@ -134,7 +148,7 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
     setPeriodState(p);
   };
 
-  const fetchCandles = async (token0: string, token1: string | null, from: number, to: number): Promise<unknown> => {
+  const fetchCandles = async (token0: string, token1: string | null, from: number, to: number): Promise<TransformedCandleData[]> => {
     const normalize = (t: string): string => (t.toLowerCase() === "xlm" || t.toLowerCase() === "native" ? "XLM" : t.replace(/:/g, "-"));
 
     const t0 = normalize(token0);
@@ -147,11 +161,11 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
 
     const res = await fetch(endpoint);
+    const candleData = (await res.json()) as TransformedCandleData[];
     if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error((errData as { error?: string }).error || "Failed to fetch candles");
+      throw new Error(`${res.statusText} Failed to fetch Candles`);
     }
-    return res.json();
+    return candleData;
   };
 
   const fetchTokenDetails = async (asset: string): Promise<AssetDetails | null> => {

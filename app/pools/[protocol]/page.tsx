@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 import { useDataContext } from "@/contexts/DataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
@@ -73,12 +72,12 @@ function getProtocolStats(pools: import("@/utils/types").PoolRiskApiResponseObje
     };
   }
 
-  const tvl = pools.reduce((sum, pool) => sum + parseFloat(pool.totalValueLocked || "0"), 0);
-  const volume24h = pools.reduce((sum, pool) => sum + parseFloat(pool.volume || "0"), 0);
+  const tvl = pools.reduce((sum, pool) => sum + parseFloat(pool.totalValueLocked), 0);
+  const volume24h = pools.reduce((sum, pool) => sum + parseFloat(pool.volume), 0);
   const poolCount = pools.length;
   const averageApy =
     pools.reduce((sum, pool) => {
-      const apr = parseFloat(pool.apr.replace("%", "") || "0");
+      const apr = parseFloat(pool.apr.replace("%", ""));
       return sum + apr;
     }, 0) / poolCount;
 
@@ -90,7 +89,9 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
   const protocol = params.protocol as Protocol;
   const isValidProtocol = PROTOCOLS.includes(protocol);
   const protocolInfo = isValidProtocol ? PROTOCOL_INFO[protocol] : null;
-
+  if (!protocolInfo) {
+    throw new Error("Invalid protocol specified.");
+  }
   const protocolPools = useMemo(() => {
     if (!isValidProtocol) return [];
     const mappedProtocol = protocol === "aquarius" ? "aqua" : protocol;
@@ -129,7 +130,7 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
         </Link>
         <span>/</span>
         <span className="text-foreground font-medium" aria-current="page">
-          {protocolInfo!.name}
+          {protocolInfo.name}
         </span>
       </nav>
 
@@ -139,11 +140,11 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 flex items-center justify-center" aria-hidden="true">
-                <ProtocolLogo logo={protocolInfo!.logo} name={protocolInfo!.name} />
+                <ProtocolLogo logo={protocolInfo.logo} name={protocolInfo.name} />
               </div>
               <div>
-                <CardTitle>{protocolInfo!.name}</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1 max-w-2xl">{protocolInfo!.description}</p>
+                <CardTitle>{protocolInfo.name}</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1 max-w-2xl">{protocolInfo.description}</p>
               </div>
             </div>
           </CardHeader>

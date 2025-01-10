@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/utils/auth";
+import { AuthResult } from "@/utils/types";
 
 interface OauthLinkRequest {
   provider: string;
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     body: JSON.stringify({ provider, code, state })
   });
 
-  const data = await res.json();
+  const data = (await res.json()) as AuthResult;
   if (!res.ok) {
     return NextResponse.json(data, { status: res.status });
   }

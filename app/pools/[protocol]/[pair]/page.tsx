@@ -74,7 +74,7 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
 
   const poolData = useMemo(() => {
     const foundPair = pairs.find((pr) => {
-      if (!pr.token0Details || !pr.token1Details) return false;
+      //if (!pr.token0Details || !pr.token1Details) return false;
       return (pr.token0Details.name === token0Name && pr.token1Details.name === token1Name) || (pr.token1Details.name === token0Name && pr.token0Details.name === token1Name);
     });
 
@@ -123,7 +123,7 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
         const rawData = await fetchCandles(token0Name, token1Name, from, to);
         const arr = rawData as { time: number; open: number; high: number; low: number; close: number; baseVolume: number }[];
 
-        if (!arr || arr.length === 0) {
+        if (arr.length === 0) {
           setCandleData([]);
           setVolumeData([]);
           return;
@@ -152,7 +152,7 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
         setVolumeData([]);
       }
     };
-    loadData();
+    void loadData();
   }, [poolData, period, fetchCandles, loading, token0Name, token1Name]);
 
   const handleCopy = async (text: string) => {
@@ -234,7 +234,7 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" className="gap-2" onClick={() => handleCopy(window.location.href)}>
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => void handleCopy(window.location.href)}>
                 <Share2 className="h-4 w-4" aria-hidden="true" />
                 {copyFeedback === "Copied!" ? "Copied!" : "Share"}
               </Button>
@@ -378,7 +378,7 @@ export default function PoolPage({ params }: { params: { protocol: string; pair:
                           size="sm"
                           className="h-8 w-8 p-0"
                           onClick={() => {
-                            navigator.clipboard.writeText(poolData.market);
+                            void navigator.clipboard.writeText(poolData.market);
                           }}
                           aria-label="Copy contract address"
                         >

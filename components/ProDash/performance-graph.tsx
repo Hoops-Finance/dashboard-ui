@@ -49,9 +49,10 @@ export default function PerformanceGraph() {
                 dataKey="date"
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => {
+                tickFormatter={(value: string | number) => {
                   const date = new Date(value);
-                  return `Jan ${date.getDate()}`;
+                  if (isNaN(date.getTime())) throw new Error("Invalid Date");
+                  return `${date.getDate()}`; // why was Jan here
                 }}
                 tick={{ fontSize: 12 }}
                 tickMargin={8}

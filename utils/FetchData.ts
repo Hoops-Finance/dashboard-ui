@@ -16,9 +16,9 @@ export const fetchData = async (setExplorerTableData: (data: ExplorerTableData) 
     ]);
 
     // Parse JSON responses
-    const marketsData: MarketApiResponseObject[] = await marketsResponse.json();
-    const pairsData: PairApiResponseObject[] = await pairsResponse.json();
-    const tokensData: TokenApiResponseObject[] = await tokensResponse.json();
+    const marketsData: MarketApiResponseObject[] = (await marketsResponse.json()) as MarketApiResponseObject[];
+    const pairsData: PairApiResponseObject[] = (await pairsResponse.json()) as PairApiResponseObject[];
+    const tokensData: TokenApiResponseObject[] = (await tokensResponse.json()) as TokenApiResponseObject[];
 
     // Convert tokens and pairs to desired types with epoch timestamps
     const tokens: Token[] = tokensData.map((token) => ({
@@ -45,13 +45,17 @@ export const fetchData = async (setExplorerTableData: (data: ExplorerTableData) 
       const token0 = tokensMap.get(market.token0);
       const token1 = tokensMap.get(market.token1);
 
-      const marketLabel = token0 && token1 ? `${token0.symbol} / ${token1.symbol}` : "Unknown";
+      if (!token0 || !token1) {
+        throw new Error(`Token details missing for market: ${market.marketLabel}`);
+      }
+
+      const marketLabel = `${token0.symbol} / ${token1.symbol}`;
 
       let totalTVL = 0;
       const enrichedPools: Pair[] = market.pools.map((pool) => {
         const pair = pairsMap.get(pool.pair);
         if (pair) {
-          totalTVL += pair.tvl || 0;
+          totalTVL += pair.tvl;
           return pair;
         }
         throw new Error(`Pair not found for ID: ${pool.pair}`);
@@ -59,8 +63,8 @@ export const fetchData = async (setExplorerTableData: (data: ExplorerTableData) 
 
       return {
         id: market.marketLabel,
-        token0: token0!,
-        token1: token1!,
+        token0: token0,
+        token1: token1,
         pools: enrichedPools,
         marketLabel,
         totalTVL
@@ -93,9 +97,12 @@ export const fetchData = async (setExplorerTableData: (data: ExplorerTableData) 
             });
           }
 
-          const market = marketsMap.get(marketKey)!;
+          const market = marketsMap.get(marketKey);
+          if (!market) {
+            throw new Error("Market not found");
+          }
           market.pairs.push(pair);
-          market.totalTVL += pair.tvl || 0;
+          market.totalTVL += pair.tvl;
         }
       });
 

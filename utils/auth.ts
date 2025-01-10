@@ -6,6 +6,7 @@ import { decode as authJsDecode } from "next-auth/jwt";
 import type { NextAuthConfig } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import type { UserType, UserResponseType } from "@/types/user";
+import { AuthResult } from "./types";
 
 declare module "next-auth" {
   interface User extends UserType {
@@ -122,16 +123,14 @@ export const authOptions: NextAuthConfig = {
   callbacks: {
     async jwt({ token, user }) {
       // On initial login, store the tokens from `authorize()`.
-      if (user) {
-        token.id = user.id!;
-        token.avatar = user.avatar;
-        token.name = user.name ?? "";
-        token.email = user.email ?? "";
-        token.premiumSubscription = user.premiumSubscription;
-        token.accessToken = user.accessToken;
-        token.refreshToken = user.refreshToken;
-        token.subId = user.subId;
-      }
+      token.id = user.id ?? "";
+      token.avatar = user.avatar;
+      token.name = user.name ?? "";
+      token.email = user.email ?? "";
+      token.premiumSubscription = user.premiumSubscription;
+      token.accessToken = user.accessToken;
+      token.refreshToken = user.refreshToken;
+      token.subId = user.subId;
 
       return validateAuthorization(token);
     },
@@ -180,10 +179,13 @@ export async function verifyAccessToken(token: JWT): Promise<boolean> {
   console.log("trying claims");
   const accessTokenClaim = async (token: string) => {
     try {
+      if (!process.env.JWT_SECRET || !process.env.SALT_SECRET) {
+        throw new Error("Missing JWT_SECRET or SALT_SECRET in environment");
+      }
       return await authJsDecode({
         token: token,
-        secret: process.env.JWT_SECRET!,
-        salt: process.env.SALT_SECRET!
+        secret: process.env.JWT_SECRET,
+        salt: process.env.SALT_SECRET
       });
     } catch (error) {
       console.error("Error decoding token", error);
@@ -234,14 +236,14 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
     return { ...token, error: "RefreshAccessTokenError" };
   }
 
-  const data = await res.json();
-  if (!data.success || !data.token || !data.refreshToken) {
+  const data = (await res.json()) as AuthResult;
+  if (!data.success || !data.refreshToken) {
     return { ...token, error: "RefreshAccessTokenError" };
   }
 
   return {
     ...token,
-    accessToken: data.accessToken,
+    accessToken: data.accessToken ?? token.accessToken,
     refreshToken: data.refreshToken
   };
 }
@@ -260,18 +262,12 @@ async function fetchCredentialsUser(url: string, email: string, password: string
     return null;
   }
 
-  const data = (await res.json()) as {
-    success: boolean;
-    accessToken?: string;
-    refreshToken?: string;
-    email?: string;
-    id?: string;
-  };
+  const data = (await res.json()) as AuthResult;
 
   if (!data.success || !data.accessToken || !data.refreshToken || !data.email || !data.id) {
     return null;
   }
-
+  // todo: unifiy the types better.
   return {
     id: data.id,
     name: data.email.split("@")[0],
@@ -321,14 +317,14 @@ async function fetchSocialUser(provider: string, code: string, state: string): P
       body: JSON.stringify({ provider, code, state })
     });
 
-    const data = await res.json();
+    const data = (await res.json()) as AuthResult;
     console.log("[fetchSocialUser] Express backend responded with:", data);
 
     if (!res.ok) {
       console.error("[fetchSocialUser] Backend responded with error:", data);
       return {
         success: false,
-        error: data.error || "Error communicating with backend."
+        error: data.error ?? "Error communicating with backend."
       };
     }
 
@@ -337,7 +333,15 @@ async function fetchSocialUser(provider: string, code: string, state: string): P
       console.error("[fetchSocialUser] Missing user data in backend response:", data);
       return {
         success: false,
-        error: data.error || "Backend response missing required user data"
+        error: data.error ?? "Backend response missing required user data"
+      };
+    }
+
+    if (!data.accessToken || !data.refreshToken) {
+      console.error("[fetchSocialUser] Missing tokens in backend response:", data);
+      return {
+        success: false,
+        error: data.error ?? "Backend response missing required tokens"
       };
     }
 
@@ -345,10 +349,10 @@ async function fetchSocialUser(provider: string, code: string, state: string): P
     const userData: UserResponseType = {
       id: data.id,
       email: data.email,
-      name: data.name || data.email.split("@")[0],
-      avatar: data.avatar || "",
+      name: data.email.split("@")[0],
+      avatar: "", // needs implemented
       premium_subscription: false,
-      accessToken: data.accessToken ?? data.token,
+      accessToken: data.accessToken,
       refreshToken: data.refreshToken,
       sub_id: ""
     };
@@ -358,11 +362,16 @@ async function fetchSocialUser(provider: string, code: string, state: string): P
       success: true,
       user: userData
     };
-  } catch (error) {
-    console.error("[fetchSocialUser] Error during fetch:", error);
+  } catch (error: unknown) {
+    let message;
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    message = error as string;
+    console.error("[fetchSocialUser] Error during fetch:", message);
     return {
       success: false,
-      error: (error as Error).message || "An unexpected error occurred"
+      error: message
     };
   }
 }

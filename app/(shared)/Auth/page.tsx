@@ -32,14 +32,7 @@ export default function SharedAuthPage() {
       <GetAuthParams onParamsLoadedAction={handleParamsLoaded} />
 
       {/* Now that we have isLogin, errorParam, etc., pass to AuthForm */}
-      <AuthForm
-        isLogin={isLogin}
-        errorParam={errorParam}
-        oauthEmail={oauthEmail || undefined}
-        oauthProvider={oauthProvider || undefined}
-        oauthCode={oauthCode || undefined}
-        recaptchaSiteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
-      />
+      <AuthForm isLogin={isLogin} errorParam={errorParam} oauthEmail={oauthEmail} oauthProvider={oauthProvider} oauthCode={oauthCode} recaptchaSiteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY} />
     </div>
   );
 }

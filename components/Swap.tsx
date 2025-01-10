@@ -23,7 +23,7 @@ export interface TokenMarket {
 
 export interface SwapPairInfo {
   pairAddress: Address;
-  protocol: "aqua" | "soroswap" | "phoenix" | "comet" | string;
+  protocol: "aqua" | "soroswap" | "phoenix" | "comet";
 }
 
 export interface SwapComponentProps {

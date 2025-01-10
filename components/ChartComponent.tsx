@@ -200,7 +200,7 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
     chartRef.current = chartInstance;
 
     const handleResize = () => {
-      if (chartRef.current && container) {
+      if (chartRef.current) {
         chartRef.current.applyOptions({
           width: container.clientWidth,
           height: container.clientHeight

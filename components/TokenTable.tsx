@@ -40,11 +40,11 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
   const volumeMap = useMemo(() => {
     const volMap = new Map<string, number>();
     for (const pd of poolRiskData) {
-      const vol = parseFloat(pd.volume) || 0;
+      const vol = parseFloat(pd.volume);
       const p = pairMap.get(pd.pairId);
       if (!p) continue;
-      volMap.set(p.token0, (volMap.get(p.token0) || 0) + vol);
-      volMap.set(p.token1, (volMap.get(p.token1) || 0) + vol);
+      volMap.set(p.token0, (volMap.get(p.token0) ?? 0) + vol);
+      volMap.set(p.token1, (volMap.get(p.token1) ?? 0) + vol);
     }
     return volMap;
   }, [poolRiskData, pairMap]);
@@ -57,8 +57,8 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
       const t1 = p.token1;
       // Each pair has a TVL, count it for both tokens
       if (p.tvl) {
-        tvlMapInner.set(t0, (tvlMapInner.get(t0) || 0) + p.tvl);
-        tvlMapInner.set(t1, (tvlMapInner.get(t1) || 0) + p.tvl);
+        tvlMapInner.set(t0, (tvlMapInner.get(t0) ?? 0) + p.tvl);
+        tvlMapInner.set(t1, (tvlMapInner.get(t1) ?? 0) + p.tvl);
       }
     }
     return tvlMapInner;
@@ -127,7 +127,7 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
   };
 
   const getTokenTVL = (token: Token): number => {
-    return tvlMap.get(token.id) || 0;
+    return tvlMap.get(token.id) ?? 0;
   };
 
   const getCounterAssetsCount = (token: Token): number => {

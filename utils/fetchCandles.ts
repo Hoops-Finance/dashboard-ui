@@ -1,6 +1,7 @@
 // /utils/fetchCandles.ts
 
 import { UTCTimestamp } from "lightweight-charts";
+import { RawCandleRecord } from "./types";
 
 interface CandleData {
   time: UTCTimestamp;
@@ -10,17 +11,20 @@ interface CandleData {
   close: number;
 }
 
+interface ErrorResponse {
+  error?: string;
+}
+
 export async function fetchMarketCandles(token0: string, token1: string, from: number, to: number): Promise<CandleData[]> {
   try {
     const response = await fetch(`/api/candles/${token0}/${token1}?from=${from}&to=${to}`);
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to fetch market candles");
+      const errorData = (await response.json()) as ErrorResponse;
+      throw new Error(errorData.error ?? "Failed to fetch market candles");
     }
-
-    const data = await response.json();
-    return data.map((record: { time: number; open: number; high: number; low: number; close: number }) => ({
+    const data = (await response.json()) as RawCandleRecord[];
+    return data.map((record: RawCandleRecord) => ({
       time: record.time as UTCTimestamp,
       open: record.open,
       high: record.high,
@@ -38,12 +42,11 @@ export async function fetchTokenCandles(token0: string, from: number, to: number
     const response = await fetch(`/api/candles/${token0}?from=${from}&to=${to}`);
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to fetch token candles");
+      const errorData = (await response.json()) as ErrorResponse;
+      throw new Error(errorData.error ?? "Failed to fetch token candles");
     }
-
-    const data = await response.json();
-    return data.map((record: { time: number; open: number; high: number; low: number; close: number }) => ({
+    const data = (await response.json()) as RawCandleRecord[];
+    return data.map((record: RawCandleRecord) => ({
       time: record.time as UTCTimestamp,
       open: record.open,
       high: record.high,

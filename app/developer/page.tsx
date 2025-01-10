@@ -8,21 +8,14 @@ import { Input } from "@/components/ui/input";
 import { ClipboardDocumentIcon, KeyIcon, TrashIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 // import { auth } from "@/utils/auth";
 import { useSession } from "@/utils/auth";
-
-interface ApiKey {
-  id?: string;
-  name: string;
-  key: string;
-  createdAt: string;
-  lastUsed: string | null;
-}
+import { ApiKeyEntry, ApiKeyListResponse } from "@/utils/types";
 
 export default function DeveloperPage() {
   //const { session } = useAuth(); // doesn't work because we removed the AuthProviderContext
   //const session = auth() // doesn't work because it's async
   const { data: session, status } = useSession();
 
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [apiKeys, setApiKeys] = useState<ApiKeyEntry[]>([]);
   const [newKeyName, setNewKeyName] = useState("");
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -32,16 +25,16 @@ export default function DeveloperPage() {
     // Call our local endpoint which will proxy to the backend
     const res = await fetch(`/api/developer/apikey/list`);
     if (res.ok) {
-      const data = await res.json();
-      setApiKeys(data.keys || []);
+      const data = (await res.json()) as ApiKeyListResponse;
+      setApiKeys(data.keys ?? []);
     }
   }, []);
 
   useEffect(() => {
-    if (session?.user && status === "authenticated") {
-      fetchKeys();
+    if (session?.user) {
+      void fetchKeys();
     }
-  }, [status, session, fetchKeys]);
+  }, [session, fetchKeys]);
 
   if (status === "loading") {
     return <p>Loading session...</p>;
@@ -63,8 +56,11 @@ export default function DeveloperPage() {
     setIsCreating(false);
 
     if (res.ok) {
-      const data = await res.json();
-      setGeneratedKey(data.apiKey);
+      const data = (await res.json()) as { success: boolean; key: string };
+      if (!data.key) {
+        throw new Error("Failed to generate API key");
+      }
+      setGeneratedKey(data.key);
       await fetchKeys();
     }
   };
@@ -94,7 +90,12 @@ export default function DeveloperPage() {
                 setNewKeyName(e.target.value);
               }}
             />
-            <Button onClick={generateApiKey} disabled={!newKeyName.trim() || isCreating || !session?.user}>
+            <Button
+              onClick={() => {
+                void generateApiKey;
+              }}
+              disabled={!newKeyName.trim() || isCreating || !session?.user}
+            >
               <KeyIcon className="h-4 w-4 mr-2" />
               Create API Key
             </Button>
@@ -105,7 +106,7 @@ export default function DeveloperPage() {
           <div className="p-3 bg-muted rounded-md">
             <div className="flex items-center gap-2">
               <code className="flex-1 text-sm break-all">{generatedKey}</code>
-              <Button variant="outline" size="icon" onClick={() => copyToClipboard(generatedKey)} className="h-8 w-8 shrink-0">
+              <Button variant="outline" size="icon" onClick={() => void copyToClipboard(generatedKey)} className="h-8 w-8 shrink-0">
                 {copied ? <CheckCircleIcon className="h-4 w-4 text-green-500" /> : <ClipboardDocumentIcon className="h-4 w-4" />}
               </Button>
             </div>

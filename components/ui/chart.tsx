@@ -1,3 +1,6 @@
+/* eslint  @typescript-eslint/no-unsafe-assignment: 0 */
+/* eslint  @typescript-eslint/no-unsafe-argument: 0 */
+
 "use client";
 import { ReactNode, createContext, ComponentType, useContext, forwardRef, useMemo, useId, ComponentProps, CSSProperties } from "react";
 import * as RechartsPrimitive from "recharts";
@@ -39,7 +42,7 @@ const ChartContainer = forwardRef<
   }
 >(({ id, className, children, config, ...props }, ref) => {
   const uniqueId = useId();
-  const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
+  const chartId = `chart-${id ?? uniqueId.replace(/:/g, "")}`;
 
   return (
     <ChartContext.Provider value={{ config }}>
@@ -61,7 +64,7 @@ const ChartContainer = forwardRef<
 ChartContainer.displayName = "Chart";
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-  const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color);
+  const colorConfig = Object.entries(config).filter(([_, config]) => config.theme ?? config.color);
 
   if (!colorConfig.length) {
     return null;
@@ -76,7 +79,7 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
-    const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
+    const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ?? itemConfig.color;
     return color ? `  --color-${key}: ${color};` : null;
   })
   .join("\n")}
@@ -110,9 +113,9 @@ const ChartTooltipContent = forwardRef<
     }
 
     const [item] = payload;
-    const key = `${labelKey || item.dataKey || item.name || "value"}`;
+    const key = `${labelKey ?? item.dataKey ?? item.name ?? "value"}`;
     const itemConfig = getPayloadConfigFromPayload(config, item, key);
-    const value = !labelKey && typeof label === "string" ? config[label].label || label : itemConfig?.label;
+    const value = !labelKey && typeof label === "string" ? (config[label].label ?? label) : itemConfig?.label;
 
     if (labelFormatter) {
       return <div className={cn("font-medium", labelClassName)}>{labelFormatter(value, payload)}</div>;
@@ -136,9 +139,9 @@ const ChartTooltipContent = forwardRef<
       {!nestLabel ? tooltipLabel : null}
       <div className="grid gap-1.5">
         {payload.map((item, index) => {
-          const key = `${nameKey || item.name || item.dataKey || "value"}`;
+          const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`;
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
-          const indicatorColor = color || item.payload.fill || item.color;
+          const indicatorColor = color ?? item.payload.fill ?? item.color;
 
           return (
             <div key={item.dataKey} className={cn("flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground", indicator === "dot" && "items-center")}>
@@ -169,7 +172,7 @@ const ChartTooltipContent = forwardRef<
                   <div className={cn("flex flex-1 justify-between leading-none", nestLabel ? "items-end" : "items-center")}>
                     <div className="grid gap-1.5">
                       {nestLabel ? tooltipLabel : null}
-                      <span className="text-muted-foreground">{itemConfig?.label || item.name}</span>
+                      <span className="text-muted-foreground">{itemConfig?.label ?? item.name}</span>
                     </div>
                     {item.value && <span className="font-mono font-medium tabular-nums text-foreground">{item.value.toLocaleString()}</span>}
                   </div>
@@ -203,7 +206,7 @@ const ChartLegendContent = forwardRef<
   return (
     <div ref={ref} className={cn("flex items-center justify-center gap-4", verticalAlign === "top" ? "pb-3" : "pt-3", className)}>
       {payload.map((item) => {
-        const key = `${nameKey || item.dataKey || "value"}`;
+        const key = `${nameKey ?? item.dataKey ?? "value"}`;
         const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
         return (

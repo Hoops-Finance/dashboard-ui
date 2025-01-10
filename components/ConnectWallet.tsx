@@ -18,35 +18,38 @@ export const ConnectWallet: FC = () => {
 
     try {
       await kit.openModal({
-        onWalletSelected: async (option) => {
+        onWalletSelected: (option) => {
+          // This must be synchronous
           kit.setWallet(option.id);
-          const { address } = await kit.getAddress();
 
-          try {
-            const server = new Horizon.Server("https://horizon.stellar.org", { allowHttp: true });
+          // Handle async operations outside of the callback
+          void (async () => {
+            try {
+              const { address } = await kit.getAddress();
 
-            const account: AccountResponse = await server.loadAccount(address);
-            const balances: BalanceLine[] = account.balances;
-            let xlmBalance: BalanceLineNative | undefined;
+              const server = new Horizon.Server("https://horizon.stellar.org", { allowHttp: true });
 
-            const otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] = [];
-            // Process all balances in a single loop asynchronously
-            await Promise.all(
-              balances.map(async (balance) => {
+              const account: AccountResponse = await server.loadAccount(address);
+              const balances: BalanceLine[] = account.balances;
+              let xlmBalance: BalanceLineNative | undefined;
+
+              const otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] = [];
+              balances.forEach((balance) => {
                 if (balance.asset_type === "native") {
                   xlmBalance = balance;
                 } else {
                   otherBalances.push(balance);
                 }
-              })
-            );
-            const newBalance = xlmBalance ? xlmBalance.balance : "0";
+              });
 
-            updateWalletInfo(true, address, newBalance, otherBalances);
-          } catch (error) {
-            console.error("Error loading account:", error);
-            updateWalletInfo(true, address, "0", []);
-          }
+              const newBalance = xlmBalance ? xlmBalance.balance : "0";
+
+              updateWalletInfo(true, address, newBalance, otherBalances);
+            } catch (error) {
+              console.error("Error loading account:", error);
+              updateWalletInfo(true, null, "0", []);
+            }
+          })();
         }
       });
     } catch (error) {
@@ -60,7 +63,13 @@ export const ConnectWallet: FC = () => {
 
   return (
     <button
-      onClick={isConnected ? disconnectWallet : connectWallet}
+      onClick={() => {
+        if (isConnected) {
+          void disconnectWallet(); // Explicitly ignore the promise
+        } else {
+          void connectWallet(); // Explicitly ignore the promise
+        }
+      }}
       className={`w-full px-2 py-1.5 text-sm rounded-md ${
         isConnected ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : "bg-primary text-primary-foreground hover:bg-primary/90"
       }`}
