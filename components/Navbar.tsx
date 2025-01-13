@@ -16,12 +16,12 @@ import { ThemeSwitch } from "@/components/Navbar/ThemeSwitch.tsx";
 import { signOut as clientSignOut, useSession } from "next-auth/react";
 
 const navigationItems = [
-  { name: "Home", path: "/ai-home" },
-  { name: "Chat", path: "/ai-chat" },
+  // { name: "Home", path: "/ai-home" },
+  // { name: "Chat", path: "/ai-chat" },
   { name: "Pools", path: "/pools" },
-  { name: "Tokens", path: "/tokens" },
-  { name: "Strategies", path: "/strategies" },
-  { name: "Portfolio", path: "/portfolio" }
+  { name: "Tokens", path: "/tokens" }
+  // { name: "Strategies", path: "/strategies" },
+  // { name: "Portfolio", path: "/portfolio" }
 ];
 
 const Navbar: FC = () => {
@@ -60,7 +60,7 @@ const Navbar: FC = () => {
     <nav className={`sticky top-0 w-full border-b ${theme === "dark" ? "bg-background border-border" : "bg-white border-gray-200"} z-50`}>
       <div className="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="w-1/3 relative flex items-center">
-          <div style={{ width: "120px", height: "40px", position: "relative" }}>
+          <div style={{ width: "120px", height: "46px", position: "relative" }}>
             <Image src="/images/logo2.svg" alt="Hoops Logo" fill={true} className={`brightness-0 ${theme === "dark" ? "invert" : ""}`} priority />
           </div>
         </Link>
@@ -72,7 +72,7 @@ const Navbar: FC = () => {
               href={item.path}
               className={`text-sm font-medium transition-colors ${
                 pathname === item.path ? (theme === "dark" ? "text-white" : "text-black") : theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"
-              } ${item.name !== "Pools" && item.name !== "Tokens" ? "hidden" : ""}`}
+              }`}
             >
               {item.name}
             </Link>

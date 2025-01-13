@@ -168,10 +168,6 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
         <Button variant="secondary" className="h-9" onClick={resetFilters} aria-label="Reset filters">
           Reset
         </Button>
-        <Button variant="outline" className="h-9 gap-2" onClick={() => window.open("https://api.hoops.finance", "_blank")}>
-          <BookOpen className="h-4 w-4" />
-          Read the docs
-        </Button>
         <Select
           value={period}
           onValueChange={(v) => {

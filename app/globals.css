@@ -332,6 +332,10 @@
   @apply p-2 rounded-full bg-secondary text-secondary-foreground transition-colors duration-200 hover:bg-secondary/80;
 }
 
+.tokens-motion {
+  @apply rounded-lg border bg-card text-card-foreground shadow;
+}
+
 .token-card {
   @apply p-4 bg-card border-border hover:shadow-md transition-all duration-300;
 }
