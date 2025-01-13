@@ -59,13 +59,13 @@ const Navbar: FC = () => {
   return (
     <nav className={`sticky top-0 w-full border-b ${theme === "dark" ? "bg-background border-border" : "bg-white border-gray-200"} z-50`}>
       <div className="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="relative flex items-center">
+        <Link href="/" className="w-1/3 relative flex items-center">
           <div style={{ width: "120px", height: "40px", position: "relative" }}>
             <Image src="/images/logo2.svg" alt="Hoops Logo" fill={true} className={`brightness-0 ${theme === "dark" ? "invert" : ""}`} priority />
           </div>
         </Link>
 
-        <div className="hidden lg:flex items-center gap-6">
+        <div className="w-1/3 hidden lg:flex justify-center items-center gap-6">
           {navigationItems.map((item) => (
             <Link
               key={item.name}
@@ -79,7 +79,7 @@ const Navbar: FC = () => {
           ))}
         </div>
 
-        <div className="hidden lg:flex items-center gap-6">
+        <div className="w-1/3 hidden lg:flex justify-end items-center gap-6">
           <ThemeSwitch isMobile={false} />
 
           {isLoggedIn ? (
@@ -193,7 +193,7 @@ const Navbar: FC = () => {
               <div className="flex flex-col gap-4 pt-4 border-t border-border">
                 <button
                   onClick={() => {
-                    void handleLogin;
+                    handleLogin();
                   }}
                   className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}
                 >

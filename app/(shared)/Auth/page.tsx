@@ -29,11 +29,13 @@ export default function SharedAuthPage() {
 
   return (
     <PageLayout>
-      {/* Let GetAuthParams read and parse URL query, storing results in our states */}
-      <GetAuthParams onParamsLoadedAction={handleParamsLoaded} />
+      <div className="flex items-center justify-center">
+        {/* Let GetAuthParams read and parse URL query, storing results in our states */}
+        <GetAuthParams onParamsLoadedAction={handleParamsLoaded} />
 
-      {/* Now that we have isLogin, errorParam, etc., pass to AuthForm */}
-      <AuthForm isLogin={isLogin} errorParam={errorParam} oauthEmail={oauthEmail} oauthProvider={oauthProvider} oauthCode={oauthCode} recaptchaSiteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY} />
+        {/* Now that we have isLogin, errorParam, etc., pass to AuthForm */}
+        <AuthForm isLogin={isLogin} errorParam={errorParam} oauthEmail={oauthEmail} oauthProvider={oauthProvider} oauthCode={oauthCode} recaptchaSiteKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY} />
+      </div>
     </PageLayout>
   );
 }

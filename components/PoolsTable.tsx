@@ -136,7 +136,7 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-4">
       {/* Top controls: protocol filters, search, reset, read docs, period selector */}
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-2">

@@ -210,7 +210,7 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
         {error && <p style={{ color: "red" }}>{error}</p>}
         {success && <p style={{ color: "green" }}>{success}</p>}
 
-        <button type="submit" className="auth-submit-button" disabled={!agreed}>
+        <button type="submit" className="auth-submit-button" disabled={isLogin ? false : !agreed}>
           {isLogin ? "Log In" : "Sign Up"}
         </button>
 
@@ -252,11 +252,11 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={loginWithGoogle} type="button" className="auth-button" disabled={!agreed}>
+          <button onClick={loginWithGoogle} type="button" className="auth-button" disabled={isLogin ? false : !agreed}>
             <Image src="/icons/google.svg" alt="Google" width={24} height={24} />
             Google
           </button>
-          <button onClick={loginWithDiscord} type="button" className="auth-button" disabled={!agreed}>
+          <button onClick={loginWithDiscord} type="button" className="auth-button" disabled={isLogin ? false : !agreed}>
             <Image src="/icons/discord.svg" alt="Discord" width={24} height={24} />
             Discord
           </button>
@@ -264,7 +264,7 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
       </form>
 
       <div className="mt-6 text-center">
-        {isLogin ? "Don't have an account? " : 'Already have an account? '}
+        {isLogin ? "Don't have an account? " : "Already have an account? "}
         <button
           onClick={() => {
             // If user is on Sign Up, let them go to /signup?mode=login => the login variant
@@ -273,7 +273,7 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
           }}
           className="auth-toggle text-primary hover:underline"
         >
-          <u>{isLogin ? "Sign up" : "Log in"}</u>
+          {isLogin ? "Sign up" : "Log in"}
         </button>
       </div>
 
