@@ -1,3 +1,11 @@
+interface LinkedAccountType {
+  provider: string;
+  providerId: string;
+  accessToken: string;
+  refreshToken?: string;
+  linkedAt: Date;
+}
+
 interface UserType {
   id: string;
   name: string;
@@ -21,4 +29,21 @@ interface UserResponseType {
   sub_id: string;
 }
 
-export type { UserType, UserResponseType };
+interface SettingUserType {
+  emailNotification?: boolean | true;
+  marketingEmails?: boolean | false;
+  securityAlerts?: boolean | true;
+}
+
+interface ProfileType {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  phoneNumber?: string;
+  emailVerified?: Date | null;
+  oauthAccounts: LinkedAccountType[];
+  settings?: SettingUserType;
+}
+
+export type { UserType, UserResponseType, LinkedAccountType, ProfileType, SettingUserType };
