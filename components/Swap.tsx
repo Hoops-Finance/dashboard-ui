@@ -1,9 +1,11 @@
 // /components/Swap.tsx
-
 "use client";
 
 import { useState } from "react";
-import { ArrowsUpDownIcon, InformationCircleIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowsUpDownIcon,
+  ChevronDownIcon,
+} from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { Address } from "@stellar/stellar-sdk";
 
@@ -34,11 +36,31 @@ export interface SwapComponentProps {
 }
 
 const tokens = [
-  { symbol: "XLM", name: "Stellar Lumens", icon: "/icons/tokens/xlm.png?height=32&width=32" },
-  { symbol: "USDC", name: "USD Coin", icon: "/icons/tokens/usdc.png?height=32&width=32" },
-  { symbol: "EURC", name: "Euro Coin", icon: "/icons/tokens/eurc.jpg?height=32&width=32" },
-  { symbol: "AQUA", name: "Aquarious", icon: "/icons/tokens/aqua.jpg?height=32&width=32" },
-  { symbol: "XTAR", name: "DogStar", icon: "/icons/tokens/xtar.png?height=32&width=32" }
+  {
+    symbol: "XLM",
+    name: "Stellar Lumens",
+    icon: "/icons/tokens/xlm.png?height=32&width=32",
+  },
+  {
+    symbol: "USDC",
+    name: "USD Coin",
+    icon: "/icons/tokens/usdc.png?height=32&width=32",
+  },
+  {
+    symbol: "EURC",
+    name: "Euro Coin",
+    icon: "/icons/tokens/eurc.jpg?height=32&width=32",
+  },
+  {
+    symbol: "AQUA",
+    name: "Aquarious",
+    icon: "/icons/tokens/aqua.jpg?height=32&width=32",
+  },
+  {
+    symbol: "XTAR",
+    name: "DogStar",
+    icon: "/icons/tokens/xtar.png?height=32&width=32",
+  },
 ];
 
 export default function SwapComponent() {
@@ -46,217 +68,200 @@ export default function SwapComponent() {
   const [receiveToken, setReceiveToken] = useState(tokens[1]);
   const [payDropdownOpen, setPayDropdownOpen] = useState(false);
   const [receiveDropdownOpen, setReceiveDropdownOpen] = useState(false);
-  const [advancedOptionsOpen, setAdvancedOptionsOpen] = useState(false);
   const [slippageTolerance, setSlippageTolerance] = useState(0.5);
-  const [customFee, setCustomFee] = useState("");
-  /*
-  // Handle swapping tokens
-  const handleSwapTokens = () => {
-    setPayToken(receiveToken);
-    setReceiveToken(payToken);
-  };
-*/
+
   return (
-    <div className="w-full max-w-md p-6 card-base">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-primary">Swap</h1>
-        <button className="text-gray-500 hover:text-gray-700">
-          {/* Settings Icon */}
-          <svg width="24" height="24" fill="currentColor">
-            {/* SVG content */}
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-          </svg>
-        </button>
-      </div>
+    <div className="bg-background text-foreground min-h-screen flex items-center justify-center p-4">
+      {/* Swap card container */}
+      <div className="w-full max-w-md p-6 card-base text-foreground">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Swap</h1>
+        </div>
 
-      <div className="space-y-4">
-        {/* Pay Section */}
-        <div>
-          <div className="flex justify-between text-sm text-secondary mb-2">
-            <span>Pay</span>
-            <span>Balance: 100.00 {payToken.symbol}</span>
-          </div>
-          <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
-            <div className="flex items-center flex-1">
-              <div className="relative">
-                <button
-                  onClick={() => {
-                    setPayDropdownOpen(!payDropdownOpen);
-                  }}
-                  className="flex items-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-full py-1 px-2 mr-2"
-                >
-                  <Image src={payToken.icon} alt={payToken.name} width={24} height={24} className="rounded-full mr-1" />
-                  <span className="text-primary mr-1">{payToken.symbol}</span>
-                  <ChevronDownIcon className="text-gray-500" />
-                </button>
-                {payDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-10">
-                    {tokens.map((token) => (
-                      <button
-                        key={token.symbol}
-                        className="flex items-center w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
-                        onClick={() => {
-                          setPayToken(token);
-                          setPayDropdownOpen(false);
-                        }}
-                      >
-                        <Image src={token.icon} alt={token.name} width={24} height={24} className="rounded-full mr-2" />
-                        <span className="text-primary">{token.symbol}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <input type="number" className="bg-transparent text-primary text-right flex-1 focus:outline-none" placeholder="0" defaultValue="50.00" />
+        <div className="space-y-4">
+          {/* Pay Section */}
+          <div>
+            <div className="flex justify-between text-sm mb-2">
+              <span>Pay</span>
+              <span>Balance: 100.00 {payToken.symbol}</span>
             </div>
-            <button className="ml-2 px-3 py-1 bg-gray-200 dark:bg-gray-600 text-primary text-sm rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">Max</button>
-          </div>
-        </div>
-
-        {/* Swap Button */}
-        <div className="flex justify-center">
-          <button className="bg-gray-200 dark:bg-gray-600 p-2 rounded-full">
-            <ArrowsUpDownIcon className="text-gray-600 dark:text-gray-300" />
-          </button>
-        </div>
-
-        {/* Receive Section */}
-        <div>
-          <div className="flex justify-between text-sm text-secondary mb-2">
-            <span>Receive</span>
-            <span>Balance: 1000.00 {receiveToken.symbol}</span>
-          </div>
-          <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-3">
-            <div className="flex items-center flex-1">
-              <div className="relative">
-                <button
-                  onClick={() => {
-                    setReceiveDropdownOpen(!receiveDropdownOpen);
-                  }}
-                  className="flex items-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-full py-1 px-2 mr-2"
-                >
-                  <Image src={receiveToken.icon} alt={receiveToken.name} width={24} height={24} className="rounded-full mr-1" />
-                  <span className="text-primary mr-1">{receiveToken.symbol}</span>
-                  <ChevronDownIcon className="text-gray-500" />
-                </button>
-                {receiveDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-10">
-                    {tokens.map((token) => (
-                      <button
-                        key={token.symbol}
-                        className="flex items-center w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
-                        onClick={() => {
-                          setReceiveToken(token);
-                          setReceiveDropdownOpen(false);
-                        }}
-                      >
-                        <Image src={token.icon} alt={token.name} width={24} height={24} className="rounded-full mr-2" />
-                        <span className="text-primary">{token.symbol}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
+            <div className="flex items-center bg-input rounded-lg p-3">
+              <div className="flex items-center flex-1">
+                <div className="relative">
+                  <button
+                    onClick={() => setPayDropdownOpen(!payDropdownOpen)}
+                    className="flex items-center bg-background border border-input rounded-full py-1 px-2 mr-2"
+                  >
+                    <Image
+                      src={payToken.icon}
+                      alt={payToken.name}
+                      width={24}
+                      height={24}
+                      className="rounded-full mr-1"
+                    />
+                    <span className="mr-1">{payToken.symbol}</span>
+                    <ChevronDownIcon className="w-4 h-4" />
+                  </button>
+                  {payDropdownOpen && (
+                    <div className="absolute top-full left-0 mt-1 w-48 rounded-lg shadow-lg bg-card z-10">
+                      {tokens.map((token) => (
+                        <button
+                          key={token.symbol}
+                          className="flex items-center w-full px-4 py-2 text-left hover:bg-muted"
+                          onClick={() => {
+                            setPayToken(token);
+                            setPayDropdownOpen(false);
+                          }}
+                        >
+                          <Image
+                            src={token.icon}
+                            alt={token.name}
+                            width={24}
+                            height={24}
+                            className="rounded-full mr-2"
+                          />
+                          <span>{token.symbol}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="number"
+                  className="bg-transparent text-right flex-1 focus:outline-none"
+                  placeholder="0"
+                  defaultValue="50.00"
+                />
               </div>
-              <input type="number" className="bg-transparent text-primary text-right flex-1 focus:outline-none" placeholder="0" defaultValue="25.00" readOnly />
+              <button className="ml-2 px-3 py-1 bg-secondary text-secondary-foreground text-sm rounded-full hover:bg-secondary/80">
+                Max
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Price InformationCircleIcon */}
-        <div className="flex justify-between items-center text-sm">
-          <span className="text-secondary">Price</span>
-          <span className="text-primary">
+          {/* Swap Icon Button */}
+          <div className="flex justify-center">
+            <button className="bg-secondary p-2 rounded-full hover:bg-secondary/80">
+              <ArrowsUpDownIcon className="w-5 h-5 text-secondary-foreground" />
+            </button>
+          </div>
+
+          {/* Receive Section */}
+          <div>
+            <div className="flex justify-between text-sm mb-2">
+              <span>Receive</span>
+              <span>Balance: 1000.00 {receiveToken.symbol}</span>
+            </div>
+            <div className="flex items-center bg-input rounded-lg p-3">
+              <div className="flex items-center flex-1">
+                <div className="relative">
+                  <button
+                    onClick={() =>
+                      setReceiveDropdownOpen(!receiveDropdownOpen)
+                    }
+                    className="flex items-center bg-background border border-input rounded-full py-1 px-2 mr-2"
+                  >
+                    <Image
+                      src={receiveToken.icon}
+                      alt={receiveToken.name}
+                      width={24}
+                      height={24}
+                      className="rounded-full mr-1"
+                    />
+                    <span className="mr-1">{receiveToken.symbol}</span>
+                    <ChevronDownIcon className="w-4 h-4" />
+                  </button>
+                  {receiveDropdownOpen && (
+                    <div className="absolute top-full left-0 mt-1 w-48 rounded-lg shadow-lg bg-card z-10">
+                      {tokens.map((token) => (
+                        <button
+                          key={token.symbol}
+                          className="flex items-center w-full px-4 py-2 text-left hover:bg-muted"
+                          onClick={() => {
+                            setReceiveToken(token);
+                            setReceiveDropdownOpen(false);
+                          }}
+                        >
+                          <Image
+                            src={token.icon}
+                            alt={token.name}
+                            width={24}
+                            height={24}
+                            className="rounded-full mr-2"
+                          />
+                          <span>{token.symbol}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="number"
+                  className="bg-transparent text-right flex-1 focus:outline-none"
+                  placeholder="0"
+                  defaultValue="25.00"
+                  readOnly
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Price Info */}
+          <div className="text-sm">
             1 {payToken.symbol} = 0.5 {receiveToken.symbol} ($0.25)
-          </span>
-          <InformationCircleIcon className="text-gray-500" />
-        </div>
+          </div>
 
-        {/* Swap Button */}
-        <button className="w-full py-3 button-primary mb-4">Swap</button>
+          {/* Slippage Tolerance */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Slippage Tolerance
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="5"
+              step="0.1"
+              value={slippageTolerance}
+              onChange={(e) => setSlippageTolerance(parseFloat(e.target.value))}
+              className="w-full"
+            />
+            <div className="flex justify-between text-sm">
+              <span>0%</span>
+              <span>{slippageTolerance}%</span>
+              <span>5%</span>
+            </div>
+          </div>
 
-        {/* Advanced Options Toggle */}
-        <div className="mb-4">
-          <button
-            className="w-full py-2 bg-white dark:bg-gray-800 text-secondary rounded-lg font-semibold border-2 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-center"
-            onClick={() => {
-              setAdvancedOptionsOpen(!advancedOptionsOpen);
-            }}
-          >
-            Advanced Options
-            {advancedOptionsOpen ? <ChevronUpIcon className="ml-2" /> : <ChevronDownIcon className="ml-2" />}
-          </button>
-        </div>
+          {/* Main Swap Button */}
+          <div className="flex justify-center">
+            <button className="mt-2 px-6 py-3 button-primary">Swap</button>
+          </div>
 
-        {/* Advanced Options */}
-        {advancedOptionsOpen && (
-          <div className="space-y-4 mb-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-            <div>
-              <label className="block text-sm font-medium text-secondary mb-1">Slippage Tolerance</label>
-              <input
-                type="range"
-                min="0"
-                max="5"
-                step="0.1"
-                value={slippageTolerance}
-                onChange={(e) => {
-                  setSlippageTolerance(parseFloat(e.target.value));
-                }}
-                className="w-full"
-              />
-              <div className="flex justify-between text-sm text-secondary">
-                <span>0%</span>
+          {/* Transaction Overview */}
+          <div className="mt-4 p-4 rounded-lg bg-muted">
+            <h3 className="font-semibold mb-2 text-lg">Transaction Overview</h3>
+            <div className="text-sm space-y-1">
+              <div className="flex justify-between">
+                <span>Slippage Tolerance:</span>
                 <span>{slippageTolerance}%</span>
-                <span>5%</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Minimum Received:</span>
+                <span>24.88 {receiveToken.symbol}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Price Impact:</span>
+                <span>&lt; 0.01%</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Network Fee:</span>
+                <span>0.00001 XLM</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Exchange Fee:</span>
+                <span>Free</span>
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-secondary mb-1">Custom Fee</label>
-              <input
-                type="text"
-                value={customFee}
-                onChange={(e) => {
-                  setCustomFee(e.target.value);
-                }}
-                placeholder="Enter custom fee"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-1 focus:ring-[#e2be08] bg-white dark:bg-gray-800 text-primary"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Transaction Overview */}
-        <div className="space-y-2 text-sm bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
-          <h3 className="font-semibold text-primary mb-2">Transaction Overview</h3>
-          <div className="flex justify-between">
-            <span className="text-secondary">Slippage Tolerance:</span>
-            <span className="text-primary">
-              {slippageTolerance}% <InformationCircleIcon className="inline text-gray-600" />
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-secondary">Minimum received:</span>
-            <span className="text-primary">
-              24.88 {receiveToken.symbol} <InformationCircleIcon className="inline text-gray-600" />
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-secondary">Price Impact:</span>
-            <span className="text-primary">
-              {"< 0.01%"} <InformationCircleIcon className="inline text-gray-600" />
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-secondary">Network Fee:</span>
-            <span className="text-primary">
-              0.00001 XLM <InformationCircleIcon className="inline text-gray-600" />
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-secondary">Exchange Fee:</span>
-            <span className="text-primary">
-              Free <InformationCircleIcon className="inline text-gray-600" />
-            </span>
           </div>
         </div>
       </div>

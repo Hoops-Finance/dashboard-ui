@@ -75,3 +75,8 @@ unstaged_changes.txt
 auth-errors.txt
 dev-log.md
 lintoutput.txt
+schema.json
+**/*combined.ts.txt
+ls
+ls.txt
+combine.cjs
