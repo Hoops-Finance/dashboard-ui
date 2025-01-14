@@ -2,7 +2,7 @@
 
 import { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { getCsrfToken } from "next-auth/react";
-import { signIn } from "@/utils/auth"; // your custom NextAuth-based auth export
+import { signInServer } from "@/utils/serverFunctions";
 import { useRouter } from "next/navigation";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { usePlausible } from "next-plausible";
@@ -35,7 +35,7 @@ interface AuthFormProps {
 }
 
 /**
- * For reCAPTCHA usage in the browser, e.g. window.grecaptcha.execute(...)
+ * For reCAPTCHA usage in the browser, e.g. window.grecaptcha.execute(...).
  */
 declare global {
   interface Window {
@@ -45,7 +45,12 @@ declare global {
   }
 }
 
-export default function AuthForm({ isLogin, defaultEmail = "", defaultError = "", recaptchaSiteKey }: AuthFormProps) {
+export default function AuthForm({
+  isLogin,
+  defaultEmail = "",
+  defaultError = "",
+  recaptchaSiteKey
+}: AuthFormProps) {
   const router = useRouter();
   const plausible = usePlausible();
 
@@ -60,6 +65,9 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
   const [csrfToken, setCsrfToken] = useState<string>("");
   const passwordLength = 6;
 
+  // For a brief “red glow” on the button
+  const [buttonShake, setButtonShake] = useState<boolean>(false);
+
   // Fetch CSRF token on mount
   useEffect(() => {
     void (async () => {
@@ -68,7 +76,13 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
     })();
   }, []);
 
-  // Handles both sign-up and login
+  // Show the “red glow” animation briefly
+  function triggerShakeAnimation(): void {
+    setButtonShake(true);
+    // Remove the class after ~500ms so it can be reapplied on subsequent clicks
+    setTimeout(() => setButtonShake(false), 500);
+  }
+
   const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
     setError("");
@@ -83,10 +97,12 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
       // ================== SIGN UP ==================
       if (password.length < passwordLength) {
         setError("Password must be at least 6 characters.");
+        triggerShakeAnimation();
         return;
       }
       if (!agreed) {
         setError("You must agree to the terms of service.");
+        triggerShakeAnimation();
         return;
       }
 
@@ -108,6 +124,7 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
       const jsonData = (await res.json().catch(() => ({}))) as RegisterResponse;
       if (!res.ok) {
         setError(jsonData.error ?? res.statusText);
+        triggerShakeAnimation();
         return;
       }
 
@@ -120,24 +137,39 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
     }
 
     // ================== LOGIN ==================
-    const result = (await signIn("credentials", {
-      redirect: false,
-      email,
-      password
-    })) as SignInResult;
-
-    if (result.ok) {
+    console.log('running signin on the server')
+    const result = (await signInServer({ email, password })) as SignInResult;
+    console.log(result);
+    console.log("[AuthForm] signInServer returned:", result);
+    if (typeof result === "string") {
       plausible("Login", { props: { method: "password" } });
+       // For Auth.js + Next.js 15, a successful signIn("credentials", { redirect: false }) 
+    // often returns the redirect URL as a string (e.g. "/api/auth/callback/credentials?something").
+    // Instead of doing anything with that URL, just go to "/profile".
       router.push("/profile");
     } else {
-      setError(`Login failed: ${result.error ?? "Invalid credentials"}`);
+      console.warn("[AuthForm] Possibly an error object:", result);
+      setError(`Login failed: ${result.error ?? result ?? "Invalid credentials"}`);
+      triggerShakeAnimation();
     }
   };
+
+  // This function decides if we allow a click for sign-up
+  // If not allowed, show an error and animate the button.
+  function handleOrBlockClick(fn: () => void) {
+    if (!isLogin && !agreed) {
+      setError("You must agree to the terms of service.");
+      triggerShakeAnimation();
+      return;
+    }
+    fn();
+  }
 
   // Start Google OAuth
   function loginWithGoogle(): void {
     if (!csrfToken) {
       setError("Missing CSRF token, please refresh the page.");
+      triggerShakeAnimation();
       return;
     }
     plausible("OAuth Start", { props: { provider: "google" } });
@@ -148,6 +180,7 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
   function loginWithDiscord(): void {
     if (!csrfToken) {
       setError("Missing CSRF token, please refresh the page.");
+      triggerShakeAnimation();
       return;
     }
     plausible("OAuth Start", { props: { provider: "discord" } });
@@ -202,10 +235,32 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
           </button>
         </div>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {success && <p style={{ color: "green" }}>{success}</p>}
+        {error && (
+          <p
+            style={{ color: "red", fontWeight: "bold" }}
+            className="mt-2 transition-all duration-300"
+          >
+            {error}
+          </p>
+        )}
+        {success && (
+          <p style={{ color: "green" }} className="mt-2 transition-all duration-300">
+            {success}
+          </p>
+        )}
 
-        <button type="submit" className="auth-submit-button" disabled={!agreed}>
+        {/* 
+          We remove the HTML disabled attribute. Instead, 
+          we rely on handleSubmit() to show an error if user 
+          hasn't agreed. We also add an optional red glow 
+          if `buttonShake` is true.
+        */}
+        <button
+          type="submit"
+          className={`auth-submit-button ${
+            buttonShake ? "red-glow shake" : ""
+          }`}
+        >
           {isLogin ? "Log In" : "Sign Up"}
         </button>
 
@@ -247,11 +302,19 @@ export default function AuthForm({ isLogin, defaultEmail = "", defaultError = ""
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={loginWithGoogle} type="button" className="auth-button" disabled={!agreed}>
+          <button
+            type="button"
+            className={`auth-button ${buttonShake ? "red-glow shake" : ""}`}
+            onClick={() => handleOrBlockClick(loginWithGoogle)}
+          >
             <Image src="/icons/google.svg" alt="Google" width={24} height={24} />
             Google
           </button>
-          <button onClick={loginWithDiscord} type="button" className="auth-button" disabled={!agreed}>
+          <button
+            type="button"
+            className={`auth-button ${buttonShake ? "red-glow shake" : ""}`}
+            onClick={() => handleOrBlockClick(loginWithDiscord)}
+          >
             <Image src="/icons/discord.svg" alt="Discord" width={24} height={24} />
             Discord
           </button>
