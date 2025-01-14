@@ -132,102 +132,6 @@ export default function Profile() {
     }
   }
 
-  function renderLinkedAccounts() {
-    if (!profileData || !Array.isArray(profileData.linkedAccounts)) return null;
-
-    // If no linked accounts, show both link buttons
-    if (profileData.linkedAccounts.length === 0) {
-      return (
-        <div className="mt-4">
-          <p className="text-muted-foreground text-sm mb-2">No social accounts linked.</p>
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                linkAccount("google");
-              }}
-            >
-              Link Google
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                linkAccount("discord");
-              }}
-            >
-              Link Discord
-            </Button>
-          </div>
-        </div>
-      );
-    }
-
-    // Some accounts are linked => show them in a friendlier format
-    return (
-      <div className="mt-4 space-y-2">
-        {profileData.linkedAccounts.map((acct: any, idx: number) => {
-          // Attempt to extract a "friendly" display name
-          let displayName = "";
-          if (acct.provider === "google" && acct.providerProfile?.name) {
-            displayName = acct.providerProfile.name;
-          } else if (acct.provider === "discord" && acct.providerProfile?.username) {
-            displayName = acct.providerProfile.username;
-          } else {
-            // fallback to email/sub if available
-            displayName = acct.providerProfile?.email || acct.providerProfile?.sub || acct.provider;
-          }
-
-          // Attempt to extract an avatar/picture if available
-          let avatarUrl = "";
-          if (acct.provider === "google" && acct.providerProfile?.picture) {
-            avatarUrl = acct.providerProfile.picture;
-          } else if (acct.provider === "discord" && acct.providerProfile?.avatar) {
-            // For Discord, the raw avatar field is just an ID. You might need to build the URL:
-            // e.g. `https://cdn.discordapp.com/avatars/<userId>/<avatarId>.png`
-            // But as an example:
-            avatarUrl = "";
-          }
-
-          return (
-            <div key={idx} className="flex items-center space-x-3">
-              {avatarUrl ? <img src={avatarUrl} alt={`${acct.provider} avatar`} className="h-6 w-6 rounded-full" /> : null}
-              <p className="text-sm font-medium capitalize">{acct.provider}</p>
-              <p className="text-sm text-muted-foreground">{displayName}</p>
-            </div>
-          );
-        })}
-
-        {/* If user only has Google => show "Link Discord", etc. */}
-        <div className="flex space-x-2 pt-2">
-          {!profileData.linkedAccounts.some((a: any) => a.provider === "google") && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                linkAccount("google");
-              }}
-            >
-              Link Google
-            </Button>
-          )}
-          {!profileData.linkedAccounts.some((a: any) => a.provider === "discord") && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                linkAccount("discord");
-              }}
-            >
-              Link Discord
-            </Button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   function renderEditProfile() {
     return (
       <form onSubmit={handleSubmit}>
@@ -268,6 +172,86 @@ export default function Profile() {
           <Button type="submit">Save changes</Button>
         </div>
       </form>
+    );
+  }
+  
+  function renderLinkedAccounts() {
+    if (!profileData || !Array.isArray(profileData.linkedAccounts)) return null;
+  
+    // If no linked accounts, show both link buttons
+    if (profileData.linkedAccounts.length === 0) {
+      return (
+        <div className="mt-4">
+          <p className="text-muted-foreground text-sm mb-2">No social accounts linked.</p>
+          <div className="flex space-x-2">
+            <Button variant="outline" size="sm" onClick={() => linkAccount("google")}>
+              Link Google
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => linkAccount("discord")}>
+              Link Discord
+            </Button>
+          </div>
+        </div>
+      );
+    }
+  
+    // Some accounts are linked => show them in a friendlier format
+    return (
+      <div className="mt-4 space-y-2">
+      {profileData.linkedAccounts.map((acct: any, idx: number) => {
+        // Attempt to extract a "friendly" display name
+        let displayName = "";
+        if (acct.provider === "google" && acct.providerProfile?.name) {
+          displayName = acct.providerProfile.name;
+        } else if (acct.provider === "discord" && acct.providerProfile?.username) {
+          displayName = acct.providerProfile.username;
+        } else {
+          // fallback to email/sub if available
+          displayName =
+            acct.providerProfile?.email ||
+            acct.providerProfile?.sub ||
+            acct.provider;
+        }
+
+        // Attempt to extract an avatar/picture if available
+        let avatarUrl = "";
+        if (acct.provider === "google" && acct.providerProfile?.picture) {
+          avatarUrl = acct.providerProfile.picture;
+        } else if (acct.provider === "discord" && acct.providerProfile?.avatar) {
+          // For Discord, the raw avatar field is just an ID. You might need to build the URL:
+          // e.g. `https://cdn.discordapp.com/avatars/<userId>/<avatarId>.png`
+          // But as an example:
+          avatarUrl = "";
+        }
+
+        return (
+          <div key={idx} className="flex items-center space-x-3">
+            {avatarUrl ? 
+              <img
+                src={avatarUrl}
+                alt={`${acct.provider} avatar`}
+                className="h-6 w-6 rounded-full"
+              /> : null}
+            <p className="text-sm font-medium capitalize">{acct.provider}</p>
+            <p className="text-sm text-muted-foreground">{displayName}</p>
+          </div>
+        );
+})}
+
+        {/* If user only has Google => show "Link Discord", etc. */}
+        <div className="flex space-x-2 pt-2">
+          {!profileData.linkedAccounts.some((a: any) => a.provider === "google") && (
+            <Button variant="outline" size="sm" onClick={() => linkAccount("google")}>
+              Link Google
+            </Button>
+          )}
+          {!profileData.linkedAccounts.some((a: any) => a.provider === "discord") && (
+            <Button variant="outline" size="sm" onClick={() => linkAccount("discord")}>
+              Link Discord
+            </Button>
+          )}
+        </div>
+      </div>
     );
   }
 
@@ -365,7 +349,9 @@ export default function Profile() {
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <Label htmlFor="marketing-emails">Marketing Emails</Label>
-                      <p className="text-sm text-muted-foreground">Receive emails about new features and updates</p>
+                      <p className="text-sm text-muted-foreground">
+                        Receive emails about new features and updates
+                      </p>
                     </div>
                     <Switch
                       id="marketing-emails"
