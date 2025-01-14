@@ -4,7 +4,7 @@ import { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { getCsrfToken } from "next-auth/react";
 import { signInServer } from "@/utils/serverFunctions";
 import { useRouter } from "next/navigation";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, EyeSlashIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
 import { usePlausible } from "next-plausible";
 import { TosModal } from "@/components/TosModal";
 import Image from "next/image";
@@ -200,23 +200,28 @@ export default function AuthForm({
         }}
         className="mt-8 space-y-6"
       >
-        <input
-          type="email"
-          required
-          className="auth-input"
-          placeholder="Email address"
-          value={email}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => {
-            setEmail(e.target.value);
-          }}
-          autoComplete="username"
-        />
+        <div className="relative">
+          <input
+            type="email"
+            required
+            className="auth-input"
+            placeholder="Email address"
+            value={email}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setEmail(e.target.value);
+            }}
+            autoComplete="username"
+          />
+          <span className="absolute inset-y-0 right-3 flex items-center">
+            <EnvelopeIcon className="h-5 w-5" />
+          </span>
+        </div>
         <div className="relative">
           <input
             type={isPasswordVisible ? "text" : "password"}
             required
             className="auth-input"
-            placeholder="Password"
+            placeholder="Enter your password"
             value={password}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               setPassword(e.target.value);
@@ -322,15 +327,16 @@ export default function AuthForm({
       </form>
 
       <div className="mt-6 text-center">
+        {isLogin ? "Don't have an account? " : "Already have an account? "}
         <button
           onClick={() => {
             // If user is on Sign Up, let them go to /signup?mode=login => the login variant
             const newPath = `/signup${!isLogin ? "?mode=login" : ""}`;
             router.push(newPath);
           }}
-          className="auth-toggle"
+          className="auth-toggle text-primary hover:underline"
         >
-          {isLogin ? "Don't have an account? Sign up" : "Already have an account? Log in"}
+          {isLogin ? "Sign up" : "Log in"}
         </button>
       </div>
 

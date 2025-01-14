@@ -16,12 +16,17 @@ import { ThemeSwitch } from "@/components/Navbar/ThemeSwitch.tsx";
 import { signOut as clientSignOut, useSession } from "next-auth/react";
 
 const navigationItems = [
-  { name: "Home", path: "/ai-home" },
-  { name: "Chat", path: "/ai-chat" },
+  // { name: "Home", path: "/ai-home" },
+  // { name: "Chat", path: "/ai-chat" },
   { name: "Pools", path: "/pools" },
-  { name: "Tokens", path: "/tokens" },
-  { name: "Strategies", path: "/strategies" },
-  { name: "Portfolio", path: "/portfolio" }
+  { name: "Tokens", path: "/tokens" }
+  // { name: "Strategies", path: "/strategies" },
+  // { name: "Portfolio", path: "/portfolio" }
+];
+
+const navigationProfileItems = [
+  { name: "Profile", path: "/profile" },
+  { name: "Developer", path: "/developer" }
 ];
 
 const Navbar: FC = () => {
@@ -59,27 +64,27 @@ const Navbar: FC = () => {
   return (
     <nav className={`sticky top-0 w-full border-b ${theme === "dark" ? "bg-background border-border" : "bg-white border-gray-200"} z-50`}>
       <div className="max-w-screen-2xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="relative flex items-center">
-          <div style={{ width: "120px", height: "40px", position: "relative" }}>
+        <Link href="/" className="w-1/3 relative flex items-center">
+          <div style={{ width: "120px", height: "46px", position: "relative" }}>
             <Image src="/images/logo2.svg" alt="Hoops Logo" fill={true} className={`brightness-0 ${theme === "dark" ? "invert" : ""}`} priority />
           </div>
         </Link>
 
-        <div className="hidden lg:flex items-center gap-6">
+        <div className="w-1/3 hidden lg:flex justify-center items-center gap-6">
           {navigationItems.map((item) => (
             <Link
               key={item.name}
               href={item.path}
               className={`text-sm font-medium transition-colors ${
                 pathname === item.path ? (theme === "dark" ? "text-white" : "text-black") : theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"
-              } ${item.name !== "Pools" && item.name !== "Tokens" ? "hidden" : ""}`}
+              }`}
             >
               {item.name}
             </Link>
           ))}
         </div>
 
-        <div className="hidden lg:flex items-center gap-6">
+        <div className="w-1/3 hidden lg:flex justify-end items-center gap-6">
           <ThemeSwitch isMobile={false} />
 
           {isLoggedIn ? (
@@ -100,22 +105,11 @@ const Navbar: FC = () => {
                     </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => {
-                      router.push("/profile");
-                    }}
-                  >
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => {
-                      router.push("/developer");
-                    }}
-                  >
-                    Developer
-                  </DropdownMenuItem>
+                  {navigationProfileItems.map((item) => (
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(item.path)} key={item.name}>
+                      {item.name}
+                    </DropdownMenuItem>
+                  ))}
                   <DropdownMenuSeparator />
                   <div className="p-2">
                     <ConnectWallet />
@@ -178,6 +172,23 @@ const Navbar: FC = () => {
                 {item.name}
               </Link>
             ))}
+            <div className="flex flex-col gap-4 pt-4 border-t border-border">
+              {navigationProfileItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.path}
+                  className={`text-sm font-medium transition-colors ${
+                    pathname === item.path ? (theme === "dark" ? "text-white" : "text-black") : theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"
+                  }`}
+                  onClick={() => handleMenuMobile()}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+            <div className="flex flex-col gap-4 pt-4 border-t border-border">
+              <ConnectWallet />
+            </div>
             {isLoggedIn ? (
               <div className="flex flex-col gap-4 pt-4 border-t border-border">
                 <button
