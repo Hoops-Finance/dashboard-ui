@@ -7,6 +7,8 @@ import { PageLayout } from "@/components/ui/PageLayout.tsx";
 import { PoolsTable } from "@/components/PoolsTable";
 import { TopPools } from "@/components/TopPools";
 import { STABLECOIN_IDS } from "@/utils/utilities";
+import { Button } from "@/components/ui/button.tsx";
+import { BookOpen } from "lucide-react";
 
 export default function PoolsPage() {
   const { poolRiskData, period, loading, pairs, tokens } = useDataContext();
@@ -28,6 +30,13 @@ export default function PoolsPage() {
         </motion.div>
 
         <TopPools data={poolRiskData} pairs={pairs} tokens={tokens} stablecoinIds={STABLECOIN_IDS} period={period} />
+
+        <div className="flex items-center justify-end">
+          <Button variant="outline" className="h-9 gap-2" onClick={() => window.open("https://api.hoops.finance", "_blank")}>
+            <BookOpen className="h-4 w-4" aria-hidden="true" />
+            Read the docs
+          </Button>
+        </div>
 
         <motion.div className="pools-motion" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.4 }}>
           <PoolsTable data={poolRiskData} pairs={pairs} tokens={tokens} />

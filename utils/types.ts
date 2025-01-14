@@ -384,3 +384,72 @@ export interface OAuthLoginRequest {
 }
 
 export type OauthProviders = "google" | "discord";
+
+export interface EmailEntry {
+  email: string;
+  primary: boolean;
+  provider: string;
+  verified: boolean;
+}
+
+/**
+ * The Google user object from the ID token payload:
+ * Common fields from `ticket.getPayload()`
+ */
+export interface GoogleUserResponse {
+  iss?: string;
+  azp?: string;
+  aud?: string;
+  sub: string;
+  email: string;
+  email_verified?: boolean;
+  name?: string;
+  picture?: string;
+  given_name?: string;
+  family_name?: string;
+  locale?: string;
+  hd?: string;
+  iat?: number;
+  exp?: number;
+}
+
+/**
+ * The Discord user object from the docs:
+ * https://discord.com/developers/docs/resources/user#user-object
+ */
+export interface DiscordUserResponse {
+  id: string;
+  username: string;
+  discriminator: string;
+  global_name?: string | null;
+  avatar?: string | null;
+  bot?: boolean;
+  system?: boolean;
+  mfa_enabled?: boolean;
+  banner?: string | null;
+  accent_color?: number | null;
+  locale?: string;
+  verified?: boolean;
+  email?: string | null;
+  flags?: number;
+  premium_type?: number;
+  public_flags?: number;
+  avatar_decoration_data?: unknown;
+}
+
+export interface UserProfile {
+  _id: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+  name?: string;
+  phoneNumber?: string;
+  avatar?: string;
+  emails?: EmailEntry[];
+  linkedAccounts: {
+    provider: OauthProviders;
+    providerId: string | Record<string, unknown>;
+    linkedAt: Date;
+    providerProfile: DiscordUserResponse | GoogleUserResponse | {};
+  }[];
+}

@@ -291,7 +291,7 @@
 }
 
 .auth-input {
-  @apply w-full px-4 py-3 rounded-[var(--radius)] bg-input text-foreground border-input focus:border-ring focus:ring-1 focus:ring-ring;
+  @apply w-full px-4 py-3 rounded-[var(--radius)] border bg-transparent text-foreground border-input focus:border-ring focus:ring-1 focus:ring-ring;
 }
 
 .auth-container {
@@ -330,6 +330,10 @@
 
 .theme-button {
   @apply p-2 rounded-full bg-secondary text-secondary-foreground transition-colors duration-200 hover:bg-secondary/80;
+}
+
+.tokens-motion {
+  @apply rounded-lg border bg-card text-card-foreground shadow;
 }
 
 .token-card {
@@ -430,4 +434,28 @@
 .alert-circle {
   @apply h-8 w-8 text-muted-foreground mx-auto mb-2;
 }
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-4px);
+  }
+}
+
+.red-glow {
+  box-shadow: 0 0 0 2px rgba(239,68,68, 1); /* Tailwind’s red-500 */
+}
+
 }
