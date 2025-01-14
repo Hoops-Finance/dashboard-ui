@@ -172,6 +172,8 @@ const Navbar: FC = () => {
                 {item.name}
               </Link>
             ))}
+        {isLoggedIn ? (
+          <>
             <div className="flex flex-col gap-4 pt-4 border-t border-border">
               {navigationProfileItems.map((item) => (
                 <Link
@@ -180,7 +182,7 @@ const Navbar: FC = () => {
                   className={`text-sm font-medium transition-colors ${
                     pathname === item.path ? (theme === "dark" ? "text-white" : "text-black") : theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"
                   }`}
-                  onClick={() => handleMenuMobile()}
+                  onClick={() => void handleMenuMobile()}
                 >
                   {item.name}
                 </Link>
@@ -189,7 +191,6 @@ const Navbar: FC = () => {
             <div className="flex flex-col gap-4 pt-4 border-t border-border">
               <ConnectWallet />
             </div>
-            {isLoggedIn ? (
               <div className="flex flex-col gap-4 pt-4 border-t border-border">
                 <button
                   onClick={() => {
@@ -200,11 +201,12 @@ const Navbar: FC = () => {
                   Log out
                 </button>
               </div>
+            </>
             ) : (
               <div className="flex flex-col gap-4 pt-4 border-t border-border">
                 <button
                   onClick={() => {
-                    void handleLogin;
+                    void handleLogin();
                   }}
                   className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}
                 >

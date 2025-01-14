@@ -30,9 +30,9 @@ interface UserResponseType {
 }
 
 interface SettingUserType {
-  emailNotification?: boolean | true;
-  marketingEmails?: boolean | false;
-  securityAlerts?: boolean | true;
+  emailNotification?: boolean;
+  marketingEmails?: boolean;
+  securityAlerts?: boolean;
 }
 
 interface ProfileType {
