@@ -172,39 +172,43 @@ const Navbar: FC = () => {
                 {item.name}
               </Link>
             ))}
-            <div className="flex flex-col gap-4 pt-4 border-t border-border">
-              {navigationProfileItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.path}
-                  className={`text-sm font-medium transition-colors ${
-                    pathname === item.path ? (theme === "dark" ? "text-white" : "text-black") : theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"
-                  }`}
-                  onClick={() => handleMenuMobile()}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-            <div className="flex flex-col gap-4 pt-4 border-t border-border">
-              <ConnectWallet />
-            </div>
             {isLoggedIn ? (
-              <div className="flex flex-col gap-4 pt-4 border-t border-border">
-                <button
-                  onClick={() => {
-                    void handleLogout;
-                  }}
-                  className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}
-                >
-                  Log out
-                </button>
-              </div>
+              <>
+                <div className="flex flex-col gap-4 pt-4 border-t border-border">
+                  {navigationProfileItems.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.path}
+                      className={`text-sm font-medium transition-colors ${
+                        pathname === item.path ? (theme === "dark" ? "text-white" : "text-black") : theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"
+                      }`}
+                      onClick={() => {
+                        handleMenuMobile();
+                      }}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+                <div className="flex flex-col gap-4 pt-4 border-t border-border">
+                  <ConnectWallet />
+                </div>
+                <div className="flex flex-col gap-4 pt-4 border-t border-border">
+                  <button
+                    onClick={() => {
+                      void handleLogout;
+                    }}
+                    className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}
+                  >
+                    Log out
+                  </button>
+                </div>
+              </>
             ) : (
               <div className="flex flex-col gap-4 pt-4 border-t border-border">
                 <button
                   onClick={() => {
-                    void handleLogin;
+                    handleLogin();
                   }}
                   className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}
                 >

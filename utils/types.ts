@@ -1,6 +1,7 @@
 // types.ts
 
 import { UTCTimestamp } from "lightweight-charts";
+import { SettingUserType } from "@/types/user.ts";
 
 // Represents the price information of a pair related to a token
 export interface TokenPairPrice {
@@ -452,4 +453,5 @@ export interface UserProfile {
     linkedAt: Date;
     providerProfile: DiscordUserResponse | GoogleUserResponse | {};
   }[];
+  settings?: SettingUserType;
 }
