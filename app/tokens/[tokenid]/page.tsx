@@ -297,7 +297,9 @@ export default function TokenDetailsPage() {
               <h2 className="text-xl font-bold" title={`Pools that ${displayName} participates in`}>
                 Pools for {displayName}
               </h2>
-              <PoolsTable data={tokenPools} pairs={pairs} tokens={tokens} />
+              <div className="pools-motion">
+                <PoolsTable data={tokenPools} pairs={pairs} tokens={tokens} />
+              </div>
             </div>
           </div>
         ) : (

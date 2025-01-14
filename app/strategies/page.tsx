@@ -132,7 +132,7 @@ export default function StrategiesPage() {
             ))}
 
             <Link href="/strategies/create">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <motion.div className="mt-4" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Card className="p-8 border-dashed border-2 hover:border-primary/50 hover:bg-muted/50 transition-all duration-300 flex flex-col items-center justify-center gap-3 cursor-pointer group">
                   <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center group-hover:bg-background transition-colors duration-300">
                     <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors duration-300" />

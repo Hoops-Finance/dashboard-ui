@@ -136,7 +136,7 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-4">
       {/* Top controls: protocol filters, search, reset, read docs, period selector */}
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-2">
@@ -167,10 +167,6 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
         </div>
         <Button variant="secondary" className="h-9" onClick={resetFilters} aria-label="Reset filters">
           Reset
-        </Button>
-        <Button variant="outline" className="h-9 gap-2" onClick={() => window.open("https://api.hoops.finance", "_blank")}>
-          <BookOpen className="h-4 w-4" />
-          Read the docs
         </Button>
         <Select
           value={period}
