@@ -442,6 +442,9 @@ export interface UserProfile {
   email: string;
   createdAt: Date;
   updatedAt: Date;
+  name?: string;
+  phoneNumber?: string;
+  avatar?: string;
   emails?: EmailEntry[];
   linkedAccounts: {
     provider: OauthProviders;

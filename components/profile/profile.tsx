@@ -12,53 +12,99 @@ import { PencilIcon } from "@heroicons/react/24/outline";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
+import { getCsrfToken } from "next-auth/react";
+import { UserProfile } from "@/utils/types";
 
 export default function Profile() {
   const router = useRouter();
   const pathname = usePathname();
   const { data: session, status } = useSession();
+  const [csrfToken, setCsrfToken] = useState<string>("");
 
   const [loadingProfile, setLoadingProfile] = useState(false);
-  const [profileData, setProfileData] = useState<any>(null);
+  const [profileData, setProfileData] = useState<UserProfile | null>(null);
 
   useEffect(() => {
+    void (async () => {
+      const token = await getCsrfToken();
+      if (token) setCsrfToken(token);
+    })();
+
     if (status === "loading") return;
-    if (session?.user.accessToken) {
-      setLoadingProfile(true);
-      fetchUserProfile();
+    if (session?.user?.accessToken) {
+      void fetchUserProfile();
     } else {
       router.push("/signup?mode=login&next=" + pathname);
     }
   }, [session, status, router, pathname]);
 
-  async function fetchUserProfile() {
+async function fetchUserProfile() {
+    setLoadingProfile(true);
     try {
-      const res = await fetch("/api/auth/profile");
+      const res = await fetch("/api/auth/profile/one");
       if (!res.ok) {
-        console.error("[Profile] GET /api/auth/profile call failed:", res.status, await res.text());
+        console.error("[Profile] GET /api/auth/profile/one failed:", res.status, await res.text());
         setLoadingProfile(false);
         return;
       }
-      const data = await res.json();
+      const data: UserProfile = await res.json() as UserProfile;
       setProfileData(data);
     } catch (err) {
-      console.error("[Profile] Error fetching user profile via /api/auth/profile:", err);
+      console.error("[Profile] Error fetching user profile:", err);
     } finally {
       setLoadingProfile(false);
     }
   }
 
-  const handleSubmit = (e: FormEvent) => {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // Add your form submission logic here
-  };
+    const formData = new FormData(e.currentTarget);
+    const imageFile = formData.get("avatar") as File;
+    if (imageFile && imageFile.size > 0) {
+      const base64Image = await convertToBase64(imageFile);
+      formData.delete("avatar");
+      formData.append("avatar", base64Image);
+    }
+
+    await updateProfile(formData);
+  }
+
+  function convertToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function updateProfile(formData: FormData) {
+    const jsonData = Object.fromEntries(formData.entries());
+
+    try {
+      const res = await fetch("/api/auth/profile/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(jsonData),
+      });
+      if (!res.ok) {
+        console.error("[Profile] POST /api/auth/profile/update failed:", res.status, await res.text());
+        return;
+      }
+      // Re-fetch updated profile
+      await fetchUserProfile();
+    } catch (err) {
+      console.error("[Profile] Error updating user profile:", err);
+    }
+  }
 
   function linkAccount(provider: string) {
     if (!session?.user?.accessToken) {
       console.error("[Profile] No session token found, can't link account");
       return;
     }
-    window.location.href = `/api/auth/oauth/start?provider=${provider}&state=${encodeURIComponent(session.user.accessToken)}`;
+    // Start OAuth flow with state = user’s access token
+    window.location.href = `/api/auth/oauth/start?provider=${provider}&state=${encodeURIComponent(csrfToken)}`;
   }
 
   function renderLinkedAccounts() {
@@ -88,11 +134,11 @@ export default function Profile() {
         // Attempt to extract a "friendly" display name
         let displayName = "";
         if (acct.provider === "google" && acct.providerProfile?.name) {
-          displayName = acct.providerProfile.name; // e.g. "Timothy Baker"
+          displayName = acct.providerProfile.name;
         } else if (acct.provider === "discord" && acct.providerProfile?.username) {
-          displayName = acct.providerProfile.username; // e.g. "Nelly"
+          displayName = acct.providerProfile.username;
         } else {
-          // fallback to provider or sub/ID
+          // fallback to email/sub if available
           displayName =
             acct.providerProfile?.email ||
             acct.providerProfile?.sub ||
@@ -102,7 +148,7 @@ export default function Profile() {
         // Attempt to extract an avatar/picture if available
         let avatarUrl = "";
         if (acct.provider === "google" && acct.providerProfile?.picture) {
-          avatarUrl = acct.providerProfile.picture; // e.g. Google photo
+          avatarUrl = acct.providerProfile.picture;
         } else if (acct.provider === "discord" && acct.providerProfile?.avatar) {
           // For Discord, the raw avatar field is just an ID. You might need to build the URL:
           // e.g. `https://cdn.discordapp.com/avatars/<userId>/<avatarId>.png`
@@ -180,25 +226,25 @@ export default function Profile() {
                         />
                       </div>
                       <div className="grid gap-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="phoneNumber">Phone</Label>
                         <Input
-                          id="email"
-                          name="email"
-                          defaultValue={profileData?.email || session?.user.email || ""}
-                          type="email"
-                          aria-label="Email address"
-                          required
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        // we don't collect this yet
-                        <Label htmlFor="phone">Phone</Label>
-                        <Input
-                          id="phone"
-                          name="phone"
-                          defaultValue="+1 (555) 000-0000"
+                          id="phoneNumber"
+                          name="phoneNumber"
+                          defaultValue={profileData?.phoneNumber || ""}
                           type="tel"
                           aria-label="Phone number"
+                        />
+                      </div>
+                      {/* Avatar file input */}
+                      <div className="grid gap-2">
+                        <Label htmlFor="avatar">Profile Picture</Label>
+                        <Input
+                          id="avatar"
+                          name="avatar"
+                          type="file"
+                          accept="image/*"
+                          className="cursor-pointer"
+                          aria-label="Profile picture"
                         />
                       </div>
                     </div>
@@ -241,16 +287,10 @@ export default function Profile() {
                           session?.user.email ||
                           "John Doe"}
                       </h3>
-                      {/* Display multiple emails if present */}
-                      {profileData?.emails && profileData.emails.length > 1 && (
-                        <ul className="text-sm text-muted-foreground">
-                          {profileData.emails.map((em: any, i: number) => (
-                            <li key={i}>
-                              {em.email} {em.primary ? "(primary)" : ""}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+                      <p className="text-sm text-muted-foreground">{profileData?.email}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {profileData?.phoneNumber || "+1 (555) 000-0000"}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
