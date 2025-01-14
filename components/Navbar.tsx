@@ -193,7 +193,7 @@ const Navbar: FC = () => {
               <div className="flex flex-col gap-4 pt-4 border-t border-border">
                 <button
                   onClick={() => {
-                    handleLogin();
+                    void handleLogin;
                   }}
                   className={`text-sm font-medium transition-colors ${theme === "dark" ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"}`}
                 >
