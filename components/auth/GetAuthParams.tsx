@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 
 interface ParamsResult {
   isLogin: boolean;
@@ -11,18 +11,32 @@ interface ParamsResult {
   oauthCode?: string;
 }
 
-function InternalModeSetter({ onParamsLoadedAction }: { onParamsLoadedAction: (res: ParamsResult) => void }) {
+function InternalModeSetter({
+  onParamsLoadedAction
+}: {
+  onParamsLoadedAction: (res: ParamsResult) => void;
+}) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   useEffect(() => {
-    const mode = searchParams.get("mode");
+    // Check if `?mode=login`
+    const modeParam = searchParams.get("mode");
     const errorParam = searchParams.get("error") ?? "";
-    const isLogin = mode === "login";
+
+    // By default, isLogin = (mode=login)
+    let isLogin = modeParam === "login";
+
+    // If no `?mode=login` is present, but the pathname includes /login, let's default to true
+    if (!modeParam && pathname && pathname.toLowerCase().includes("login")) {
+      isLogin = true;
+    }
 
     let oauthEmail = "";
     let oauthProvider = "";
     let oauthCode = "";
 
+    // If the errorParam starts with "NO_ACCOUNT", parse out the extra data
     if (errorParam.startsWith("NO_ACCOUNT")) {
       const parts = errorParam.split("|")[1]; // e.g. "email=xxx&provider=xxx&code=xxx"
       const qp = new URLSearchParams(parts);
@@ -38,7 +52,7 @@ function InternalModeSetter({ onParamsLoadedAction }: { onParamsLoadedAction: (r
       oauthProvider,
       oauthCode
     });
-  }, [searchParams, onParamsLoadedAction]);
+  }, [searchParams, pathname, onParamsLoadedAction]);
 
   return null;
 }
@@ -46,11 +60,14 @@ function InternalModeSetter({ onParamsLoadedAction }: { onParamsLoadedAction: (r
 /**
  * GetAuthParams:
  * This component determines whether the user is in login or signup mode based on
- * the 'mode' and 'error' URL search parameters. It also handles the NO_ACCOUNT scenario.
- * It uses `useSearchParams()`, which requires being wrapped in Suspense.
- * Once the params are processed, it calls `onParamsLoaded` to pass the results to the parent.
+ * the 'mode' param, the path (e.g. /account/login), and the 'error' param.
+ * Once the params are processed, it calls `onParamsLoadedAction` to pass the results.
  */
-export default function GetAuthParams({ onParamsLoadedAction }: { onParamsLoadedAction: (res: ParamsResult) => void }) {
+export default function GetAuthParams({
+  onParamsLoadedAction
+}: {
+  onParamsLoadedAction: (res: ParamsResult) => void;
+}) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <InternalModeSetter onParamsLoadedAction={onParamsLoadedAction} />

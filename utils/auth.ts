@@ -122,16 +122,16 @@ export const authOptions: NextAuthConfig = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      // On initial login, store the tokens from `authorize()`.
-      token.id = user.id ?? "";
-      token.avatar = user.avatar;
-      token.name = user.name ?? "";
-      token.email = user.email ?? "";
-      token.premiumSubscription = user.premiumSubscription;
-      token.accessToken = user.accessToken;
-      token.refreshToken = user.refreshToken;
-      token.subId = user.subId;
-
+      if (user !== undefined) {
+        token.id = user.id ?? "";
+        token.avatar = user.avatar;
+        token.name = user.name ?? "";
+        token.email = user.email ?? "";
+        token.premiumSubscription = user.premiumSubscription;
+        token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
+        token.subId = user.subId;
+      }
       return validateAuthorization(token);
     },
 
@@ -166,36 +166,44 @@ export const authOptions: NextAuthConfig = {
 export async function validateAuthorization(token: JWT): Promise<JWT> {
   const validAccess = await verifyAccessToken(token);
   if (!validAccess) {
-    console.log("access token invalid");
+    console.log("access token invalid", token);
     const refreshedToken = await refreshAccessToken(token);
     if (!refreshedToken.error) {
       token.accessToken = refreshedToken.accessToken;
       token.refreshToken = refreshedToken.refreshToken;
+    } else {
+      // ADDED: Log more detail about the refresh error
+      console.error(
+        "[validateAuthorization] Failed to refresh access token. Server responded with error:",
+        refreshedToken.error
+      );
     }
   }
   return token;
 }
+
 export async function verifyAccessToken(token: JWT): Promise<boolean> {
   console.log("trying claims");
-  const accessTokenClaim = async (token: string) => {
+  const decodeToken = async (jwe: string) => {
     try {
       if (!process.env.JWT_SECRET || !process.env.SALT_SECRET) {
-        throw new Error("Missing JWT_SECRET or SALT_SECRET in environment");
+        throw new Error("Missing JWT_SECRET / SALT_SECRET in environment");
       }
       return await authJsDecode({
-        token: token,
+        token: jwe,
         secret: process.env.JWT_SECRET,
         salt: process.env.SALT_SECRET
       });
     } catch (error) {
-      console.error("Error decoding token", error);
+      // ADDED: Additional context for decode errors
+      console.error("[verifyAccessToken] Error decoding token =>", error);
       return false;
     }
   };
-  const at = await accessTokenClaim(token.accessToken);
-  const rt = await accessTokenClaim(token.refreshToken);
-  console.log("jwt claims", accessTokenClaim);
-  /*
+  const at = await decodeToken(token.accessToken);
+  const rt = await decodeToken(token.refreshToken);
+  const currentTime = Math.floor(Date.now() / 1000);
+ /*
   jwt claims {
     sub: '677ef99b3ad02e8c8731779b',
     iat: 1736388976, // issued at
@@ -203,18 +211,12 @@ export async function verifyAccessToken(token: JWT): Promise<boolean> {
     jti: '054b5842-69f8-49ec-8f1d-0fc847ba2c20'
     }
   */
-  const currentTime = Math.floor(Date.now() / 1000);
-  if (!at || !rt) {
-    return false;
-  } else if (!at.exp || !rt.exp) {
-    return false;
-  } else if (token.exp && token.exp < currentTime) {
-    return false;
-  } else if (at.exp < currentTime || rt.exp < currentTime) {
-    return false;
-  } else {
-    return true;
-  }
+  if (!at || !rt) return false;
+  if (!at.exp || !rt.exp) return false;
+  if (token.exp && token.exp < currentTime) return false;
+  if (at.exp < currentTime || rt.exp < currentTime) return false;
+
+  return true;
 }
 
 interface tokenValidationResponse {
@@ -223,21 +225,34 @@ interface tokenValidationResponse {
 }
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
-  const res = await fetch(`${process.env.AUTH_API_URL}/auth/refresh`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": `${process.env.AUTH_API_KEY}`
-    },
-    body: JSON.stringify({ refreshToken: token.refreshToken })
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${process.env.AUTH_API_URL}/auth/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": `${process.env.AUTH_API_KEY}`
+      },
+      body: JSON.stringify({ refreshToken: token.refreshToken })
+    });
+  } catch (err) {
+    // ADDED: More logging if the fetch itself fails (e.g. ECONNREFUSED)
+    console.error("[refreshAccessToken] fetch failed =>", err);
+    return { ...token, error: "FetchError" };
+  }
 
   if (!res.ok) {
+    // ADDED: Log the status and text for better debugging
+    const text = await res.text().catch(() => "Unknown body");
+    console.error("[refreshAccessToken] refresh call failed with status:", res.status, text);
     return { ...token, error: "RefreshAccessTokenError" };
   }
 
-  const data = (await res.json()) as AuthResult;
+  const data = (await res.json().catch(() => ({}))) as AuthResult;
+  console.log("[refreshAccessToken] refresh endpoint responded:", data);
+
   if (!data.success || !data.refreshToken) {
+    console.error("[refreshAccessToken] Missing success or refreshToken in response:", data);
     return { ...token, error: "RefreshAccessTokenError" };
   }
 
@@ -261,9 +276,9 @@ async function fetchCredentialsUser(url: string, email: string, password: string
   if (!res.ok) {
     return null;
   }
-
+  console.log("fetchCredentialsUser");
   const data = (await res.json()) as AuthResult;
-
+  console.log("fetchCredentialsUser", data);
   if (!data.success || !data.accessToken || !data.refreshToken || !data.email || !data.id) {
     return null;
   }
