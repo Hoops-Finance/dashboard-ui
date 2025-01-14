@@ -63,12 +63,8 @@ export default function Profile() {
 
   function renderLinkedAccounts() {
     if (!profileData || !Array.isArray(profileData.linkedAccounts)) return null;
-
-    // Determine if user has Google or Discord
-    const hasGoogle = profileData.linkedAccounts.some((acct: any) => acct.provider === "google");
-    const hasDiscord = profileData.linkedAccounts.some((acct: any) => acct.provider === "discord");
-
-    // If none linked, show both buttons
+  
+    // If no linked accounts, show both link buttons
     if (profileData.linkedAccounts.length === 0) {
       return (
         <div className="mt-4">
@@ -84,27 +80,59 @@ export default function Profile() {
         </div>
       );
     }
-
-    // Some linked => show them, plus link button(s) for what's missing
+  
+    // Some accounts are linked => show them in a friendlier format
     return (
       <div className="mt-4 space-y-2">
-        {profileData.linkedAccounts.map((acct: any, idx: number) => (
-          <div key={idx} className="flex items-center space-x-3">
-            <p className="text-sm font-medium capitalize">{acct.provider}</p>
-            <p className="text-xs text-muted-foreground">
-              {JSON.stringify(acct.providerProfile)}
-            </p>
-          </div>
-        ))}
+      {profileData.linkedAccounts.map((acct: any, idx: number) => {
+        // Attempt to extract a "friendly" display name
+        let displayName = "";
+        if (acct.provider === "google" && acct.providerProfile?.name) {
+          displayName = acct.providerProfile.name; // e.g. "Timothy Baker"
+        } else if (acct.provider === "discord" && acct.providerProfile?.username) {
+          displayName = acct.providerProfile.username; // e.g. "Nelly"
+        } else {
+          // fallback to provider or sub/ID
+          displayName =
+            acct.providerProfile?.email ||
+            acct.providerProfile?.sub ||
+            acct.provider;
+        }
 
-        {/* If user only has google => show “Link Discord”, etc. */}
+        // Attempt to extract an avatar/picture if available
+        let avatarUrl = "";
+        if (acct.provider === "google" && acct.providerProfile?.picture) {
+          avatarUrl = acct.providerProfile.picture; // e.g. Google photo
+        } else if (acct.provider === "discord" && acct.providerProfile?.avatar) {
+          // For Discord, the raw avatar field is just an ID. You might need to build the URL:
+          // e.g. `https://cdn.discordapp.com/avatars/<userId>/<avatarId>.png`
+          // But as an example:
+          avatarUrl = "";
+        }
+
+        return (
+          <div key={idx} className="flex items-center space-x-3">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={`${acct.provider} avatar`}
+                className="h-6 w-6 rounded-full"
+              />
+            ) : null}
+            <p className="text-sm font-medium capitalize">{acct.provider}</p>
+            <p className="text-sm text-muted-foreground">{displayName}</p>
+          </div>
+        );
+})}
+
+        {/* If user only has Google => show "Link Discord", etc. */}
         <div className="flex space-x-2 pt-2">
-          {!hasGoogle && (
+          {!profileData.linkedAccounts.some((a: any) => a.provider === "google") && (
             <Button variant="outline" size="sm" onClick={() => linkAccount("google")}>
               Link Google
             </Button>
           )}
-          {!hasDiscord && (
+          {!profileData.linkedAccounts.some((a: any) => a.provider === "discord") && (
             <Button variant="outline" size="sm" onClick={() => linkAccount("discord")}>
               Link Discord
             </Button>
@@ -113,7 +141,7 @@ export default function Profile() {
       </div>
     );
   }
-
+  
   return (
     <>
       {loadingProfile ? (
