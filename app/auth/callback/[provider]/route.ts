@@ -46,8 +46,6 @@ export async function GET(req: NextRequest, context: { params: Promise<{ provide
   if (!rawCookie) {
     return NextResponse.redirect(new URL("/signup?error=MissingCsrfCookie", "https://app.hoops.finance"));
   }
-//https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?client_id=1097562416208-5t4tg72fg11h5earre857qtvo4ch0tlc.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fapp.hoops.finance%2Fauth%2Fcallback%2Fgoogle&response_type=code&scope=email%20profile&prompt=consent&state=43dc5611575f2b668b68ecdb90065198e7f26cd78203043a829b512a390dd883&service=lso&o2v=2&ddm=1&flowName=GeneralOAuthFlow
-
 
   const decodedCookie = decodeURIComponent(rawCookie.value);
   console.log(`[OAUTH-CALLBACK] Decoded CSRF Cookie: ${decodedCookie}`);
