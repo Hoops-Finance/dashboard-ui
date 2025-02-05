@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Token, Pair, PoolRiskApiResponseObject } from "@/utils/types";
+import type { Token, Pair, PoolRiskApiResponseObject } from "@/utils/types";
 import { STABLECOIN_IDS } from "@/utils/utilities";
 
 function LightningIcon() {
@@ -63,21 +63,20 @@ function getTokenTVLMap(pairs: Pair[]): Map<string, number> {
 export function TopTokens({ tokens, pairs, poolRiskData }: TopTokensProps) {
   const volumeMap = useMemo(() => getTokenVolumeMap(tokens, pairs, poolRiskData), [tokens, pairs, poolRiskData]);
   const tvlMap = useMemo(() => getTokenTVLMap(pairs), [pairs]);
-
-  const stablecoins = useMemo(() => {
-    return tokens.filter((t) => STABLECOIN_IDS.has(t.id));
-  }, [tokens]);
+  const stablecoins = useMemo(() => tokens.filter((t) => STABLECOIN_IDS.has(t.id)), [tokens]);
 
   const topByVolume = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const arr = tokens.filter((t) => volumeMap.has(t.id)).map((t) => ({ token: t, volume: volumeMap.get(t.id)! }));
+    const arr = tokens
+      .filter((t) => volumeMap.has(t.id))
+      .map((t) => ({ token: t, volume: volumeMap.get(t.id)! }));
     arr.sort((a, b) => b.volume - a.volume);
     return arr.slice(0, 5);
   }, [tokens, volumeMap]);
 
   const topByLiquidity = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const arr = tokens.filter((t) => tvlMap.has(t.id)).map((t) => ({ token: t, tvl: tvlMap.get(t.id)! }));
+    const arr = tokens
+      .filter((t) => tvlMap.has(t.id))
+      .map((t) => ({ token: t, tvl: tvlMap.get(t.id)! }));
     arr.sort((a, b) => b.tvl - a.tvl);
     return arr.slice(0, 5);
   }, [tokens, tvlMap]);

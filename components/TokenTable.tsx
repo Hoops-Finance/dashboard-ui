@@ -1,6 +1,5 @@
 "use client";
-
-import { useState, useMemo, useEffect, ChangeEvent } from "react";
+import { useState, useMemo, ChangeEvent } from "react";
 import { Token, Pair, PoolRiskApiResponseObject } from "@/utils/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -119,7 +118,7 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
 
   const explorerLink = (token: Token) => {
     if (token.symbol.toUpperCase() === "XLM") {
-      return `https://stellar.expert/explorer/public/asset/native`;
+      return "https://stellar.expert/explorer/public/asset/native";
     } else {
       const [sym, iss] = token.name.split(":");
       return `https://stellar.expert/explorer/public/asset/${sym}-${iss}`;
@@ -219,22 +218,32 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
             ) : (
               displayedTokens.map((token) => {
                 const [symbolName] = token.name.split(":");
-                const priceDisplay = token.price && token.price > 0 ? token.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 }) : "0.00";
+                const priceDisplay =
+                  token.price && token.price > 0
+                    ? token.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })
+                    : "0.00";
                 const tvl = getTokenTVL(token);
                 const counterCount = getCounterAssetsCount(token);
 
                 let detailsUrl: string;
                 if (token.symbol.toUpperCase() === "XLM") {
-                  detailsUrl = `/tokens/native`;
+                  detailsUrl = "/tokens/native";
                 } else {
                   detailsUrl = `/tokens/${token.name.replace(/:/g, "-")}`;
                 }
 
                 return (
-                  <TableRow key={token.id} className="hoverable-row group" style={{ cursor: "pointer" }} onClick={() => (window.location.href = detailsUrl)}>
+                  <TableRow
+                    key={token.id}
+                    className="hoverable-row group"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => (window.location.href = detailsUrl)}
+                  >
                     <TableCell className="h-10 px-4 align-middle">
                       <div className="flex items-center gap-2" title={token.symbol}>
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden relative">{token.symbol.slice(0, 1).toUpperCase()}</div>
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden relative">
+                          {token.symbol.slice(0, 1).toUpperCase()}
+                        </div>
                         <div>
                           <div className="font-medium">{symbolName}</div>
                           <div className="text-sm text-muted-foreground">{token.symbol}</div>
@@ -244,7 +253,9 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
                     <TableCell className="text-right">${priceDisplay}</TableCell>
                     <TableCell className="text-right">${tvl.toLocaleString()}</TableCell>
                     <TableCell className="text-right">{counterCount}</TableCell>
-                    <TableCell className="text-right text-sm text-muted-foreground">{new Date(token.lastUpdated).toLocaleString()}</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">
+                      {new Date(token.lastUpdated).toLocaleString()}
+                    </TableCell>
                     <TableCell className="text-right">
                       <a
                         href={explorerLink(token)}
