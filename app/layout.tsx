@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { cookies } from "next/headers";
 import { ClientWalletProvider } from "@/components/ClientWalletProvider";
-import Navbar from "@/components/Navbar/NavbarServer";
+import Navbar from "@/components/Navbar";
 import { Footer } from "@/components/ui/Footer";
 import { DataProvider } from "@/contexts/DataContext";
 import "./globals.css";
