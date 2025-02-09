@@ -1,18 +1,40 @@
 "use client";
 import { UTCTimestamp } from "lightweight-charts";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createChart, ColorType } from "lightweight-charts";
-import { useTheme } from "@/contexts/ThemeContext";
 
 export function TradingViewChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
+  // We'll store whether <html> has class="dark" in local state.
+  // Then we recreate or update the chart if this changes.
+  const [isDark, setIsDark] = useState(false);
+
+
+    // On mount, we check if .dark is present, then set up a MutationObserver
+  // to watch for changes to <html>'s "class" attribute.
+  useEffect(() => {
+    function checkDarkMode() {
+      const html = document.documentElement;
+      const dark = html.classList.contains("dark");
+      setIsDark(dark);
+    }
+
+    // Initial check
+    checkDarkMode();
+
+    // Watch for <html> class changes:
+    const observer = new MutationObserver(() => {
+      checkDarkMode();
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+    return () => observer.disconnect();
+  }, []);
+
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
-
-    const isDark = theme === "dark";
 
     const chart = createChart(chartContainerRef.current, {
       layout: {
@@ -101,18 +123,17 @@ export function TradingViewChart() {
     });
 
     const data = generateData();
+    candlestickSeries.setData(data);
 
     // Generate matching volume data
     const volumeData = data.map((item) => ({
       time: item.time,
-      value: Math.random() * 100000 + 50000,
+      value: Math.random() * 100000,
       color:
         item.close >= item.open
           ? "#22C55E44" // Emerald-400 with opacity
           : "#EF444444" // Red-400 with opacity
     }));
-
-    candlestickSeries.setData(data);
     volumeSeries.setData(volumeData);
 
     // Add moving averages
@@ -165,7 +186,7 @@ export function TradingViewChart() {
       chart.remove();
       window.removeEventListener("resize", handleResize);
     };
-  }, [theme]); // Re-create chart when theme changes
+  }, [isDark]);
 
   return (
     <div className="w-full h-[600px] bg-background rounded-lg border border-border">

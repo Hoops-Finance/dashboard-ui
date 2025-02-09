@@ -11,7 +11,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTheme } from "@/contexts/ThemeContext";
 
 const poolData = [
   { name: "ETH/XLM", apy: 10.3 },
@@ -29,7 +28,6 @@ const fadeInUp = {
 };
 
 export default function Home() {
-  const { theme } = useTheme();
   const [query, setQuery] = useState("");
   const [response, setResponse] = useState<string | null>(null);
   const [askedQuestion, setAskedQuestion] = useState<string | null>(null);
@@ -149,9 +147,9 @@ export default function Home() {
                         <YAxis stroke="currentColor" className="text-muted-foreground" />
                         <Tooltip
                           contentStyle={{
-                            backgroundColor: theme === "dark" ? "#1F1F1F" : "#FFFFFF",
-                            borderColor: theme === "dark" ? "#2D2D2D" : "#E5E5E5",
-                            color: theme === "dark" ? "#E5E5E5" : "#1A1A1A"
+                            backgroundColor:"bg-white dark:bg-black",
+                            borderColor: "#E5E5E5 dark:#2D2D2D",
+                            color: "#1A1A1A dark:#E5E5E5"
                           }}
                         />
                         <Line type="monotone" dataKey="apy" stroke="currentColor" className="text-primary" strokeWidth={2} />
@@ -247,9 +245,7 @@ export default function Home() {
                 {examplePrompts.map((prompt, index) => (
                   <motion.button
                     key={index}
-                    className={`text-sm px-4 py-2 rounded-full border 
-                      ${theme === "dark" ? "border-gray-700 text-gray-400 hover:border-yellow-400 hover:text-yellow-400" : "border-gray-200 text-gray-500 hover:border-[#0D0D0D] hover:text-[#0D0D0D]"} 
-                      transition-all duration-300`}
+                    className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-[#0D0D0D] hover:text-[#0D0D0D] dark:border-gray-700 dark:text-gray-400 dark:hover:border-yellow-400 dark:hover:text-yellow-400 transition-all duration-300"
                     onClick={() => {
                       setQuery(prompt);
                     }}

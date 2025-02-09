@@ -1,11 +1,8 @@
-"use client";
-
 import { ReactNode } from "react";
+import { cookies } from "next/headers";
 import { ClientWalletProvider } from "@/components/ClientWalletProvider";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/Navbar/NavbarServer";
 import { Footer } from "@/components/ui/Footer";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { AuthProvider } from "@/contexts/AuthContext";
 import { DataProvider } from "@/contexts/DataContext";
 import "./globals.css";
 import { Inter } from "next/font/google";
@@ -18,11 +15,20 @@ const inter = Inter({
   variable: "--font-inter"
 });
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+// Read the 'theme' cookie server-side, default to 'dark'
+async function getInitialThemeCookie(): Promise<"dark" | "light"> {
+  "use server";
+  const themeCookies = await cookies();
+  const themeCookie = themeCookies.get("theme")?.value;
+  if (themeCookie === "light") return "light";
+  return "dark";
+}
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const initialTheme = await getInitialThemeCookie();
+
   return (
-    <html lang="en" className={inter.variable}>
-      <body className={cn("min-h-screen bg-background antialiased")}>
-        <ThemeProvider defaultTheme="dark">
+    <html lang="en" className={cn(inter.variable, initialTheme)}>
+      <body className="min-h-screen bg-background antialiased">
           <SessionProvider>
             <ClientWalletProvider>
               <DataProvider>
@@ -32,7 +38,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               </DataProvider>
             </ClientWalletProvider>
           </SessionProvider>
-        </ThemeProvider>
       </body>
     </html>
   );
