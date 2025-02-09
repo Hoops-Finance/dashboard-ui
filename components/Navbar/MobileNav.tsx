@@ -41,14 +41,15 @@ export default function MobileNav({ isLoggedIn, session }: MobileNavProps) {
           hidden
           peer-checked:flex
           lg:hidden
-          flex-col
+          absolute top-16 left-0 right-0
           border-t border-gray-200 dark:border-border
           bg-white dark:bg-background 
-          px-4 py-4
+          z-50
         `}
       >
         {/* We can put theme switch, maybe a greeting if logged in */}
-        <div className="flex items-center gap-4 mb-4">
+        <div className="max-w-screen-2xl mx-auto px-4 py-4 flex flex-col gap-4">
+        <div className="flex items-center gap-4">
           <ThemeSwitch isMobile={true} />
           {isLoggedIn && (
             <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -109,8 +110,6 @@ export default function MobileNav({ isLoggedIn, session }: MobileNavProps) {
               <ConnectWallet />
             </div>
             <div className="flex flex-col gap-4 pt-4 border-t border-border">
-              {/* We do a form for logout -> no onClick needed => pure server */}
-              <form action="#logoutAction" method="POST" onSubmit={(e) => e.preventDefault()}>
                 <button
                   form="logout-hidden-form"
                   type="submit"
@@ -120,7 +119,6 @@ export default function MobileNav({ isLoggedIn, session }: MobileNavProps) {
                 >
                   Log out
                 </button>
-              </form>
             </div>
           </>
         ) : (
@@ -143,6 +141,7 @@ export default function MobileNav({ isLoggedIn, session }: MobileNavProps) {
             </Link>
           </div>
         )}
+        </div>
       </div>
     </>
   );
