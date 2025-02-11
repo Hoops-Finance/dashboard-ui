@@ -16,7 +16,7 @@ export interface TokenApiResponseObject {
   decimals: number;
   price: number;
   pairs: TokenPairPrice[];
-  lastupdated: string; //a string representation of a date in long format like "2024-09-19T00:38:47.826+00:00" this should get converted to a epoch timestamp
+  lastUpdated: string; //a string representation of a date in long format like "2024-09-19T00:38:47.826+00:00" this should get converted to a epoch timestamp
 }
 // Represents a token fetched from the API
 export interface Token {
