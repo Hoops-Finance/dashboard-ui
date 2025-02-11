@@ -1,9 +1,11 @@
 // @/components/Navbar/MobileNav.tsx
-// No "use client" => purely server using checkbox hack
+//export const experimental_ppr = true;
+"use client";
+export const experimental_ppr = true;
 import { Suspense } from "react";
 import Link from "next/link";
 import { navigationItems, navigationProfileItems } from "./Constants";
-import { ConnectWallet } from "@/components/ConnectWallet";
+//import { ConnectWallet } from "@/components/ConnectWallet";
 import { ThemeSwitch } from "./ThemeSwitch";
 import PathLink from "./PathLink";
 
@@ -107,7 +109,7 @@ export default function MobileNav({ isLoggedIn, session }: MobileNavProps) {
               ))}
             </div>
             <div className="flex flex-col gap-4 pt-4 border-t border-border">
-              <ConnectWallet />
+             {/*} <ConnectWallet /> */}
             </div>
             <div className="flex flex-col gap-4 pt-4 border-t border-border">
                 <button

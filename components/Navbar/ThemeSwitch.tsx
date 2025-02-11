@@ -1,5 +1,4 @@
 "use client";
-import { setThemeCookie } from "@/actions/theme";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 
@@ -13,16 +12,13 @@ export function ThemeSwitch(props: { isMobile: boolean }) {
     setTheme(isLight ? "light" : "dark");
   }, []);
 
-  const toggleTheme = async () => {
+  const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
 
     // Immediately reflect in the DOM for no flicker
     document.documentElement.classList.remove("dark", "light");
     document.documentElement.classList.add(newTheme);
-
-    // Update the cookie
-    await setThemeCookie(newTheme);
   };
 
   return (

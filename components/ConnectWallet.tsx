@@ -4,7 +4,7 @@ import { FC } from "react";
 import { StellarWalletsKit, WalletNetwork, allowAllModules, XBULL_ID } from "@creit.tech/stellar-wallets-kit";
 import { useWallet } from "@/contexts/WalletContext";
 import { AccountResponse, BalanceLine, BalanceLineNative, BalanceLineAsset, BalanceLineLiquidityPool } from "@/utils/types";
-import { Horizon } from "@stellar/stellar-sdk";
+import { Horizon } from "@stellar/stellar-sdk/minimal";
 
 export const ConnectWallet: FC = () => {
   const { isConnected, updateWalletInfo } = useWallet();

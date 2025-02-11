@@ -1,5 +1,6 @@
 // @/components/Navbar/DesktopNav.tsx
-// No "use client" => purely server
+"use client";
+export const experimental_ppr = true;
 import { Suspense } from "react";
 import Link from "next/link";
 import { ThemeSwitch } from "./ThemeSwitch"; // if this is also server or a small client piece, it's okay

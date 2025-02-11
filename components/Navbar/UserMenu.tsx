@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { navigationProfileItems } from "./Constants";
 import Link from "next/link";
-import { ConnectWallet } from "@/components/ConnectWallet";
+//import { ConnectWallet } from "@/components/ConnectWallet";
 
 interface UserMenuProps {
   userEmail: string;
@@ -49,7 +49,7 @@ export function UserMenu({ userEmail }: UserMenuProps) {
         ))}
         <DropdownMenuSeparator />
         <div className="p-2">
-          <ConnectWallet />
+          {/* <ConnectWallet /> */}
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem

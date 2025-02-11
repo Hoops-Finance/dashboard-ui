@@ -1,6 +1,6 @@
 // @/components/Navbar/HighlightNavLink.tsx
 "use client";
-
+export const experimental_ppr = true;
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
