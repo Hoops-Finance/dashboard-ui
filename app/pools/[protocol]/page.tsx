@@ -11,8 +11,9 @@ import { MessageCircleWarning } from "lucide-react";
 import { PoolsTable } from "@/components/PoolsTable";
 import { TopPools } from "@/components/TopPools";
 import { STABLECOIN_IDS, AllowedPeriods } from "@/utils/utilities";
+import { useParams } from "next/navigation";
 
-const PROTOCOLS = ["soroswap", "aquarius", "blend", "phoenix"] as const;
+const PROTOCOLS = ["soroswap", "aquarius", "blend", "phoenix", "aqua"] as const;
 type Protocol = (typeof PROTOCOLS)[number];
 
 const PROTOCOL_INFO: Record<
@@ -34,6 +35,15 @@ const PROTOCOL_INFO: Record<
     ]
   },
   aquarius: {
+    name: "Aquarius",
+    description: "Aqua Network is a decentralized finance platform on the Stellar network, offering tools for liquidity awards, trading, and governance.",
+    logo: "/images/protocols/aqua.svg",
+    links: [
+      { name: "Website", url: "https://aquarius.finance" },
+      { name: "Documentation", url: "https://docs.aquarius.finance" }
+    ]
+  },
+  aqua: {
     name: "Aquarius",
     description: "Aqua Network is a decentralized finance platform on the Stellar network, offering tools for liquidity awards, trading, and governance.",
     logo: "/images/protocols/aqua.svg",
@@ -84,8 +94,12 @@ function getProtocolStats(pools: import("@/utils/types").PoolRiskApiResponseObje
   return { tvl, volume24h, poolCount, averageApy };
 }
 
-export default function ProtocolPage({ params }: { params: { protocol: string } }) {
+export default function ProtocolPage() {
   const { poolRiskData, period, loading, pairs, tokens } = useDataContext();
+  const params = useParams();
+  if (!params.protocol) {
+    throw new Error("Missing required protocol parameter.");
+  }
   const protocol = params.protocol as Protocol;
   const isValidProtocol = PROTOCOLS.includes(protocol);
   const protocolInfo = isValidProtocol ? PROTOCOL_INFO[protocol] : null;
