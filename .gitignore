@@ -81,3 +81,7 @@ ls
 ls.txt
 combine.cjs
 combined_files.txt
+candlesCacheold.json
+build-log.json
+analyze
+page-old.tsx
