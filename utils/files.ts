@@ -4,9 +4,8 @@ export function convertToBase64(file: File): Promise<string> {
     reader.onload = () => {
       resolve(reader.result as string);
     };
-    reader.onerror = (error) => {
-      // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-      reject(error);
+    reader.onerror = () => {
+      reject(new Error(reader.error?.message ?? "An unknown error occurred"));
     };
     reader.readAsDataURL(file);
   });

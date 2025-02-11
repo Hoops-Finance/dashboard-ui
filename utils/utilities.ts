@@ -10,7 +10,7 @@ export const PERIOD_OPTIONS: { value: AllowedPeriods; label: string }[] = [
   { value: "30d", label: "30D" },
   { value: "90d", label: "90D" },
   { value: "180d", label: "180D" },
-  { value: "360d", label: "360D" }
+  { value: "360d", label: "360D" },
 ];
 
 export interface CandleDataPoint {
@@ -31,7 +31,7 @@ export const STABLECOIN_IDS = new Set<string>([
   "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
   "CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP",
   "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV",
-  "CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U"
+  "CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U",
 ]);
 
 export function formatPeriodDisplay(p: AllowedPeriods): string {

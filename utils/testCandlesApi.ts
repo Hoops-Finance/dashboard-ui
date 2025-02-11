@@ -11,7 +11,9 @@ async function testFetchCandles(): Promise<void> {
     const data = (await response.json()) as TransformedCandleData[];
     console.log("Token Candle Data[0]:", data[0]);
 
-    const response2 = await fetch(`http://localhost:3001/api/candles/${token0}/${token1}?from=${from}&to=${to}`);
+    const response2 = await fetch(
+      `http://localhost:3001/api/candles/${token0}/${token1}?from=${from}&to=${to}`,
+    );
     const data2 = (await response2.json()) as TransformedCandleData[];
     console.log("Market Candle Data2[0]:", data2[0]);
   } catch (error) {

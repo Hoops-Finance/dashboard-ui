@@ -19,7 +19,7 @@ export async function verifyRecaptcha(token: string): Promise<boolean> {
 
   try {
     const response = await fetch(verificationURL, {
-      method: "POST"
+      method: "POST",
     });
     const data = (await response.json()) as {
       success?: boolean;

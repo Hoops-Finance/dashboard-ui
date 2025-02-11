@@ -4,7 +4,7 @@ import { UserProfile } from "@/utils/types"; // Or wherever your `UserProfile` i
 /**
  * getServerProfile:
  * Calls `GET /auth/user_profile` on the unified backend, returning the sanitized user profile.
- * 
+ *
  * @param accessToken The user's `session.user.accessToken` from NextAuth
  * @returns A `UserProfile` object or null on error.
  */
@@ -24,7 +24,7 @@ export async function getServerProfile(accessToken: string): Promise<UserProfile
       return null;
     }
 
-    const data = await res.json();
+    const data = (await res.json()) as UserProfile;
     // Expecting shape: { _id, email, createdAt, updatedAt, emails[], linkedAccounts[] }
     return data;
   } catch (err) {
@@ -34,13 +34,17 @@ export async function getServerProfile(accessToken: string): Promise<UserProfile
 }
 
 export async function signInServer(credentials: { email: string; password: string }) {
-    const { signIn } = await import("@/utils/auth");
-    const result = await signIn("credentials", {
-      redirect: false,
-      username: credentials.email,
-      password: credentials.password
-    });
-    console.log('sign in result from server', result);
-    return result;
+  const { signIn } = await import("@/utils/auth");
+  interface SignInResult {
+    error?: string;
+    ok: boolean;
+    url?: string;
   }
-  
+  const result = (await signIn("credentials", {
+    redirect: false,
+    username: credentials.email,
+    password: credentials.password,
+  })) as SignInResult;
+  console.log("sign in result from server", result);
+  return;
+}

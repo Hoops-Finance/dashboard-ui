@@ -316,12 +316,16 @@ export interface WalletContextType {
   isConnected: boolean;
   address: string | null;
   balance: string | null;
-  otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null;
+  otherBalances:
+    | (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[]
+    | null;
   updateWalletInfo: (
     isConnected: boolean,
     address: string | null,
     balance: string | null,
-    otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null
+    otherBalances:
+      | (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[]
+      | null,
   ) => void;
 }
 
@@ -332,7 +336,10 @@ export interface BalanceLineNative {
   selling_liabilities: string;
 }
 
-export type BalanceLine = BalanceLineNative | BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool;
+export type BalanceLine =
+  | BalanceLineNative
+  | BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12">
+  | BalanceLineLiquidityPool;
 
 export interface AccountResponse {
   id: string;
@@ -447,11 +454,19 @@ export interface UserProfile {
   phoneNumber?: string;
   avatar?: string;
   emails?: EmailEntry[];
-  linkedAccounts: {
-    provider: OauthProviders;
-    providerId: string | Record<string, unknown>;
-    linkedAt: Date;
-    providerProfile: DiscordUserResponse | GoogleUserResponse | {};
-  }[];
+  linkedAccounts: (
+    | {
+        provider: "google";
+        providerId: string | Record<string, unknown>;
+        linkedAt: Date;
+        providerProfile: GoogleUserResponse;
+      }
+    | {
+        provider: "discord";
+        providerId: string | Record<string, unknown>;
+        linkedAt: Date;
+        providerProfile: DiscordUserResponse;
+      }
+  )[];
   settings?: SettingUserType;
 }

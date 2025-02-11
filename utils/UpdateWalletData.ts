@@ -1,18 +1,23 @@
 import { BalanceLineLiquidityPool, BalanceLineAsset, MyWalletData, Token } from "./types";
 
 export const updateWalletData = (
-  otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null,
+  otherBalances:
+    | (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[]
+    | null,
   showTrackedOnly: boolean,
   showZeroBalances: boolean,
   tabData: { tokens: Token[] },
-  setFilteredWalletData: (data: MyWalletData[]) => void
+  setFilteredWalletData: (data: MyWalletData[]) => void,
 ) => {
   const newFilteredData = otherBalances
     ? otherBalances
         .filter((balance) => {
           if (!showZeroBalances && parseFloat(balance.balance) === 0) return false;
           if (showTrackedOnly) {
-            if (balance.asset_type === "credit_alphanum4" || balance.asset_type === "credit_alphanum12") {
+            if (
+              balance.asset_type === "credit_alphanum4" ||
+              balance.asset_type === "credit_alphanum12"
+            ) {
               const token = tabData.tokens.find((token) => {
                 const [symbol, issuer] = token.name.split(":");
                 return token.symbol === balance.asset_code && issuer === balance.asset_issuer;
@@ -31,8 +36,8 @@ export const updateWalletData = (
               assetIssuer: balance.liquidity_pool_id,
               balance: parseFloat(balance.balance).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })
+                maximumFractionDigits: 2,
+              }),
             };
           } else {
             return {
@@ -41,8 +46,8 @@ export const updateWalletData = (
               assetIssuer: balance.asset_issuer,
               balance: parseFloat(balance.balance).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })
+                maximumFractionDigits: 2,
+              }),
             };
           }
         })
