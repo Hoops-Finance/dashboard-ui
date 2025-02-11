@@ -24,7 +24,7 @@ export const fetchData = async (setExplorerTableData: (data: ExplorerTableData) 
     const tokens: Token[] = tokensData.map((token) => ({
       ...token,
       id: token._id,
-      lastUpdated: convertToEpoch(token.lastupdated)
+      lastUpdated: convertToEpoch(token.lastUpdated)
     }));
 
     const pairs: Pair[] = pairsData.map((pair) => ({
