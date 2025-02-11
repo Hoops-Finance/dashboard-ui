@@ -21,6 +21,10 @@ const nextConfig = withPlausibleProxy({
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
   },
   productionBrowserSourceMaps: true,
+  experimental: {
+    ppr: "incremental", 
+    optimizePackageImports: ["lightweight-charts", "framer-motion"],
+  },
 
   
 webpack(config, { isServer }) {
@@ -30,14 +34,11 @@ webpack(config, { isServer }) {
     config.output.devtoolModuleFilenameTemplate = info => {
       // 1) get absolute path, e.g. "C:\dev\..."
       const absolute = path.resolve(info.absoluteResourcePath);
-
       // 2) convert backslashes to forward slashes => "C:/dev/..."
       const normalized = absolute.replace(/\\/g, "/");
-
       // 3) **do NOT** prepend "file:///"
       return normalized;
     };
-
     // fallback can just show the resource path
     config.output.devtoolFallbackModuleFilenameTemplate = "[resource-path]?[hash]";
   }
@@ -55,10 +56,10 @@ webpack(config, { isServer }) {
 // Export the Next.js configuration
 // Wrap your config with the analyzer plugin:
 export default withBundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
+  enabled: 'true',
+  openAnalyzer: false,
   // optional: openAnalyzer: false,
-})(nextConfig)
-;
+})(nextConfig);
 
 /*
 // backup
