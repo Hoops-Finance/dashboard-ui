@@ -1,8 +1,6 @@
 "use server";
 
 import { UserProfile } from "@/utils/types"; // Or wherever your `UserProfile` interface is exported
-import { headers, cookies } from "next/headers";
-
 /**
  * getServerProfile:
  * Calls `GET /auth/user_profile` on the unified backend, returning the sanitized user profile.
