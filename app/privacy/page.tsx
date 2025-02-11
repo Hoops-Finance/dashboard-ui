@@ -1,7 +1,7 @@
 import { Privacy } from "@/components/Privacy";
 
 export const metadata = {
-  title: "Privacy Policy - Hoops Finance"
+  title: "Privacy Policy - Hoops Finance",
 };
 
 export default function PrivacyPage() {

@@ -6,7 +6,13 @@ import { Button } from "@/components/ui/button";
 import { ArrowUp, Copy, RotateCcw, ThumbsUp, ThumbsDown, Vault, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -17,7 +23,7 @@ const poolData = [
   { name: "WBTC/ETH", apy: 9.1 },
   { name: "USDC/ETH", apy: 8.2 },
   { name: "DAI/USDT", apy: 7.5 },
-  { name: "USDC/USDT", apy: 6.8 }
+  { name: "USDC/USDT", apy: 6.8 },
 ];
 
 // Animations
@@ -25,7 +31,7 @@ const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -20 },
-  transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+  transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
 };
 
 export default function Home() {
@@ -37,7 +43,11 @@ export default function Home() {
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const router = useRouter();
 
-  const examplePrompts = ["Show me the best performing pools", "Analyze my portfolio risk", "Generate a daily report"];
+  const examplePrompts = [
+    "Show me the best performing pools",
+    "Analyze my portfolio risk",
+    "Generate a daily report",
+  ];
 
   const handleSubmit = () => {
     if (query.trim() === "") return;
@@ -157,17 +167,11 @@ export default function Home() {
             className="flex gap-4 mb-6 w-full"
           >
             <Avatar className="h-10 w-10">
-              <AvatarImage
-                src={message.role === "user" ? "/user-avatar.png" : "/ai-avatar.png"}
-              />
+              <AvatarImage src={message.role === "user" ? "/user-avatar.png" : "/ai-avatar.png"} />
               <AvatarFallback>{message.role === "user" ? "U" : "AI"}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <div
-                className={`rounded-lg p-4 ${
-                  message.role === "user" ? "bg-muted" : "bg-card"
-                }`}
-              >
+              <div className={`rounded-lg p-4 ${message.role === "user" ? "bg-muted" : "bg-card"}`}>
                 <p className="whitespace-pre-wrap text-lg">{message.content}</p>
 
                 {message.role === "ai" && index === conversation.length - 1 && (
@@ -189,16 +193,32 @@ export default function Home() {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3, delay: 0.2 }}
                 >
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-yellow-400 hover:text-yellow-500 transition-colors duration-300">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-yellow-400 hover:text-yellow-500 transition-colors duration-300"
+                  >
                     <Copy className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-yellow-400 hover:text-yellow-500 transition-colors duration-300">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-yellow-400 hover:text-yellow-500 transition-colors duration-300"
+                  >
                     <RotateCcw className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-yellow-400 hover:text-yellow-500 transition-colors duration-300">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-yellow-400 hover:text-yellow-500 transition-colors duration-300"
+                  >
                     <ThumbsUp className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-yellow-400 hover:text-yellow-500 transition-colors duration-300">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-yellow-400 hover:text-yellow-500 transition-colors duration-300"
+                  >
                     <ThumbsDown className="h-4 w-4" />
                   </Button>
                 </motion.div>
@@ -213,7 +233,9 @@ export default function Home() {
               <div className="relative max-w-2xl mx-auto w-full">
                 <Input
                   value={query}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    setQuery(e.target.value);
+                  }}
                   placeholder="Ask about pools, risks, or optimizations..."
                   className="w-full sm:px-6 md:px-12 py-6 md:text-lg bg-background border-border rounded-xl
                     focus:ring-2 focus:ring-primary focus:border-transparent
@@ -234,7 +256,9 @@ export default function Home() {
                   <motion.button
                     key={index}
                     className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-[#0D0D0D] hover:text-[#0D0D0D] dark:border-gray-700 dark:text-gray-400 dark:hover:border-yellow-400 dark:hover:text-yellow-400 transition-all duration-300"
-                    onClick={() => setQuery(prompt)}
+                    onClick={() => {
+                      setQuery(prompt);
+                    }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -265,7 +289,9 @@ export default function Home() {
                   placeholder:text-muted-foreground transition-all duration-300"
                 placeholder="Ask a follow-up question..."
                 value={query}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  setQuery(e.target.value);
+                }}
               />
               <Button
                 size="icon"
@@ -292,13 +318,17 @@ export default function Home() {
           <div className="grid gap-4 py-4">
             <Button
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-              onClick={() => router.push("/signup")}
+              onClick={() => {
+                router.push("/signup");
+              }}
             >
               Sign Up
             </Button>
             <Button
               className="w-full bg-card hover:bg-muted text-primary border border-primary"
-              onClick={() => router.push("/signup?mode=login")}
+              onClick={() => {
+                router.push("/signup?mode=login");
+              }}
             >
               Log In
             </Button>
@@ -307,7 +337,9 @@ export default function Home() {
               <Link
                 href="/signup?mode=login"
                 className="text-primary hover:text-primary/90 font-medium"
-                onClick={() => setShowAuthPrompt(false)}
+                onClick={() => {
+                  setShowAuthPrompt(false);
+                }}
               >
                 Sign in here
               </Link>

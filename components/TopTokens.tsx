@@ -13,7 +13,11 @@ interface TopTokensProps {
 }
 
 // We'll derive volume per token from poolRiskData and pairs:
-function getTokenVolumeMap(tokens: Token[], pairs: Pair[], poolRiskData: PoolRiskApiResponseObject[]): Map<string, number> {
+function getTokenVolumeMap(
+  tokens: Token[],
+  pairs: Pair[],
+  poolRiskData: PoolRiskApiResponseObject[],
+): Map<string, number> {
   const pairMap = new Map<string, Pair>(pairs.map((p) => [p.id, p]));
   const volMap = new Map<string, number>();
   for (const pd of poolRiskData) {
@@ -37,14 +41,17 @@ function getTokenTVLMap(pairs: Pair[]): Map<string, number> {
 }
 
 export function TopTokens({ tokens, pairs, poolRiskData }: TopTokensProps) {
-  const volumeMap = useMemo(() => getTokenVolumeMap(tokens, pairs, poolRiskData), [tokens, pairs, poolRiskData]);
+  const volumeMap = useMemo(
+    () => getTokenVolumeMap(tokens, pairs, poolRiskData),
+    [tokens, pairs, poolRiskData],
+  );
   const tvlMap = useMemo(() => getTokenTVLMap(pairs), [pairs]);
   const stablecoins = useMemo(() => tokens.filter((t) => STABLECOIN_IDS.has(t.id)), [tokens]);
 
   const topByVolume = useMemo(() => {
     const arr = tokens
       .filter((t) => volumeMap.has(t.id))
-      .map((t) => ({ token: t, volume: volumeMap.get(t.id)! }));
+      .map((t) => ({ token: t, volume: volumeMap.get(t.id) ?? 0 }));
     arr.sort((a, b) => b.volume - a.volume);
     return arr.slice(0, 5);
   }, [tokens, volumeMap]);
@@ -52,7 +59,7 @@ export function TopTokens({ tokens, pairs, poolRiskData }: TopTokensProps) {
   const topByLiquidity = useMemo(() => {
     const arr = tokens
       .filter((t) => tvlMap.has(t.id))
-      .map((t) => ({ token: t, tvl: tvlMap.get(t.id)! }));
+      .map((t) => ({ token: t, tvl: tvlMap.get(t.id) ?? 0 }));
     arr.sort((a, b) => b.tvl - a.tvl);
     return arr.slice(0, 5);
   }, [tokens, tvlMap]);

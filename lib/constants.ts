@@ -18,8 +18,8 @@ export const PROTOCOL_INFO: Record<
     logo: "/images/protocols/soroswap.svg",
     links: [
       { name: "Website", url: "https://soroswap.finance" },
-      { name: "Docs", url: "https://docs.soroswap.finance" }
-    ]
+      { name: "Docs", url: "https://docs.soroswap.finance" },
+    ],
   },
   aquarius: {
     name: "Aquarius",
@@ -27,8 +27,8 @@ export const PROTOCOL_INFO: Record<
     logo: "/images/protocols/aquarius.svg",
     links: [
       { name: "Website", url: "https://aquarius.finance" },
-      { name: "Documentation", url: "https://docs.aquarius.finance" }
-    ]
+      { name: "Documentation", url: "https://docs.aquarius.finance" },
+    ],
   },
   blend: {
     name: "Blend",
@@ -36,8 +36,8 @@ export const PROTOCOL_INFO: Record<
     logo: "/images/protocols/blend.svg",
     links: [
       { name: "Website", url: "https://blend.finance" },
-      { name: "Docs", url: "https://docs.blend.finance" }
-    ]
+      { name: "Docs", url: "https://docs.blend.finance" },
+    ],
   },
   phoenix: {
     name: "Phoenix",
@@ -45,9 +45,9 @@ export const PROTOCOL_INFO: Record<
     logo: "/images/protocols/phoenix.svg",
     links: [
       { name: "Website", url: "https://phoenix.finance" },
-      { name: "Documentation", url: "https://docs.phoenix.finance" }
-    ]
-  }
+      { name: "Documentation", url: "https://docs.phoenix.finance" },
+    ],
+  },
 };
 
 // Add protocol mapping
@@ -55,5 +55,5 @@ export const PROTOCOL_MAPPING: Record<Protocol, string> = {
   soroswap: "soroswap",
   phoenix: "phoenix",
   aquarius: "aqua",
-  blend: "blend"
+  blend: "blend",
 };

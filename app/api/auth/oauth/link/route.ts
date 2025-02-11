@@ -21,9 +21,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     headers: {
       "Content-Type": "application/json",
       "x-api-key": `${process.env.AUTH_API_KEY}`,
-      Authorization: `Bearer ${session.user.accessToken}`
+      Authorization: `Bearer ${session.user.accessToken}`,
     },
-    body: JSON.stringify({ provider, code, state })
+    body: JSON.stringify({ provider, code, state }),
   });
 
   const data = (await res.json()) as AuthResult;

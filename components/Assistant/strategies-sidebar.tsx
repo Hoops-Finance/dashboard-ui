@@ -25,7 +25,7 @@ const strategies: Strategy[] = [
     apr: "10,872.27%",
     totalValue: "$317.75",
     description: "High-yield liquidity provision strategy for XLM/USDC pair",
-    riskLevel: "Low"
+    riskLevel: "Low",
   },
   {
     id: "8932821",
@@ -34,7 +34,7 @@ const strategies: Strategy[] = [
     apr: "10,706.23%",
     totalValue: "$534.63",
     description: "Conservative yield farming with stablecoin pairs",
-    riskLevel: "Medium"
+    riskLevel: "Medium",
   },
   {
     id: "9005358",
@@ -43,8 +43,8 @@ const strategies: Strategy[] = [
     apr: "10,257.25%",
     totalValue: "$196.14",
     description: "Diversified portfolio of blue-chip crypto assets",
-    riskLevel: "Medium"
-  }
+    riskLevel: "Medium",
+  },
 ];
 
 export function StrategiesSidebar() {
@@ -68,7 +68,10 @@ export function StrategiesSidebar() {
       {strategies.map((strategy) => (
         <Card
           key={strategy.id}
-          className={cn("transition-all duration-200 hover:bg-muted/50 cursor-pointer", expandedId === strategy.id && "bg-muted/50")}
+          className={cn(
+            "transition-all duration-200 hover:bg-muted/50 cursor-pointer",
+            expandedId === strategy.id && "bg-muted/50",
+          )}
           onClick={() => {
             setExpandedId(expandedId === strategy.id ? null : strategy.id);
           }}
@@ -78,7 +81,10 @@ export function StrategiesSidebar() {
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-2">
                   {strategy.tokens.map((token, i) => (
-                    <div key={i} className="h-8 w-8 rounded-full bg-background flex items-center justify-center ring-2 ring-muted">
+                    <div
+                      key={i}
+                      className="h-8 w-8 rounded-full bg-background flex items-center justify-center ring-2 ring-muted"
+                    >
                       {token.symbol}
                     </div>
                   ))}
@@ -88,7 +94,11 @@ export function StrategiesSidebar() {
                   <p className="text-sm text-muted-foreground">Strategy #{strategy.id}</p>
                 </div>
               </div>
-              {expandedId === strategy.id ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
+              {expandedId === strategy.id ? (
+                <ChevronUp className="h-5 w-5 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-muted-foreground" />
+              )}
             </div>
 
             {expandedId === strategy.id && (
@@ -118,7 +128,9 @@ export function StrategiesSidebar() {
           <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center group-hover:bg-background transition-colors duration-300">
             <Plus className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
           </div>
-          <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">Add Strategy</p>
+          <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+            Add Strategy
+          </p>
         </Card>
       </Link>
     </div>

@@ -3,7 +3,21 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, ReactNode } from "react";
-import { AlertCircle, BarChart3, ChevronRight, Copy, ExternalLink, FileCode, LineChart, Lock, Plus, Settings, Share2, Shield, Tag } from "lucide-react";
+import {
+  AlertCircle,
+  BarChart3,
+  ChevronRight,
+  Copy,
+  ExternalLink,
+  FileCode,
+  LineChart,
+  Lock,
+  Plus,
+  Settings,
+  Share2,
+  Shield,
+  Tag,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,17 +26,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import ChartComponent from "@/components/ChartComponent";
 import type { UTCTimestamp } from "lightweight-charts";
-import { PERIOD_OPTIONS, AllowedPeriods } from "@/utils/utilities";
+import { PERIOD_OPTIONS, AllowedPeriods, VolumeDataPoint, CandleDataPoint } from "@/utils/utilities";
+import { Pair, PoolRiskApiResponseObject, Token } from "@/utils/types";
 
 // Props provided by the server component.
 interface PoolPageClientProps {
   params: { protocol: string; pair: string };
   period: AllowedPeriods;
-  poolRiskData: any[]; // Replace with your proper type
-  pairs: any[]; // Replace with your proper type
-  tokens: any[]; // Replace with your proper type
-  candleData: { time: number; open: number; high: number; low: number; close: number; baseVolume: number }[];
-  volumeData: { time: number; value: number; color: string }[];
+  poolRiskData: PoolRiskApiResponseObject[]; // Replace with your proper type
+  pairs: Pair[]; // Replace with your proper type
+  tokens: Token[]; // Replace with your proper type
+  candleData: CandleDataPoint[];
+  volumeData: VolumeDataPoint[];
 }
 
 interface StatCardProps {
@@ -49,9 +64,20 @@ const StatCard = ({ title, value, tooltip, icon }: StatCardProps) => (
   </div>
 );
 
-const getProtocolDisplay = (protocol: string): string => (protocol.toLowerCase() === "aqua" ? "Aquarius" : protocol.charAt(0).toUpperCase() + protocol.slice(1).toLowerCase());
+const getProtocolDisplay = (protocol: string): string =>
+  protocol.toLowerCase() === "aqua"
+    ? "Aquarius"
+    : protocol.charAt(0).toUpperCase() + protocol.slice(1).toLowerCase();
 
-export default function PoolPageClient({ params, period, poolRiskData, pairs, tokens, candleData, volumeData }: PoolPageClientProps) {
+export default function PoolPageClient({
+  params,
+  period,
+  poolRiskData,
+  pairs,
+  tokens,
+  candleData,
+  volumeData,
+}: PoolPageClientProps) {
   const router = useRouter();
   const protocolParam = params.protocol.toLowerCase();
   const pairParam = params.pair;
@@ -62,19 +88,24 @@ export default function PoolPageClient({ params, period, poolRiskData, pairs, to
     if (parts.length === 4) {
       return [`${parts[0]}:${parts[1]}`, `${parts[2]}:${parts[3]}`];
     } else if (parts.length === 3) {
-      return parts[0].toLowerCase() === "native" ? ["native", `${parts[1]}:${parts[2]}`] : ["native", "XLM"];
+      return parts[0].toLowerCase() === "native"
+        ? ["native", `${parts[1]}:${parts[2]}`]
+        : ["native", "XLM"];
     } else {
       return ["native", "native"];
     }
   }, [pairParam]);
 
   // Compute pool data by matching pairs with pool risk data.
-  const poolData = useMemo(() => {
-    const foundPair = pairs.find((pr: any) => {
-      return (pr.token0Details.name === token0Name && pr.token1Details.name === token1Name) || (pr.token1Details.name === token0Name && pr.token0Details.name === token1Name);
+  const poolData = useMemo<PoolRiskApiResponseObject | undefined>(() => {
+    const foundPair = pairs.find((pr) => {
+      return (
+        (pr.token0Details.name === token0Name && pr.token1Details.name === token1Name) ||
+        (pr.token1Details.name === token0Name && pr.token0Details.name === token1Name)
+      );
     });
     if (!foundPair) return undefined;
-    return poolRiskData.find((pool: any) => pool.pairId === foundPair.id);
+    return poolRiskData.find((pool) => pool.pairId === foundPair.id);
   }, [pairs, poolRiskData, token0Name, token1Name]);
 
   const handleCopy = async (text: string) => {
@@ -127,10 +158,12 @@ export default function PoolPageClient({ params, period, poolRiskData, pairs, to
                   variant="outline"
                   className={cn(
                     "capitalize px-3 py-1 cursor-pointer hover:opacity-80 transition-opacity",
-                    params.protocol === "soroswap" && "bg-purple-500/10 text-purple-500 border-purple-500/20",
+                    params.protocol === "soroswap" &&
+                      "bg-purple-500/10 text-purple-500 border-purple-500/20",
                     params.protocol === "blend" && "bg-green-500/10 text-green-500 border-green-500/20",
-                    params.protocol === "phoenix" && "bg-orange-500/10 text-orange-500 border-orange-500/20",
-                    params.protocol === "aqua" && "bg-pink-500/10 text-pink-500 border-pink-500/20"
+                    params.protocol === "phoenix" &&
+                      "bg-orange-500/10 text-orange-500 border-orange-500/20",
+                    params.protocol === "aqua" && "bg-pink-500/10 text-pink-500 border-pink-500/20",
                   )}
                   onClick={() => {
                     const protocolPath = params.protocol === "aqua" ? "aquarius" : params.protocol;
@@ -143,11 +176,23 @@ export default function PoolPageClient({ params, period, poolRiskData, pairs, to
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" className="gap-2" onClick={() => void handleCopy(window.location.href)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => void handleCopy(window.location.href)}
+              >
                 <Share2 className="h-4 w-4" aria-hidden="true" />
                 Share
               </Button>
-              <Button variant="default" size="sm" className="gap-2" onClick={() => window.open(`https://app.${params.protocol}.finance/pool/${poolData.market}`, "_blank")}>
+              <Button
+                variant="default"
+                size="sm"
+                className="gap-2"
+                onClick={() =>
+                  window.open(`https://app.${params.protocol}.finance/pool/${poolData.market}`, "_blank")
+                }
+              >
                 <Plus className="h-4 w-4" aria-hidden="true" />
                 Add Liquidity
               </Button>
@@ -155,7 +200,10 @@ export default function PoolPageClient({ params, period, poolRiskData, pairs, to
           </div>
         </header>
 
-        <section className="h-[400px] lg:h-[500px] rounded-lg border bg-card overflow-hidden my-6" aria-label="Price & Volume Chart">
+        <section
+          className="h-[400px] lg:h-[500px] rounded-lg border bg-card overflow-hidden my-6"
+          aria-label="Price & Volume Chart"
+        >
           <div className="p-4 border-b border-border flex items-center justify-between bg-card">
             <div className="flex items-center gap-3">
               <LineChart className="h-5 w-5 text-primary" aria-hidden="true" />
@@ -217,7 +265,12 @@ export default function PoolPageClient({ params, period, poolRiskData, pairs, to
                     tooltip="Total fees earned by liquidity providers"
                     icon={<Settings className="h-4 w-4 text-primary" />}
                   />
-                  <StatCard title="Current APR" value={poolData.apr} tooltip="Estimated annual percentage rate" icon={<LineChart className="h-4 w-4 text-primary" />} />
+                  <StatCard
+                    title="Current APR"
+                    value={poolData.apr}
+                    tooltip="Estimated annual percentage rate"
+                    icon={<LineChart className="h-4 w-4 text-primary" />}
+                  />
                 </div>
               </TabsContent>
 
@@ -233,10 +286,15 @@ export default function PoolPageClient({ params, period, poolRiskData, pairs, to
                     <div className="space-y-6">
                       <div className="flex items-center justify-center p-8 bg-muted rounded-lg">
                         <div className="text-center space-y-4">
-                          <Badge variant={Number(poolData.riskScore) <= 50 ? "default" : "destructive"} className="px-6 py-3 text-xl font-semibold">
+                          <Badge
+                            variant={Number(poolData.riskScore) <= 50 ? "default" : "destructive"}
+                            className="px-6 py-3 text-xl font-semibold"
+                          >
                             {Number(poolData.riskScore).toFixed(2)}
                           </Badge>
-                          <p className="text-sm text-muted-foreground">{Number(poolData.riskScore) <= 50 ? "Low Risk Pool" : "High Risk Pool"}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {Number(poolData.riskScore) <= 50 ? "Low Risk Pool" : "High Risk Pool"}
+                          </p>
                         </div>
                       </div>
                       <div className="grid gap-4 sm:grid-cols-2">
@@ -270,22 +328,43 @@ export default function PoolPageClient({ params, period, poolRiskData, pairs, to
                     <div className="space-y-6">
                       <div className="flex items-center gap-2 bg-muted p-4 rounded-lg">
                         <code className="text-sm flex-1 break-all font-mono">{poolData.market}</code>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => void navigator.clipboard.writeText(poolData.market)} aria-label="Copy contract address">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => void navigator.clipboard.writeText(poolData.market)}
+                          aria-label="Copy contract address"
+                        >
                           <Copy className="h-4 w-4" aria-hidden="true" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0"
-                          onClick={() => window.open(`https://stellar.expert/explorer/public/contract/${poolData.market}`, "_blank")}
+                          onClick={() =>
+                            window.open(
+                              `https://stellar.expert/explorer/public/contract/${poolData.market}`,
+                              "_blank",
+                            )
+                          }
                           aria-label="View on Explorer"
                         >
                           <ExternalLink className="h-4 w-4" aria-hidden="true" />
                         </Button>
                       </div>
                       <div className="grid gap-4 sm:grid-cols-2">
-                        <StatCard title="Protocol Version" value={`${getProtocolDisplay(params.protocol)} V1`} tooltip="Current protocol version" icon={<Tag className="h-4 w-4 text-primary" />} />
-                        <StatCard title="Fee Model" value="Static" tooltip="Type of fee model used" icon={<Settings className="h-4 w-4 text-primary" />} />
+                        <StatCard
+                          title="Protocol Version"
+                          value={`${getProtocolDisplay(params.protocol)} V1`}
+                          tooltip="Current protocol version"
+                          icon={<Tag className="h-4 w-4 text-primary" />}
+                        />
+                        <StatCard
+                          title="Fee Model"
+                          value="Static"
+                          tooltip="Type of fee model used"
+                          icon={<Settings className="h-4 w-4 text-primary" />}
+                        />
                       </div>
                     </div>
                   </CardContent>

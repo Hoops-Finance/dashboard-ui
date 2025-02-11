@@ -3,7 +3,7 @@
  *
  * Implements a top-down chunk approach, ensuring each chunk is exactly 200 intervals
  * (resolution * 200), and "snaps" both `to` and `from` to multiples of `resolution`.
- * 
+ *
  * Additional logic:
  *   - We only fetch a chunk if there's at least 5 new intervals beyond the last cached candle.
  *   - We do chunkTo = snappedTo, chunkFrom = chunkTo - resolution*200. If chunkFrom < snappedFrom, set chunkFrom = snappedFrom.
@@ -11,7 +11,7 @@
  *   - We store only candles after the last known candle in the cache (merge/deduplicate).
  *   - Return final subset [originalFrom..originalTo].
  *
- * [UPDATED] Now we do ascending chunk approach with `?from=<cursor>&resolution=<res>`, 
+ * [UPDATED] Now we do ascending chunk approach with `?from=<cursor>&resolution=<res>`,
  * no “to” param, returning up to 200 candles from each cursor.
  */
 
@@ -37,13 +37,11 @@ import path from "path";
 /**
  * fetchPeriodDataFromServer => get metrics & stats for a chosen period
  */
-export async function fetchPeriodDataFromServer(
-  period: string
-): Promise<{
+export async function fetchPeriodDataFromServer(period: string): Promise<{
   globalMetrics: MetricsResponse;
   poolRiskData: PoolRiskApiResponseObject[];
 }> {
-  const baseUri = "https://api.hoops.finance";
+  const baseUri = process.env.NEXT_PUBLIC_BASE_DATA_URI ?? "https://api.hoops.finance";
   if (!baseUri) {
     throw new Error("Base data URI is not defined in environment variables.");
   }
@@ -56,7 +54,7 @@ export async function fetchPeriodDataFromServer(
 
     if (!metricsRes.ok || !statsRes.ok) {
       throw new Error(
-        `Failed to fetch data: metrics status ${metricsRes.status}, statistics status ${statsRes.status}`
+        `Failed to fetch data: metrics status ${metricsRes.status}, statistics status ${statsRes.status}`,
       );
     }
 
@@ -88,7 +86,7 @@ export async function fetchCoreData(): Promise<{
   const [marketsRes, pairsRes, tokensRes] = await Promise.all([
     fetch("https://api.hoops.finance/markets"),
     fetch("https://api.hoops.finance/pairs"),
-    fetch("https://api.hoops.finance/tokens")
+    fetch("https://api.hoops.finance/tokens"),
   ]);
 
   if (!marketsRes.ok || !pairsRes.ok || !tokensRes.ok) {
@@ -98,22 +96,17 @@ export async function fetchCoreData(): Promise<{
   const [marketsData, pairsData, tokensData] = (await Promise.all([
     marketsRes.json(),
     pairsRes.json(),
-    tokensRes.json()
-  ])) as [
-      MarketApiResponseObject[],
-      PairApiResponseObject[],
-      TokenApiResponseObject[]
-    ];
+    tokensRes.json(),
+  ])) as [MarketApiResponseObject[], PairApiResponseObject[], TokenApiResponseObject[]];
 
   const convertedTokens: Token[] = tokensData.map((token) => {
-    const tokenc =  {
+    const tokenc = {
       ...token,
       id: token._id,
       lastUpdated: convertToEpoch(token.lastUpdated),
-    }
+    };
     return tokenc;
-  }
-  );
+  });
 
   const convertedPairs: Pair[] = pairsData.map((pair) => ({
     ...pair,
@@ -166,7 +159,7 @@ export async function fetchCandles(
   token0: string,
   token1: string | null,
   from: number,
-  to: number
+  to: number,
 ): Promise<TransformedCandleData[]> {
   const normalize = (t: string): string =>
     t.toLowerCase() === "xlm" || t.toLowerCase() === "native" ? "XLM" : t.replace(/:/g, "-");
@@ -193,11 +186,7 @@ export async function fetchCandles(
  * Candle cache & concurrency lock
  * We'll store them as: candleJsonCache[asset][resolution]
  */
-interface CandleCache {
-  [asset: string]: {
-    [resolution: string]: TransformedCandleData[];
-  };
-}
+type CandleCache = Partial<Record<string, Partial<Record<string, TransformedCandleData[]>>>>;
 let candleJsonCache: CandleCache | null = null;
 
 const candleCacheFile = path.join(process.cwd(), "candlesCache.json");
@@ -237,7 +226,7 @@ async function saveCandleJsonCache(): Promise<void> {
  */
 function mergeCandleArrays(
   existing: TransformedCandleData[],
-  incoming: TransformedCandleData[]
+  incoming: TransformedCandleData[],
 ): TransformedCandleData[] {
   const combined = [...existing, ...incoming];
   combined.sort((a, b) => (a.time as number) - (b.time as number));
@@ -267,17 +256,17 @@ function snapDown(ts: number, step: number): number {
  * known aggregator resolutions
  */
 const knownResolutions = [
-  300,    // 5 minutes
-  900,    // 15 minutes
-  1800,   // 30 minutes
-  3600,   // 1 hour
-  7200,   // 2 hours
-  14400,  // 4 hours
-  43200,  // 12 hours
-  86400,  // 1 day
+  300, // 5 minutes
+  900, // 15 minutes
+  1800, // 30 minutes
+  3600, // 1 hour
+  7200, // 2 hours
+  14400, // 4 hours
+  43200, // 12 hours
+  86400, // 1 day
   259200, // 3 days
   604800, // 1 week
-  1209600 // 2 weeks
+  1209600, // 2 weeks
 ];
 
 /**
@@ -309,24 +298,48 @@ async function waitForRateLimit(): Promise<void> {
   lastApiCallTime = Date.now();
 }
 
+// Normalize tokens: if token is "native" or "xlm", return "XLM", else replace ':' with '-'
+export function normalizeToken(s: string): string {
+  if (!s) return "XLM";
+  if (s.toLowerCase() === "native" || s.toLowerCase() === "xlm") return "XLM";
+  return s.replace(/:/g, "-");
+}
+
 /**
- * fetchCandlesDirect => aggregator call with ?from=<cursor>&resolution=<res>
- * (no 'to'), returning up to 200 candles from that cursor forward.
+ * fetchCandlesDirect => Makes a direct aggregator call with ?from=<cursor>&resolution=<res>
+ * to fetch up to 200 candles starting at the given cursor.
+ *
+ * If token1 is provided, the URL for a market is used; otherwise, the asset URL is used.
+ *
+ * @param token0 - The primary asset.
+ * @param token1 - The secondary asset (optional).
+ * @param cursor - The starting timestamp (in seconds).
+ * @param resolution - The resolution in seconds.
+ * @returns An array of TransformedCandleData.
  */
 async function fetchCandlesDirect(
-  classicAssetString: string,
+  token0: string,
   cursor: number,
-  resolution: number
+  resolution: number,
+  token1?: string,
 ): Promise<TransformedCandleData[]> {
-  const API_BASE = process.env.SXX_API_BASE || "";
-  const API_KEY = process.env.SXX_API_KEY || "";
+  const API_BASE = process.env.SXX_API_BASE ?? "";
+  const API_KEY = process.env.SXX_API_KEY ?? "";
 
-  // remove trailing '-###'
-  const finalAsset = classicAssetString.replace(/-\d+$/, "");
+  const t0 = normalizeToken(token0);
+  let url: string;
 
-  const url = `${API_BASE}/explorer/public/asset/${finalAsset}/candles?from=${cursor}&resolution=${resolution}`;
+  if (token1) {
+    const t1 = normalizeToken(token1);
+    url = `${API_BASE}/explorer/public/market/${t0}/${t1}/candles?from=${cursor}&resolution=${resolution}`;
+    console.log(
+      `[fetchCandlesDirect] => from=${cursor}, resolution=${resolution}, token0=${t0}, token1=${t1}`,
+    );
+  } else {
+    url = `${API_BASE}/explorer/public/asset/${t0}/candles?from=${cursor}&resolution=${resolution}`;
+    console.log(`[fetchCandlesDirect] => from=${cursor}, resolution=${resolution}, token0=${t0}`);
+  }
 
-  console.log(`[fetchCandlesDirect] => from=${cursor}, resolution=${resolution}, asset=${finalAsset}`);
   console.log(`[fetchCandlesDirect] URL => ${url}`);
 
   await waitForRateLimit();
@@ -337,7 +350,7 @@ async function fetchCandlesDirect(
 
   if (resp.status === 429) {
     console.warn("[fetchCandlesDirect] => got 429 => waiting 60s...");
-    await new Promise((r) => setTimeout(r, 60000));
+    await new Promise((r) => setTimeout(r, 62000));
     throw new Error("Rate limit 429 => must retry");
   }
 
@@ -346,7 +359,7 @@ async function fetchCandlesDirect(
     throw new Error(`fetchCandlesDirect fail: ${resp.status}, url=${url}`);
   }
 
-  const raw = (await resp.json()) as Array<[number, number, number, number, number, number, number, number?]>;
+  const raw = (await resp.json()) as [number, number, number, number, number, number, number, number?][];
   if (!raw.length) return [];
 
   return raw.map((record, idx, arr) => {
@@ -369,56 +382,81 @@ async function fetchCandlesDirect(
  * using only ?from=<cursor>&resolution=<res>.
  *
  * Steps:
- * 1) pick resolution so (originalTo - originalFrom)/resolution <= 200
- * 2) snapFrom = snapDown(originalFrom, resolution)
- * 3) find last candle => haveMax
- * 4) cursor = max(haveMax + resolution, snappedFrom)
- * 5) while cursor <= originalTo => aggregator returns up to 200 candles
- *    if chunk <200 => aggregator covered remainder => done
- *    else cursor= lastTime + resolution
- * 6) store in candleJsonCache[asset][resolution], then return only [originalFrom..originalTo]
+ * 1) Pick a resolution so that (originalTo - originalFrom) / resolution <= 200.
+ * 2) Snap originalFrom down to the nearest multiple of resolution.
+ * 3) Determine the last candle in the cache (if any).
+ * 4) Set the cursor to max(last candle time + resolution, snappedFrom).
+ * 5) While cursor <= originalTo:
+ *    - Fetch up to 200 candles using fetchCandlesDirect.
+ *    - Merge them with the cached candles.
+ *    - If fewer than 200 candles were returned, break.
+ *    - Otherwise, set cursor to last candle time + resolution.
+ * 6) Save the updated cache and return only the candles between originalFrom and originalTo.
+ *
+ * @param token0 - The primary asset (string).
+ * @param originalFrom - The start epoch (in seconds).
+ * @param originalTo - The end epoch (in seconds).
+ * @param token1? - The (optional) secondary asset (string) or null.
+ * @returns An array of TransformedCandleData.
  */
 export async function fetchCandlesWithCacheAndRateLimit(
-  classicAssetString: string,
+  token0: string,
   originalFrom: number,
-  originalTo: number
+  originalTo: number,
+  token1?: string,
 ): Promise<TransformedCandleData[]> {
-  console.log("[fetchCandlesWithCacheAndRateLimit] ascending =>", classicAssetString, originalFrom, originalTo);
+  console.log(
+    "[fetchCandlesWithCacheAndRateLimit] ascending =>",
+    token0,
+    token1,
+    originalFrom,
+    originalTo,
+  );
 
   return candleMutex.runExclusive(async () => {
     await loadCandleJsonCache();
     if (!candleJsonCache) {
       candleJsonCache = {};
     }
+    const t0 = normalizeToken(token0);
+    const assetKey = token1 ? `${t0}:${normalizeToken(token1)}` : t0;
 
-    // pick resolution
+    // Pick a resolution based on the requested time span.
     const resolution = pickResolution(originalFrom, originalTo);
     const resolutionStr = String(resolution);
 
-    // snap from downward so intervals align
+    // Snap the 'from' value downward so intervals align.
     const snappedFrom = snapDown(originalFrom, resolution);
 
-    // ensure sub-object
-    if (!candleJsonCache[classicAssetString]) {
-      candleJsonCache[classicAssetString] = {};
+    // Ensure there is a sub-object in the cache for this assetKey.
+    if (!candleJsonCache[assetKey]) {
+      candleJsonCache[assetKey] = {};
     }
-    let existing = candleJsonCache[classicAssetString][resolutionStr] || [];
+    let existing = candleJsonCache[assetKey][resolutionStr] ?? [];
     existing.sort((a, b) => (a.time as number) - (b.time as number));
 
-    // last candle => haveMax
+    // Determine the time of the last cached candle.
     const haveMax = existing.length
       ? (existing[existing.length - 1].time as number)
       : snappedFrom - resolution;
 
-    // start cursor => next candle after haveMax or snappedFrom
+    // Set the initial cursor.
     let cursor = Math.max(haveMax + resolution, snappedFrom);
 
+    // Fetch new chunks until we've covered the requested time range.
     while (cursor <= originalTo) {
       console.log(`[fetchCandlesWithCacheAndRateLimit] chunk => from=${cursor}, res=${resolution}`);
 
       let chunk: TransformedCandleData[] = [];
       try {
-        chunk = await fetchCandlesDirect(classicAssetString, cursor, resolution);
+        if (token1) {
+          const t1 = normalizeToken(token1);
+          const t0 = normalizeToken(token0);
+          chunk = await fetchCandlesDirect(t0, cursor, resolution, t1);
+        } else {
+          const t0 = normalizeToken(token0);
+          chunk = await fetchCandlesDirect(t0, cursor, resolution);
+        }
       } catch (err) {
         console.error("[fetchCandlesWithCacheAndRateLimit] fetch error =>", err);
         break;
@@ -429,21 +467,22 @@ export async function fetchCandlesWithCacheAndRateLimit(
         break;
       }
 
-      // merge
+      // Merge the new chunk with the cached data.
       const beforeCount = existing.length;
       existing = mergeCandleArrays(existing, chunk);
       const afterCount = existing.length;
 
       console.log(
-        `[fetchCandlesWithCacheAndRateLimit] => chunk had ${chunk.length} candles, merged +${afterCount - beforeCount} new`
+        `[fetchCandlesWithCacheAndRateLimit] => chunk had ${chunk.length} candles, merged +${afterCount - beforeCount} new`,
       );
 
+      // If fewer than 200 candles were returned, assume we've fetched the remainder.
       if (chunk.length < 200) {
         console.log("[fetchCandlesWithCacheAndRateLimit] aggregator returned <200 => done");
         break;
       }
 
-      // move forward => lastTime + resolution
+      // Set the next cursor from the last candle.
       const lastTime = chunk[chunk.length - 1].time as number;
       const nextCursor = lastTime + resolution;
 
@@ -454,17 +493,18 @@ export async function fetchCandlesWithCacheAndRateLimit(
       cursor = nextCursor;
     }
 
-    candleJsonCache[classicAssetString][resolutionStr] = existing;
+    // Update the cache.
+    candleJsonCache[assetKey][resolutionStr] = existing;
     await saveCandleJsonCache();
 
-    // filter => [originalFrom..originalTo]
+    // Filter the results to return only the candles within the requested time range.
     const finalSubset = existing.filter((c) => {
       const t = c.time as number;
       return t >= originalFrom && t <= originalTo;
     });
 
     console.log(
-      `[fetchCandlesWithCacheAndRateLimit] final => ${finalSubset.length} items, resolution=${resolution}, asset=${classicAssetString}`
+      `[fetchCandlesWithCacheAndRateLimit] final => ${finalSubset.length} items, resolution=${resolution}, asset=${assetKey}`,
     );
 
     return finalSubset;
@@ -474,9 +514,9 @@ export async function fetchCandlesWithCacheAndRateLimit(
 /**
  * Token info caching with optional HEAD mode
  */
-let tokenInfoCache: Record<string, { data: AssetDetails; fetchedAt: number }> | null = null;
+type TokenInfoCache = Record<string, { data: AssetDetails; fetchedAt: number } | undefined> | null;
+let tokenInfoCache: TokenInfoCache = null;
 const tokenInfoCacheFile = path.join(process.cwd(), "tokenInfoCache.json");
-
 /**
  * loadTokenInfoCache => read token info cache from disk if not loaded
  */
@@ -511,12 +551,10 @@ async function saveTokenInfoCache(): Promise<void> {
  */
 export async function fetchTokenDetailsWithCache(
   asset: string,
-  headMode?: boolean
-): Promise<AssetDetails | boolean> {
+  headMode?: boolean,
+): Promise<AssetDetails | boolean | null> {
   const normalized =
-    asset.toLowerCase() === "native" || asset.toLowerCase() === "xlm"
-      ? "XLM"
-      : asset.replace(/:/g, "-");
+    asset.toLowerCase() === "native" || asset.toLowerCase() === "xlm" ? "XLM" : asset.replace(/:/g, "-");
 
   await loadTokenInfoCache();
 
@@ -524,7 +562,9 @@ export async function fetchTokenDetailsWithCache(
     const c = tokenInfoCache?.[normalized];
     if (c) {
       const ageMs = Date.now() - c.fetchedAt;
-      console.log(`[fetchTokenDetailsWithCache] HEAD => already have cache for ${normalized}, age=${ageMs}ms => skipping HEAD`);
+      console.log(
+        `[fetchTokenDetailsWithCache] HEAD => already have cache for ${normalized}, age=${ageMs}ms => skipping HEAD`,
+      );
       return true;
     }
     const url = `https://app.hoops.finance/api/tokeninfo/${normalized}`;
@@ -542,7 +582,9 @@ export async function fetchTokenDetailsWithCache(
         console.warn("[fetchTokenDetailsWithCache] HEAD => 404 => skip");
         return false;
       } else if (headRes.status === 429 || headRes.status === 503) {
-        console.warn(`[fetchTokenDetailsWithCache] HEAD => ${headRes.status} => waiting 60s then proceed`);
+        console.warn(
+          `[fetchTokenDetailsWithCache] HEAD => ${headRes.status} => waiting 60s then proceed`,
+        );
         await new Promise((r) => setTimeout(r, 60000));
         return true;
       }
@@ -612,7 +654,7 @@ export function buildPoolRoute(
   pool: PoolRiskApiResponseObject,
   pairs: Pair[],
   tokens: Token[],
-  period: AllowedPeriods
+  period: AllowedPeriods,
 ): string {
   const p = pairs.find((pr) => pr.id === pool.pairId);
   if (!p) {
@@ -648,12 +690,15 @@ export async function fetchCandlesWithRateLimit(
   token0: string,
   token1: string | null,
   from: number,
-  to: number
+  to: number,
 ): Promise<TransformedCandleData[]> {
   const cacheKey = `${token0}:${token1 ?? "null"}:${from}:${to}`;
   if (cache.has(cacheKey)) {
     console.log("[fetchCandlesWithRateLimit] cache hit for", cacheKey);
-    return cache.get(cacheKey)!;
+    const cachedPromise = cache.get(cacheKey);
+    if (cachedPromise !== undefined) {
+      return cachedPromise;
+    }
   }
   console.log("[fetchCandlesWithRateLimit] cache miss for", cacheKey);
 
@@ -671,7 +716,13 @@ export async function fetchCandlesWithRateLimit(
     while (attempts > 0) {
       try {
         const data = await fetchCandlesFromServer(token0, token1, from, to);
-        console.log("[fetchCandlesWithRateLimit] fetched", data.length, "candles from server for", token0, token1);
+        console.log(
+          "[fetchCandlesWithRateLimit] fetched",
+          data.length,
+          "candles from server for",
+          token0,
+          token1,
+        );
         return data;
       } catch (err: unknown) {
         const e = err as Error;
@@ -708,10 +759,10 @@ export async function fetchCandlesFromServer(
   token0: string,
   token1: string | null,
   from: number,
-  to: number
+  to: number,
 ): Promise<TransformedCandleData[]> {
-  const API_BASE = process.env.SXX_API_BASE || "";
-  const API_KEY = process.env.SXX_API_KEY || "";
+  const API_BASE = process.env.SXX_API_BASE ?? "";
+  const API_KEY = process.env.SXX_API_KEY ?? "";
 
   function normalizeToken(s: string): string {
     if (!s) return "XLM";
@@ -737,7 +788,16 @@ export async function fetchCandlesFromServer(
     throw new Error(`Failed to fetch candles. URL=${fetchUrl}, status=${response.status}`);
   }
 
-  const rawData = (await response.json()) as Array<[number, number, number, number, number, number, number, number?]>;
+  const rawData = (await response.json()) as [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number?,
+  ][];
   return rawData.map((record, index, array) => {
     const nextOpen = index < array.length - 1 ? array[index + 1][1] : record[1];
     return {

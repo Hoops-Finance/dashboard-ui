@@ -87,9 +87,7 @@ export default async function TokensPage() {
       <div className="tokensHomePage">
         <div className="tokensHomeTitleBar">
           <h1>Tokens</h1>
-          <p>
-            Track and analyze token performance
-          </p>
+          <p>Track and analyze token performance</p>
         </div>
 
         {/* Wrap TopTokens in a Suspense boundary: */}
@@ -99,7 +97,6 @@ export default async function TokensPage() {
         {/*purposes and to make the site more scalable. */}
         <Suspense
           fallback={
-
             <ServerSideTopTokens
               tokens={tokens}
               pairs={pairs}
@@ -107,18 +104,13 @@ export default async function TokensPage() {
               volumeMap={volumeMap}
               tvlMap={tvlMap}
             />
-
           }
         >
           {/*
             Once the client JS loads, 
             <TopTokens> (the clientside component) replaces the fallback, it has animations or other client only functionality. we want the server one first for SEO.
             */}
-          <TopTokens
-            tokens={tokens}
-            pairs={pairs}
-            poolRiskData={poolRiskData}
-          />
+          <TopTokens tokens={tokens} pairs={pairs} poolRiskData={poolRiskData} />
         </Suspense>
 
         {/* A "Read the docs" button (accessible and responsive) */}
@@ -137,23 +129,14 @@ export default async function TokensPage() {
         */}
         <Suspense
           fallback={
-            <ServerSideTokenTable
-              tokens={tokens}
-              pairs={pairs}
-              volumeMap={volumeMap}
-              tvlMap={tvlMap}
-            />
+            <ServerSideTokenTable tokens={tokens} pairs={pairs} volumeMap={volumeMap} tvlMap={tvlMap} />
           }
         >
           {/* 
             Once client JS loads, 
             <TokenTable> (your "use client" component) replaces the fallback 
           */}
-          <TokenTable
-            tokens={tokens}
-            pairs={pairs}
-            poolRiskData={poolRiskData}
-          />
+          <TokenTable tokens={tokens} pairs={pairs} poolRiskData={poolRiskData} />
         </Suspense>
       </div>
     </PageLayout>
@@ -194,8 +177,8 @@ function createTokensJSONLD(tokens: Token[]) {
 }
   */
 function createTokensJSONLD(tokens: Token[]) {
-  const nowIso = new Date().toISOString(); 
-  const distributionUrl = "https://api.hoops.finance/api/tokens"; 
+  const nowIso = new Date().toISOString();
+  const distributionUrl = "https://api.hoops.finance/api/tokens";
 
   // We build an array of "FinancialProduct" items, one per token
   const tokenItems = tokens.map((token) => {
@@ -212,10 +195,10 @@ function createTokensJSONLD(tokens: Token[]) {
     const offers = {
       "@type": "Offer",
       price: token.price || 0,
-      priceCurrency: "USD", 
+      priceCurrency: "USD",
       // or use the appropriate currency
       url: detailUrl,
-      availability: "https://schema.org/InStock", 
+      availability: "https://schema.org/InStock",
     };
 
     // Additional properties that schema.org doesn’t have official fields for
@@ -238,9 +221,9 @@ function createTokensJSONLD(tokens: Token[]) {
     return {
       "@type": "FinancialProduct",
       // Core fields
-      name: symbolName, 
+      name: symbolName,
       description: `Token symbol: ${token.symbol}`,
-      identifier: token.id, 
+      identifier: token.id,
       url: detailUrl,
 
       // The "offers" property is a recommended approach for price
@@ -248,7 +231,7 @@ function createTokensJSONLD(tokens: Token[]) {
 
       // If you want to incorporate lastUpdated as "dateModified":
       dateModified: token.lastUpdated,
-      
+
       // Extra fields
       additionalProperty: additionalProps,
     };
@@ -261,9 +244,10 @@ function createTokensJSONLD(tokens: Token[]) {
     "@type": "Dataset",
     name: "Tokens on Hoops Finance",
     description: "List of Stellar assets on soroban, with their price and metadata.",
-    dateModified: new Date(Date.now() - (Math.random() * (3 * 24 * 60 * 60 * 1000))),
+    dateModified: new Date(Date.now() - Math.random() * (3 * 24 * 60 * 60 * 1000)),
     // Keywords can help AI/crawlers contextually
-    keywords: "crypto, tokens, DeFi, finance, stellar, soroban, amm, exchange, yield generation, savings accounts, stablecoins, usdc, usdy, xlm, aqua, btc, eth, usd",
+    keywords:
+      "crypto, tokens, DeFi, finance, stellar, soroban, amm, exchange, yield generation, savings accounts, stablecoins, usdc, usdy, xlm, aqua, btc, eth, usd",
     // This references your API as a direct data download
     distribution: {
       "@type": "DataDownload",
@@ -299,14 +283,14 @@ function ServerSideTopTokens({
   // top by volume
   const topByVolume = tokens
     .filter((t) => volumeMap.has(t.id))
-    .map((t) => ({ token: t, volume: volumeMap.get(t.id)! }))
+    .map((t) => ({ token: t, volume: volumeMap.get(t.id) ?? 0 }))
     .sort((a, b) => b.volume - a.volume)
     .slice(0, 5);
 
   // top by liquidity
   const topByLiquidity = tokens
     .filter((t) => tvlMap.has(t.id))
-    .map((t) => ({ token: t, tvl: tvlMap.get(t.id)! }))
+    .map((t) => ({ token: t, tvl: tvlMap.get(t.id) ?? 0 }))
     .sort((a, b) => b.tvl - a.tvl)
     .slice(0, 5);
 
@@ -316,14 +300,16 @@ function ServerSideTopTokens({
     .sort((a, b) => b.tvl - a.tvl)
     .slice(0, 5);
 
-
   return (
     <div className="topTokensOverview" role="region" aria-label="Top Tokens Overview">
       <TokenCard
         icon={<LightningIcon />}
         title="Top Volume"
         delay={0.1}
-        data={topByVolume.map((item) => ({ token: item.token, value: item.volume }))}
+        data={topByVolume.map((item) => ({
+          token: item.token,
+          value: item.volume,
+        }))}
         isServer={true}
       />
 
@@ -331,7 +317,10 @@ function ServerSideTopTokens({
         icon={<WaterIcon />}
         title="Top Liquidity"
         delay={0.2}
-        data={topByLiquidity.map((item) => ({ token: item.token, value: item.tvl }))}
+        data={topByLiquidity.map((item) => ({
+          token: item.token,
+          value: item.tvl,
+        }))}
         isServer={true}
       />
 
@@ -339,7 +328,10 @@ function ServerSideTopTokens({
         icon={<DollarIcon />}
         title="Top Stablecoins"
         delay={0.3}
-        data={topStables.map((item) => ({ token: item.token, value: item.tvl }))}
+        data={topStables.map((item) => ({
+          token: item.token,
+          value: item.tvl,
+        }))}
         isServer={true}
       />
     </div>
@@ -350,10 +342,10 @@ function ServerSideTopTokens({
 /* Server-Side Replacement for the TokenTable                         */
 /* ------------------------------------------------------------------ */
 interface ServerSideTokenTableProps {
-  tokens: Token[]
-  pairs: Pair[]
-  volumeMap: Map<string, number>
-  tvlMap: Map<string, number>
+  tokens: Token[];
+  pairs: Pair[];
+  volumeMap: Map<string, number>;
+  tvlMap: Map<string, number>;
 }
 
 const HEADERS: TableColumn[] = [
@@ -366,15 +358,10 @@ const HEADERS: TableColumn[] = [
   { label: "Actions", align: "right" },
 ];
 
-function ServerSideTokenTable({
-  tokens,
-  pairs,
-  volumeMap,
-  tvlMap,
-}: ServerSideTokenTableProps) {
+function ServerSideTokenTable({ tokens, pairs, volumeMap, tvlMap }: ServerSideTokenTableProps) {
   const realTokenRegex = /^[^:]+:G[A-Z0-9]{55}$/;
   const filteredTokens = tokens.filter(
-    (t) => realTokenRegex.test(t.name) || t.symbol.toUpperCase() === "XLM"
+    (t) => realTokenRegex.test(t.name) || t.symbol.toUpperCase() === "XLM",
   );
 
   const pairMap = new Map<string, Pair>(pairs.map((p) => [p.id, p]));
@@ -386,7 +373,8 @@ function ServerSideTokenTable({
       </div>
       <table className="serverSideTokenTable anim-fadeSlideInUp" role="table">
         <caption className="hidden">
-          A table of all the tokens tracked by Hoops Finance available in Stellars Soroban Smart Contract system.
+          A table of all the tokens tracked by Hoops Finance available in Stellars Soroban Smart Contract
+          system.
         </caption>
         <TokenTableHeader ColLabels={HEADERS} />
 
@@ -398,7 +386,6 @@ function ServerSideTokenTable({
           isServer={true}
           noTokensColSpan={HEADERS.length}
         />
-
       </table>
     </div>
   );

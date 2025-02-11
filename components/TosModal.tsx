@@ -1,13 +1,19 @@
-"use client";
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { TOS } from "./TOS";
 import Link from "next/link";
 
 interface TosModalProps {
   open: boolean;
-  onClose: () => void;
+  onClose: (open: boolean) => void;
 }
 
 export function TosModal({ open, onClose }: TosModalProps) {

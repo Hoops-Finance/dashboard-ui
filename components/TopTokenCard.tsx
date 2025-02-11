@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { JSX } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-
 export interface DataItem {
   token: Token;
   value: number;
@@ -17,13 +16,7 @@ export interface TokenCardProps {
   isServer?: boolean;
 }
 
-export function TokenCard({
-  icon,
-  title,
-  data,
-  delay,
-  isServer = false,
-}: TokenCardProps) {
+export function TokenCard({ icon, title, data, delay, isServer = false }: TokenCardProps) {
   const TokenCard = (
     <Card>
       <CardHeader>
@@ -35,26 +28,26 @@ export function TokenCard({
       <CardContent className="space-y-4">
         {data.map((item, i) => {
           const rank = i + 1;
-          const symbolName = item.token.name === "native" ? "XLM" : `${item.token.name.substring(0, 8)}...${item.token.name.substring(item.token.name.length - 3)}`
+          const symbolName =
+            item.token.name === "native"
+              ? "XLM"
+              : `${item.token.name.substring(0, 8)}...${item.token.name.substring(item.token.name.length - 3)}`;
           return (
             <div key={item.token.id} className="CardContentRow">
               <div className="flex-center-g-2">
                 <span className="text-muted-foreground">#{rank}</span>
-                <span className="CardRowLabel">
-                  {symbolName}
-                </span>
+                <span className="CardRowLabel">{symbolName}</span>
               </div>
-              <span className="text-foreground">
-                ${item.value.toLocaleString().split(".")[0]}
-              </span>
+              <span className="text-foreground">${item.value.toLocaleString().split(".")[0]}</span>
             </div>
           );
         })}
       </CardContent>
     </Card>
-  )
-  return (
-    isServer ? TokenCard : 
+  );
+  return isServer ? (
+    TokenCard
+  ) : (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}

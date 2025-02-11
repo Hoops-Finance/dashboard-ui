@@ -26,7 +26,9 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
   const realTokenRegex = useMemo(() => /^[^:]+:G[A-Z0-9]{55}$/, []);
 
   const filteredRealTokens = useMemo(() => {
-    return tokens.filter((token) => realTokenRegex.test(token.name) || token.symbol.toUpperCase() === "XLM");
+    return tokens.filter(
+      (token) => realTokenRegex.test(token.name) || token.symbol.toUpperCase() === "XLM",
+    );
   }, [tokens, realTokenRegex]);
 
   const pairMap = useMemo(() => {
@@ -209,7 +211,8 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
       <div className="serverTokenTableDiv">
         <table className="serverSideTokenTable anim-fadeSlideInUp" role="table">
           <caption className="hidden">
-            A table of all the tokens tracked by Hoops Finance available in Stellars Soroban Smart Contract system.
+            A table of all the tokens tracked by Hoops Finance available in Stellars Soroban Smart
+            Contract system.
           </caption>
           <TokenTableHeader ColLabels={HEADERS} />
 
@@ -248,7 +251,8 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
               <span className="text-sm text-muted-foreground">entries</span>
             </div>
             <div className="text-sm text-muted-foreground">
-              Showing {startIndex + 1} to {Math.min(startIndex + rowsPerPage, filteredTokens.length)} of {filteredTokens.length} entries
+              Showing {startIndex + 1} to {Math.min(startIndex + rowsPerPage, filteredTokens.length)} of{" "}
+              {filteredTokens.length} entries
             </div>
           </div>
           <div className="flex-center-g-2">
@@ -270,7 +274,9 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
                 .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
                 .map((page, idx, arr) => (
                   <div key={page}>
-                    {idx > 0 && arr[idx - 1] !== page - 1 && <span className="px-2 text-sm text-muted-foreground">...</span>}
+                    {idx > 0 && arr[idx - 1] !== page - 1 && (
+                      <span className="px-2 text-sm text-muted-foreground">...</span>
+                    )}
                     <Button
                       variant={currentPage === page ? "default" : "outline"}
                       size="sm"

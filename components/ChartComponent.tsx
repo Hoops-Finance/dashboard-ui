@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createChart, IChartApi, UTCTimestamp, SeriesType, ISeriesApi, ColorType, ChartOptions, DeepPartial, PriceFormatBuiltIn } from "lightweight-charts";
+import {
+  createChart,
+  IChartApi,
+  UTCTimestamp,
+  SeriesType,
+  ISeriesApi,
+  ColorType,
+  ChartOptions,
+  DeepPartial,
+  PriceFormatBuiltIn,
+} from "lightweight-charts";
 import { ema, calcMACD, calcRSI, calcSMA, calcBollinger } from "@/utils/indicators";
 import type { CandleDataPoint, VolumeDataPoint } from "@/utils/utilities";
 import { ChartToolbar } from "./ChartToolbar";
@@ -46,7 +56,10 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
 
   // Helper function to extend indicator data across entire dataset
   // If indicator is computed from startIndex to end, replicate the first computed value backward.
-  function extendFullData(candles: CandleDataPoint[], values: number[]): { time: UTCTimestamp; value: number }[] {
+  function extendFullData(
+    candles: CandleDataPoint[],
+    values: number[],
+  ): { time: UTCTimestamp; value: number }[] {
     const total = candles.length;
     const computedLen = values.length;
     if (computedLen === 0) return []; // no data
@@ -80,34 +93,34 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
         minimumWidth: 50,
         scaleMargins: {
           top: 0.1,
-          bottom: 0.3
-        }
+          bottom: 0.3,
+        },
       },
       handleScroll: {
         pressedMouseMove: true,
         horzTouchDrag: true,
         vertTouchDrag: false,
-        mouseWheel: true
+        mouseWheel: true,
       },
       handleScale: {
         axisDoubleClickReset: { time: true, price: false }, // no vertical reset
         axisPressedMouseMove: { time: true, price: true }, // no vertical scale by dragging price axis
         mouseWheel: false, // allow horizontal zoom
-        pinch: false // no pinch zoom
+        pinch: false, // no pinch zoom
       },
       kineticScroll: {
         touch: false,
-        mouse: false
+        mouse: false,
       },
       trackingMode: {
-        exitMode: 1
+        exitMode: 1,
       },
       layout: {
         textColor: "#D9D9D9",
         background: { type: ColorType.Solid, color: "#000000" },
         fontSize: 12,
         fontFamily: "Arial",
-        attributionLogo: true // must be true
+        attributionLogo: true, // must be true
       },
       rightPriceScale: {
         borderVisible: true,
@@ -120,7 +133,7 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
         mode: 0,
         invertScale: false,
         alignLabels: true,
-        scaleMargins: { top: 0.1, bottom: 0.3 }
+        scaleMargins: { top: 0.1, bottom: 0.3 },
       },
       leftPriceScale: {
         visible: false,
@@ -133,7 +146,7 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
         entireTextOnly: false,
         ticksVisible: true,
         minimumWidth: 50,
-        scaleMargins: { top: 0.1, bottom: 0.3 }
+        scaleMargins: { top: 0.1, bottom: 0.3 },
       },
       timeScale: {
         borderVisible: false,
@@ -153,11 +166,11 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
         allowShiftVisibleRangeOnWhitespaceReplacement: true,
         uniformDistribution: false,
         minimumHeight: 0,
-        allowBoldLabels: true
+        allowBoldLabels: true,
       },
       grid: {
         vertLines: { color: "#2c2c3e", style: 0, visible: true },
-        horzLines: { color: "#2c2c3e", style: 0, visible: true }
+        horzLines: { color: "#2c2c3e", style: 0, visible: true },
       },
       crosshair: {
         mode: 1,
@@ -167,7 +180,7 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
           style: 0,
           visible: true,
           labelVisible: true,
-          labelBackgroundColor: "#121212"
+          labelBackgroundColor: "#121212",
         },
         horzLine: {
           color: "#758696",
@@ -175,12 +188,12 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
           style: 0,
           visible: true,
           labelVisible: true,
-          labelBackgroundColor: "#121212"
-        }
+          labelBackgroundColor: "#121212",
+        },
       },
       localization: {
         dateFormat: "yyyy/MM/dd",
-        locale: "en-US"
+        locale: "en-US",
       },
       autoSize: true,
       watermark: {
@@ -191,10 +204,10 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
         fontFamily: "",
         fontStyle: "",
         horzAlign: "center",
-        vertAlign: "center"
+        vertAlign: "center",
       },
       width: container.clientWidth,
-      height: container.clientHeight
+      height: container.clientHeight,
     };
     const chartInstance = createChart(container, chartOptions);
     chartRef.current = chartInstance;
@@ -203,7 +216,7 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
       if (chartRef.current) {
         chartRef.current.applyOptions({
           width: container.clientWidth,
-          height: container.clientHeight
+          height: container.clientHeight,
         });
       }
     };
@@ -220,7 +233,18 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
     const chart = chartRef.current;
     if (!chart) return;
 
-    [mainSeriesRef, volumeSeriesRef, macdSeriesRef, macdSignalSeriesRef, rsiSeriesRef, smaSeriesRef, emaSeriesRef, bollUpperRef, bollMiddleRef, bollLowerRef].forEach((ref) => {
+    [
+      mainSeriesRef,
+      volumeSeriesRef,
+      macdSeriesRef,
+      macdSignalSeriesRef,
+      rsiSeriesRef,
+      smaSeriesRef,
+      emaSeriesRef,
+      bollUpperRef,
+      bollMiddleRef,
+      bollLowerRef,
+    ].forEach((ref) => {
       if (ref.current) {
         chart.removeSeries(ref.current);
         ref.current = null;
@@ -232,7 +256,11 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
     }
 
     // Price format with 7 decimals
-    const priceFormat: DeepPartial<PriceFormatBuiltIn> = { type: "price", precision: 7, minMove: 0.0000001 };
+    const priceFormat: DeepPartial<PriceFormatBuiltIn> = {
+      type: "price",
+      precision: 7,
+      minMove: 0.0000001,
+    };
 
     // Main Series
     let mainSeries: ISeriesApi<SeriesType>;
@@ -244,12 +272,17 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
         borderUpColor: "#26a69a",
         wickDownColor: "#ef5350",
         wickUpColor: "#26a69a",
-        priceFormat
+        priceFormat,
       });
       mainSeries.setData(finalCandleData);
     } else if (chartStyle === "line") {
       const lineData = finalCandleData.map((d) => ({ time: d.time, value: d.close }));
-      mainSeries = chart.addLineSeries({ color: "#2196f3", lineWidth: 2, crosshairMarkerVisible: true, priceFormat });
+      mainSeries = chart.addLineSeries({
+        color: "#2196f3",
+        lineWidth: 2,
+        crosshairMarkerVisible: true,
+        priceFormat,
+      });
       mainSeries.setData(lineData);
     } else {
       const areaData = finalCandleData.map((d) => ({ time: d.time, value: d.close }));
@@ -258,7 +291,7 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
         bottomColor: "rgba(33,150,243,0.0)",
         lineColor: "#2196f3",
         lineWidth: 2,
-        priceFormat
+        priceFormat,
       });
       mainSeries.setData(areaData);
     }
@@ -269,7 +302,7 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
     const volSeries = chart.addHistogramSeries({
       color: "#26a69a",
       priceFormat: { type: "volume" },
-      priceScaleId: ""
+      priceScaleId: "",
     });
     volSeries.priceScale().applyOptions({ scaleMargins: { top: 0.75, bottom: 0 } });
     volSeries.setData(volumeData);
@@ -285,7 +318,9 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
         const signalData = extendFullData(finalCandleData, signal);
 
         const macdLine = chart.addLineSeries({ color: "#e91e63", lineWidth: 1, priceScaleId: "macd" });
-        macdLine.priceScale().applyOptions({ autoScale: false, scaleMargins: { top: 0.1, bottom: 0.4 } });
+        macdLine
+          .priceScale()
+          .applyOptions({ autoScale: false, scaleMargins: { top: 0.1, bottom: 0.4 } });
         macdLine.setData(macdData);
         macdSeriesRef.current = macdLine;
 
@@ -341,7 +376,9 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
         const lowerData = extendFullData(finalCandleData, lower);
 
         const upperLine = chart.addLineSeries({ color: "#1E90FF", lineWidth: 1, priceScaleId: "boll3" });
-        upperLine.priceScale().applyOptions({ autoScale: false, scaleMargins: { top: 0.1, bottom: 0.3 } });
+        upperLine
+          .priceScale()
+          .applyOptions({ autoScale: false, scaleMargins: { top: 0.1, bottom: 0.3 } });
         upperLine.setData(upperData);
         bollUpperRef.current = upperLine;
 
@@ -351,7 +388,9 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
         bollMiddleRef.current = midLine;
 
         const lowerLine = chart.addLineSeries({ color: "#1E90FF", lineWidth: 1, priceScaleId: "boll1" });
-        lowerLine.priceScale().applyOptions({ autoScale: false, scaleMargins: { top: 0.1, bottom: 0.3 } });
+        lowerLine
+          .priceScale()
+          .applyOptions({ autoScale: false, scaleMargins: { top: 0.1, bottom: 0.3 } });
         lowerLine.setData(lowerData);
         bollLowerRef.current = lowerLine;
       }
@@ -367,7 +406,17 @@ export default function ChartComponent({ candleData, volumeData }: ChartProps) {
       const toTime = finalCandleData[totalCandles - 1].time;
       chart.timeScale().setVisibleRange({ from: fromTime, to: toTime });
     }
-  }, [chartStyle, finalCandleData, volumeData, showMACD, showRSI, showSMA, showEMA, showBollinger, inverted]);
+  }, [
+    chartStyle,
+    finalCandleData,
+    volumeData,
+    showMACD,
+    showRSI,
+    showSMA,
+    showEMA,
+    showBollinger,
+    inverted,
+  ]);
 
   return (
     <div className="w-full h-full flex flex-col" style={{ backgroundColor: "black" }}>

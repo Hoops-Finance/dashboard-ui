@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo } from "react";
 import { useDataContext } from "@/contexts/DataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +9,8 @@ import { MessageCircleWarning } from "lucide-react";
 import { PoolsTable } from "@/components/PoolsTable";
 import { TopPools } from "@/components/TopPools";
 import { STABLECOIN_IDS, AllowedPeriods } from "@/utils/utilities";
-import { useParams } from "next/navigation";
+import { fetchCoreData, fetchPeriodDataFromServer } from "@/services/serverData.service";
+import { GlobalMetrics } from "../../../utils/types";
 
 const PROTOCOLS = ["soroswap", "aquarius", "blend", "phoenix", "aqua"] as const;
 type Protocol = (typeof PROTOCOLS)[number];
@@ -98,15 +97,16 @@ function getProtocolStats(pools: import("@/utils/types").PoolRiskApiResponseObje
   return { tvl, volume24h, poolCount, averageApy };
 }
 
-export default function ProtocolPage() {
-  const { poolRiskData, period, loading, pairs, tokens } = useDataContext();
-  const params = useParams();
-  if (!params.protocol) {
-    throw new Error("Missing required protocol parameter.");
-  }
-  const protocol = params.protocol as Protocol;
-  const isValidProtocol = PROTOCOLS.includes(protocol);
-  const protocolInfo = isValidProtocol ? PROTOCOL_INFO[protocol] : null;
+export default async function ProtocolPage({ params }: { params: Promise<{ protocol: string }> }) {
+  //const { poolRiskData, period, loading, pairs, tokens } = useDataContext();
+  const { pairs, tokens } = await fetchCoreData();
+  // need to get periods from the user, need dynamic periods.
+  const period = "14d";
+  const { poolRiskData, globalMetrics } = await fetchPeriodDataFromServer(period);
+  const { protocol } = await params;
+  console.log(protocol);
+  const isValidProtocol = PROTOCOLS.includes(protocol.toLowerCase() as Protocol);
+  const protocolInfo = isValidProtocol ? PROTOCOL_INFO[protocol as Protocol] : null;
   if (!protocolInfo) {
     throw new Error("Invalid protocol specified.");
   }
@@ -128,11 +128,11 @@ export default function ProtocolPage() {
       </main>
     );
   }
-
+  /*
   if (loading) {
     return <main className="container mx-auto p-4 space-y-8">Loading pools data...</main>;
   }
-
+*/
   return (
     <main className="container mx-auto p-4 space-y-8">
       {/* Breadcrumbs */}

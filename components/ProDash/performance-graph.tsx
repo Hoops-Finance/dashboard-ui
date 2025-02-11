@@ -4,14 +4,72 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 //import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 
 import { cn } from "@/lib/utils";
-import { forwardRef, ComponentProps, useId, ReactNode, ComponentType, createContext, CSSProperties, useContext, useMemo } from "react";
+
+import {
+  forwardRef,
+  ComponentProps,
+  useId,
+  ReactNode,
+  ComponentType,
+  createContext,
+  CSSProperties,
+  useContext,
+  useMemo,
+} from "react";
+
+interface ChartTooltipContentProps {
+  active?: boolean;
+  payload?: ChartItem[];
+  className?: string;
+  indicator?: "dot" | "line" | "dashed";
+  hideLabel?: boolean;
+  hideIndicator?: boolean;
+  label?: ReactNode;
+  labelFormatter?: (value: unknown, payload: unknown[]) => ReactNode;
+  labelClassName?: string;
+  formatter?: (
+    value: unknown,
+    name: string,
+    item: unknown,
+    index: number,
+    payload?: unknown[],
+  ) => ReactNode;
+  color?: string;
+  nameKey?: string;
+  labelKey?: string;
+}
+interface ChartItem {
+  dataKey?: string | number;
+  name?: string;
+  value?: number;
+  payload?: {
+    fill?: string;
+    [key: string]: unknown;
+  };
+  color?: string;
+  [key: string]: unknown;
+}
+
+export type ChartConfig = Record<
+  string,
+  {
+    label?: ReactNode;
+    icon?: ComponentType;
+    theme?: Record<string, string>;
+    color?: string;
+  }
+>;
+
+interface ChartContextProps {
+  config: ChartConfig;
+}
+
+// Removed duplicate ChartContext definition
+
+const ChartContext = createContext<ChartContextProps>({ config: {} });
 
 function useChart() {
   const context = useContext(ChartContext);
-
-  if (!context) {
-    throw new Error("useChart must be used within a <ChartContainer />");
-  }
 
   return context;
 }
@@ -22,67 +80,77 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
     return undefined;
   }
 
-  const payloadPayload = "payload" in payload && typeof payload.payload === "object" && payload.payload !== null ? payload.payload : undefined;
+  const payloadPayload =
+    "payload" in payload && typeof payload.payload === "object" && payload.payload !== null
+      ? payload.payload
+      : undefined;
 
-  let configLabelKey: string = key;
+  const configLabelKey: string = key;
+  const ChartTooltipContent = forwardRef<HTMLDivElement, ChartTooltipContentProps>(
+    (
+      {
+        active,
+        payload,
+        className,
+        indicator = "dot",
+        hideLabel = false,
+        hideIndicator = false,
+        label,
+        labelFormatter,
+        labelClassName,
+        formatter,
+        color,
+        nameKey,
+        labelKey,
+      },
+      ref,
+    ) => {
+      const { config } = useChart();
 
-  if (key in payload && typeof payload[key as keyof typeof payload] === "string") {
-    configLabelKey = payload[key as keyof typeof payload] as string;
-  } else if (payloadPayload && key in payloadPayload && typeof payloadPayload[key as keyof typeof payloadPayload] === "string") {
-    configLabelKey = payloadPayload[key as keyof typeof payloadPayload] as string;
-  }
+      const tooltipLabel = useMemo(() => {
+        if (hideLabel || !payload?.length) {
+          return null;
+        }
 
-  return configLabelKey in config ? config[configLabelKey] : config[key];
-}
+        const [item] = payload;
+        const key = `${labelKey ?? item.dataKey ?? item.name ?? "value"}`;
+        getPayloadConfigFromPayload(config, item, key);
+        const itemConfig = {};
+        let value: ReactNode = (itemConfig as { label?: ReactNode } | undefined)?.label;
+        if (!labelKey && typeof label === "string" && label in config) {
+          value = config[label].label ?? label;
+        }
 
+        if (labelFormatter) {
+          return (
+            <div className={cn("font-medium", labelClassName)}>{labelFormatter(value, payload)}</div>
+          );
+        }
 
-// const ChartTooltip = Tooltip;
+        if (!value) {
+          return null;
+        }
 
-const ChartTooltipContent = forwardRef<
-  HTMLDivElement,
-  ComponentProps<any> &
-  ComponentProps<"div"> & {
-    hideLabel?: boolean;
-    hideIndicator?: boolean;
-    indicator?: "line" | "dot" | "dashed";
-    nameKey?: string;
-    labelKey?: string;
-  }
->(({ active, payload, className, indicator = "dot", hideLabel = false, hideIndicator = false, label, labelFormatter, labelClassName, formatter, color, nameKey, labelKey }, ref) => {
-  const { config } = useChart();
+        return <div className={cn("font-medium", labelClassName)}>{value}</div>;
+      }, [label, labelFormatter, payload, hideLabel, labelClassName, config, labelKey]);
 
-  const tooltipLabel = useMemo(() => {
-    if (hideLabel || !payload?.length) {
-      return null;
-    }
+      if (!active || !payload?.length) {
+        return null;
+      }
 
-    const [item] = payload;
-    const key = `${labelKey ?? item.dataKey ?? item.name ?? "value"}`;
-    const itemConfig = getPayloadConfigFromPayload(config, item, key);
-    const value = !labelKey && typeof label === "string" ? (config[label].label ?? label) : itemConfig?.label;
+      const nestLabel = payload.length === 1 && indicator !== "dot";
 
-    if (labelFormatter) {
-      return <div className={cn("font-medium", labelClassName)}>{labelFormatter(value, payload)}</div>;
-    }
-
-    if (!value) {
-      return null;
-    }
-
-    return <div className={cn("font-medium", labelClassName)}>{value}</div>;
-  }, [label, labelFormatter, payload, hideLabel, labelClassName, config, labelKey]);
-
-  if (!active || !payload?.length) {
-    return null;
-  }
-
-  const nestLabel = payload.length === 1 && indicator !== "dot";
-
-  return (
-    <div ref={ref} className={cn("grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl", className)}>
-      {!nestLabel ? tooltipLabel : null}
-      <div className="grid gap-1.5">
-        {/*payload.map((item, index) => {
+      return (
+        <div
+          ref={ref}
+          className={cn(
+            "grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+            className,
+          )}
+        >
+          {!nestLabel ? tooltipLabel : null}
+          <div className="grid gap-1.5">
+            {/*payload.map((item, index) => {
           const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`;
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
           const indicatorColor = color ?? item.payload.fill ?? item.color;
@@ -125,106 +193,96 @@ const ChartTooltipContent = forwardRef<
             </div>
           );
         })*/}
-      </div>
-    </div>
+          </div>
+        </div>
+      );
+    },
   );
-});
-ChartTooltipContent.displayName = "ChartTooltip";
+  ChartTooltipContent.displayName = "ChartTooltip";
 
-const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-  const colorConfig = Object.entries(config).filter(([_, config]) => config.theme ?? config.color);
+  const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
+    const colorConfig = Object.entries(config).filter(([_, config]) => config.theme ?? config.color);
 
-  if (!colorConfig.length) {
-    return null;
-  }
+    if (!colorConfig.length) {
+      return null;
+    }
 
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
+    return (
+      <style
+        dangerouslySetInnerHTML={{
+          __html: Object.entries(THEMES)
+            .map(
+              ([theme, prefix]) => `
 ${prefix} [data-chart=${id}] {
 ${colorConfig
-                .map(([key, itemConfig]) => {
-                  const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ?? itemConfig.color;
-                  return color ? `  --color-${key}: ${color};` : null;
-                })
-                .join("\n")}
+  .map(([key, itemConfig]) => {
+    const color = itemConfig.theme?.[theme] ?? itemConfig.color;
+    return color ? `  --color-${key}: ${color};` : null;
+  })
+  .filter(Boolean)
+  .join("\n")}
+}`,
+            )
+            .join("\n"),
+        }}
+      />
+    );
+  };
+
+  const ChartContext = createContext<ChartContextProps>({ config: {} });
+
+  const ChartContainer = forwardRef<
+    HTMLDivElement,
+    ComponentProps<"div"> & {
+      config: ChartConfig;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      children: ComponentProps<any>["children"]; // this library doesn't play nice it'll be replaced later (recharts)
+    }
+  >(({ id, className, children, config, ...props }, ref) => {
+    const uniqueId = useId();
+    const chartId = `chart-${id ?? uniqueId.replaceAll(":", "")}`;
+
+    return (
+      <ChartContext.Provider value={{ config }}>
+        <div
+          data-chart={chartId}
+          ref={ref}
+          className={cn(
+            "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
+            className,
+          )}
+          {...props}
+        >
+          <ChartStyle id={chartId} config={config} />
+          {/*  <ResponsiveContainer>{children}</ResponsiveContainer>*/}
+        </div>
+      </ChartContext.Provider>
+    );
+  });
+  ChartContainer.displayName = "Chart";
+  const generateDummyData = () => {
+    const data = [];
+    const startDate = new Date("2024-01-01");
+    let value = 10000;
+
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+
+      // Add some random variation but keep it subtle
+      value = value * (1 + (Math.random() * 0.02 - 0.01));
+
+      data.push({
+        date: date.toISOString().split("T")[0],
+        value: Math.round(value),
+      });
+    }
+
+    return data;
+  };
+
+  const data = generateDummyData();
 }
-`
-          )
-          .join("\n")
-      }}
-    />
-  );
-};
-
-export type ChartConfig = Record<
-  string,
-  {
-    label?: ReactNode;
-    icon?: ComponentType;
-  } & ({ color?: string; theme?: never } | { color?: never; theme: Record<keyof typeof THEMES, string> })
->;
-
-interface ChartContextProps {
-  config: ChartConfig;
-}
-
-const ChartContext = createContext<ChartContextProps | null>(null);
-
-const ChartContainer = forwardRef<
-  HTMLDivElement,
-  ComponentProps<"div"> & {
-    config: ChartConfig;
-    children: ComponentProps<any>["children"]; // this library doesn't play nice it'll be replaced later (recharts)
-  }
->(({ id, className, children, config, ...props }, ref) => {
-  const uniqueId = useId();
-  const chartId = `chart-${id ?? uniqueId.replace(/:/g, "")}`;
-
-  return (
-    <ChartContext.Provider value={{ config }}>
-      <div
-        data-chart={chartId}
-        ref={ref}
-        className={cn(
-          "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
-          className
-        )}
-        {...props}
-      >
-        <ChartStyle id={chartId} config={config} />
-       {/*  <ResponsiveContainer>{children}</ResponsiveContainer>*/}
-      </div>
-    </ChartContext.Provider>
-  );
-});
-ChartContainer.displayName = "Chart";
-const generateDummyData = () => {
-  const data = [];
-  const startDate = new Date("2024-01-01");
-  let value = 10000;
-
-  for (let i = 0; i < 30; i++) {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + i);
-
-    // Add some random variation but keep it subtle
-    value = value * (1 + (Math.random() * 0.02 - 0.01));
-
-    data.push({
-      date: date.toISOString().split("T")[0],
-      value: Math.round(value)
-    });
-  }
-
-  return data;
-};
-
-const data = generateDummyData();
-
 export default function PerformanceGraph() {
   return (
     <Card className="w-full">
@@ -232,8 +290,7 @@ export default function PerformanceGraph() {
         <CardTitle>Performance Graph</CardTitle>
       </CardHeader>
       <CardContent>
-      {
-            /*
+        {/*
         <ChartContainer
           config={{
             value: {
@@ -254,7 +311,9 @@ export default function PerformanceGraph() {
                 axisLine={false}
                 tickFormatter={(value: string | number) => {
                   const date = new Date(value);
-                  if (isNaN(date.getTime())) throw new Error("Invalid Date");
+                  const dateObj = new Date(value);
+                  if (isNaN(dateObj.getTime())) throw new Error("Invalid Date");
+                  return `${dateObj.getDate()}`;
                   return `${date.getDate()}`; // why was Jan here
                 }}
                 tick={{ fontSize: 12 }}

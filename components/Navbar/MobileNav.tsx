@@ -8,14 +8,14 @@ import { navigationItems, navigationProfileItems } from "./Constants";
 //import { ConnectWallet } from "@/components/ConnectWallet";
 import { ThemeSwitch } from "./ThemeSwitch";
 import PathLink from "./PathLink";
-
+import { Session } from "next-auth";
 interface MobileNavProps {
   isLoggedIn: boolean;
-  session: any;
+  session?: Session | null;
 }
 
 export default function MobileNav({ isLoggedIn, session }: MobileNavProps) {
-  const userEmail = isLoggedIn ? session.user.email : "";
+  const userEmail = isLoggedIn && session ? session.user.email : "";
 
   return (
     <>
@@ -51,67 +51,65 @@ export default function MobileNav({ isLoggedIn, session }: MobileNavProps) {
       >
         {/* We can put theme switch, maybe a greeting if logged in */}
         <div className="max-w-screen-2xl mx-auto px-4 py-4 flex flex-col gap-4">
-        <div className="flex items-center gap-4">
-          <ThemeSwitch isMobile={true} />
-          {isLoggedIn && (
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              Hi {userEmail}
-            </span>
-          )}
-        </div>
+          <div className="flex items-center gap-4">
+            <ThemeSwitch isMobile={true} />
+            {isLoggedIn && (
+              <span className="text-sm text-gray-600 dark:text-gray-400">Hi {userEmail}</span>
+            )}
+          </div>
 
-        {/* Main nav items */}
-        {navigationItems.map((item) => (
-          <Suspense
-            key={item.path}
-            fallback={
-              <Link
-                href={item.path}
-                className="text-sm font-medium transition-colors text-black dark:text-white"
-              >
-                {item.name}
-              </Link>
-            }
-          >
-            <PathLink
-              name={item.name}
-              path={item.path}
-              baseClassName="text-sm font-medium transition-colors"
-              activeClassName="text-black dark:text-white"
-              fallbackClassName="text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white"
-            />
-          </Suspense>
-        ))}
-
-        {isLoggedIn ? (
-          <>
-            <div className="flex flex-col gap-4 pt-4 border-t border-border">
-              {navigationProfileItems.map((item) => (
-                <Suspense
-                  key={item.path}
-                  fallback={
-                    <Link
-                      href={item.path}
-                      className="text-sm font-medium transition-colors text-black dark:text-white"
-                    >
-                      {item.name}
-                    </Link>
-                  }
+          {/* Main nav items */}
+          {navigationItems.map((item) => (
+            <Suspense
+              key={item.path}
+              fallback={
+                <Link
+                  href={item.path}
+                  className="text-sm font-medium transition-colors text-black dark:text-white"
                 >
-                  <PathLink
-                    name={item.name}
-                    path={item.path}
-                    baseClassName="text-sm font-medium transition-colors"
-                    activeClassName="text-black dark:text-white"
-                    fallbackClassName="text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white"
-                  />
-                </Suspense>
-              ))}
-            </div>
-            <div className="flex flex-col gap-4 pt-4 border-t border-border">
-             {/*} <ConnectWallet /> */}
-            </div>
-            <div className="flex flex-col gap-4 pt-4 border-t border-border">
+                  {item.name}
+                </Link>
+              }
+            >
+              <PathLink
+                name={item.name}
+                path={item.path}
+                baseClassName="text-sm font-medium transition-colors"
+                activeClassName="text-black dark:text-white"
+                fallbackClassName="text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white"
+              />
+            </Suspense>
+          ))}
+
+          {isLoggedIn ? (
+            <>
+              <div className="flex flex-col gap-4 pt-4 border-t border-border">
+                {navigationProfileItems.map((item) => (
+                  <Suspense
+                    key={item.path}
+                    fallback={
+                      <Link
+                        href={item.path}
+                        className="text-sm font-medium transition-colors text-black dark:text-white"
+                      >
+                        {item.name}
+                      </Link>
+                    }
+                  >
+                    <PathLink
+                      name={item.name}
+                      path={item.path}
+                      baseClassName="text-sm font-medium transition-colors"
+                      activeClassName="text-black dark:text-white"
+                      fallbackClassName="text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white"
+                    />
+                  </Suspense>
+                ))}
+              </div>
+              <div className="flex flex-col gap-4 pt-4 border-t border-border">
+                {/*} <ConnectWallet /> */}
+              </div>
+              <div className="flex flex-col gap-4 pt-4 border-t border-border">
                 <button
                   form="logout-hidden-form"
                   type="submit"
@@ -121,28 +119,28 @@ export default function MobileNav({ isLoggedIn, session }: MobileNavProps) {
                 >
                   Log out
                 </button>
-            </div>
-          </>
-        ) : (
-          <div className="flex flex-col gap-4 pt-4 border-t border-border">
-            <Link
-              href="/signup?mode=login"
-              className="text-sm font-medium transition-colors 
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col gap-4 pt-4 border-t border-border">
+              <Link
+                href="/signup?mode=login"
+                className="text-sm font-medium transition-colors 
                          text-gray-600 hover:text-black 
                          dark:text-gray-400 dark:hover:text-white"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="px-4 py-2 text-sm font-medium rounded-lg text-center transition-colors 
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="px-4 py-2 text-sm font-medium rounded-lg text-center transition-colors 
                          bg-black text-white hover:bg-gray-800 
                          dark:bg-white dark:text-black dark:hover:bg-gray-200"
-            >
-              Sign up
-            </Link>
-          </div>
-        )}
+              >
+                Sign up
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </>

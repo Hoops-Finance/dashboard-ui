@@ -44,7 +44,10 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
     return data.filter((pool) => {
       if (searchQuery !== "") {
         const lowerQuery = searchQuery.toLowerCase();
-        if (!pool.market.toLowerCase().includes(lowerQuery) && !pool.protocol.toLowerCase().includes(lowerQuery)) {
+        if (
+          !pool.market.toLowerCase().includes(lowerQuery) &&
+          !pool.protocol.toLowerCase().includes(lowerQuery)
+        ) {
           return false;
         }
       }
@@ -121,16 +124,32 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
     setCurrentPage(1);
   };
 
-  const SortableHeader = ({ children, sortKey, align = "left" }: { children: ReactNode; sortKey: SortKey; align?: "left" | "right" }) => (
+  const SortableHeader = ({
+    children,
+    sortKey,
+    align = "left",
+  }: {
+    children: ReactNode;
+    sortKey: SortKey;
+    align?: "left" | "right";
+  }) => (
     <TableHead
       onClick={() => {
         handleSort(sortKey);
       }}
-      className={cn("h-10 px-4 align-middle font-medium text-muted-foreground cursor-pointer select-none table-header-label", align === "right" ? "text-right" : "text-left")}
+      className={cn(
+        "h-10 px-4 align-middle font-medium text-muted-foreground cursor-pointer select-none table-header-label",
+        align === "right" ? "text-right" : "text-left",
+      )}
     >
-      <div className="flex items-center gap-1" style={{ justifyContent: align === "right" ? "flex-end" : "flex-start" }}>
+      <div
+        className="flex items-center gap-1"
+        style={{ justifyContent: align === "right" ? "flex-end" : "flex-start" }}
+      >
         <span>{children}</span>
-        <ArrowUpDown className={`h-4 w-4 ${sortConfig.key === sortKey ? "text-foreground" : "text-muted-foreground/50"}`} />
+        <ArrowUpDown
+          className={`h-4 w-4 ${sortConfig.key === sortKey ? "text-foreground" : "text-muted-foreground/50"}`}
+        />
       </div>
     </TableHead>
   );
@@ -149,7 +168,11 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
                 setProtocolFilter(proto);
               }}
             >
-              {proto === "all" ? "All" : proto === "aquarius" ? "Aquarius" : proto.charAt(0).toUpperCase() + proto.slice(1)}
+              {proto === "all"
+                ? "All"
+                : proto === "aquarius"
+                  ? "Aquarius"
+                  : proto.charAt(0).toUpperCase() + proto.slice(1)}
             </Button>
           ))}
         </div>
@@ -223,10 +246,13 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
                       variant="outline"
                       className={cn(
                         "capitalize px-3 py-1",
-                        pool.protocol === "soroswap" && "bg-purple-500/10 text-purple-500 border-purple-500/20",
-                        pool.protocol === "blend" && "bg-green-500/10 text-green-500 border-green-500/20",
-                        pool.protocol === "phoenix" && "bg-orange-500/10 text-orange-500 border-orange-500/20",
-                        pool.protocol === "aqua" && "bg-pink-500/10 text-pink-500 border-pink-500/20"
+                        pool.protocol === "soroswap" &&
+                          "bg-purple-500/10 text-purple-500 border-purple-500/20",
+                        pool.protocol === "blend" &&
+                          "bg-green-500/10 text-green-500 border-green-500/20",
+                        pool.protocol === "phoenix" &&
+                          "bg-orange-500/10 text-orange-500 border-orange-500/20",
+                        pool.protocol === "aqua" && "bg-pink-500/10 text-pink-500 border-pink-500/20",
                       )}
                     >
                       {getProtocolDisplay(pool.protocol)}
@@ -234,11 +260,24 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
                   </TableCell>
                   <TableCell className="table-header-cell">{pool.market}</TableCell>
                   <TableCell className="table-header-cell">{pool.apr}</TableCell>
-                  <TableCell className="table-header-cell">${Number(pool.totalValueLocked).toLocaleString(undefined, { maximumFractionDigits: 2 })}</TableCell>
-                  <TableCell className="table-header-cell">${Number(pool.volume).toLocaleString(undefined, { maximumFractionDigits: 2 })}</TableCell>
-                  <TableCell className="table-header-cell">${Number(pool.fees).toLocaleString(undefined, { maximumFractionDigits: 2 })}</TableCell>
                   <TableCell className="table-header-cell">
-                    <span className={`font-medium ${Number(pool.riskScore) <= 50 ? "text-green-500" : "text-red-500"}`}>{Number(pool.riskScore).toFixed(2)}</span>
+                    $
+                    {Number(pool.totalValueLocked).toLocaleString(undefined, {
+                      maximumFractionDigits: 2,
+                    })}
+                  </TableCell>
+                  <TableCell className="table-header-cell">
+                    ${Number(pool.volume).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                  </TableCell>
+                  <TableCell className="table-header-cell">
+                    ${Number(pool.fees).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                  </TableCell>
+                  <TableCell className="table-header-cell">
+                    <span
+                      className={`font-medium ${Number(pool.riskScore) <= 50 ? "text-green-500" : "text-red-500"}`}
+                    >
+                      {Number(pool.riskScore).toFixed(2)}
+                    </span>
                   </TableCell>
                   <TableCell className="table-header-cell">
                     <Button
@@ -288,7 +327,8 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
               <span className="text-sm text-muted-foreground">entries</span>
             </div>
             <div className="text-sm text-muted-foreground">
-              Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, sortedData.length)} of {sortedData.length} entries
+              Showing {startIndex + 1} to {Math.min(startIndex + entriesPerPage, sortedData.length)} of{" "}
+              {sortedData.length} entries
             </div>
           </div>
           <div className="flex-center-g-2">
@@ -309,7 +349,9 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
                 .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
                 .map((page, index, array) => (
                   <div key={page}>
-                    {index > 0 && array[index - 1] !== page - 1 && <span className="px-2 text-muted-foreground">...</span>}
+                    {index > 0 && array[index - 1] !== page - 1 && (
+                      <span className="px-2 text-muted-foreground">...</span>
+                    )}
                     <Button
                       variant={currentPage === page ? "default" : "outline"}
                       size="sm"

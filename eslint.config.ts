@@ -58,7 +58,7 @@ const allconfigs = tseslint.config(
   },
   myConfig,
   {
-    ignores: [".history", ".vscode", "node_modules", "dist", "build", "tests", ".next", "out", "usboverride.js", "postcss.config.mjs", "next.config.mjs", "eslint.config.ts", "*.js"]
+    ignores: [".history", ".vscode", "node_modules", "dist", "build", "tests", ".next", "out", "usboverride.js", "postcss.config.mjs", "next.config.mjs", "eslint.config.ts", "eslint.config.mjs", "combine.cjs", "utils\combine.cjs", "*.js"]
   }
 );
 

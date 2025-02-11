@@ -35,7 +35,7 @@ export function ChartToolbar({
   showEMA,
   setShowEMA,
   showBollinger,
-  setShowBollinger
+  setShowBollinger,
 }: ChartToolbarProps) {
   return (
     <div className="flex items-center justify-between px-4 py-2 gap-2 bg-background">

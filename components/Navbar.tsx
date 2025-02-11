@@ -5,17 +5,16 @@ export const experimental_ppr = true;
 import { FC, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useSession } from "next-auth/react"
+import { useSession } from "next-auth/react";
 import { logoutAction } from "@/actions/logout";
 import DesktopNav from "@/components/Navbar/DesktopNav";
 import MobileNav from "@/components/Navbar/MobileNav";
 import "@/components/Navbar/Navbar.css";
 
 const NavbarDynamic: FC = () => {
-  
- const { data: session } = useSession()
+  const { data: session } = useSession();
 
- const isLoggedIn = !!session?.user?.accessToken;
+  const isLoggedIn = !!session?.user.accessToken;
 
   return (
     <nav className="sticky top-0 w-full border-b bg-white dark:bg-background dark:border-border z-50">

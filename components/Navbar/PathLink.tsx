@@ -24,7 +24,7 @@ export default function PathLink({
   path,
   fallbackClassName,
   activeClassName,
-  baseClassName = ""
+  baseClassName = "",
 }: Props) {
   const pathname = usePathname();
   const isActive = pathname === path;

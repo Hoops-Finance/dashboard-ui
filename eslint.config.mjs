@@ -70,6 +70,9 @@ const allconfigs = tseslint.config(
       "postcss.config.mjs",
       "next.config.mjs",
       "eslint.config.ts",
+      "eslint.config.mjs",
+      "combine.cjs",
+      "utils\combine.cjs",
       "*.js"
     ]
   }

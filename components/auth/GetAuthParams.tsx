@@ -12,7 +12,7 @@ interface ParamsResult {
 }
 
 function InternalModeSetter({
-  onParamsLoadedAction
+  onParamsLoadedAction,
 }: {
   onParamsLoadedAction: (res: ParamsResult) => void;
 }) {
@@ -25,12 +25,8 @@ function InternalModeSetter({
     const errorParam = searchParams.get("error") ?? "";
 
     // By default, isLogin = (mode=login)
-    let isLogin = modeParam === "login";
-
-    // If no `?mode=login` is present, but the pathname includes /login, let's default to true
-    if (!modeParam && pathname && pathname.toLowerCase().includes("login")) {
-      isLogin = true;
-    }
+    const isLogin =
+      !modeParam && pathname.toLowerCase().includes("login") ? true : modeParam === "login";
 
     let oauthEmail = "";
     let oauthProvider = "";
@@ -50,7 +46,7 @@ function InternalModeSetter({
       errorParam,
       oauthEmail,
       oauthProvider,
-      oauthCode
+      oauthCode,
     });
   }, [searchParams, pathname, onParamsLoadedAction]);
 
@@ -64,7 +60,7 @@ function InternalModeSetter({
  * Once the params are processed, it calls `onParamsLoadedAction` to pass the results.
  */
 export default function GetAuthParams({
-  onParamsLoadedAction
+  onParamsLoadedAction,
 }: {
   onParamsLoadedAction: (res: ParamsResult) => void;
 }) {

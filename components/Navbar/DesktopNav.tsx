@@ -2,19 +2,19 @@
 "use client";
 export const experimental_ppr = true;
 import { Suspense } from "react";
+import type { Session } from "next-auth";
 import Link from "next/link";
 import { ThemeSwitch } from "./ThemeSwitch"; // if this is also server or a small client piece, it's okay
 import { UserMenu } from "./UserMenu"; // We'll import the client subcomponent
 import { navigationItems } from "./Constants";
 import PathLink from "./PathLink"; // Marked client
-
 interface DesktopNavProps {
   isLoggedIn: boolean;
-  session: any;
+  session: Session | null;
 }
 
 export default function DesktopNav({ isLoggedIn, session }: DesktopNavProps) {
-  const userEmail = isLoggedIn ? session.user.email : "";
+  const userEmail = isLoggedIn && session ? session.user.email : "";
 
   return (
     <>

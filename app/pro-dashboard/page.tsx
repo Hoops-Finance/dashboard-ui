@@ -5,9 +5,8 @@ import MetricsSummary from "@/components/ProDash/metrics-summary";
 import FinancialPlaylistList from "@/components/ProDash/financial-playlist-list";
 
 export default function DashboardPage() {
-  
   const PerformanceGraph = dynamic(() => import("@/components/ProDash/performance-graph"), {
-    ssr: false, 
+    ssr: false,
     loading: () => <p>Loading chart…</p>,
   });
   return (

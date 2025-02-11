@@ -33,12 +33,8 @@ export function UserMenu({ userEmail }: UserMenuProps) {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <div className="flex items-center justify-start gap-2 p-2">
           <div className="flex flex-col space-y-1 leading-none">
-            <p className="font-medium text-sm text-gray-900 dark:text-white">
-              Welcome back
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {userEmail}
-            </p>
+            <p className="font-medium text-sm text-gray-900 dark:text-white">Welcome back</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{userEmail}</p>
           </div>
         </div>
         <DropdownMenuSeparator />
@@ -48,9 +44,7 @@ export function UserMenu({ userEmail }: UserMenuProps) {
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
-        <div className="p-2">
-          {/* <ConnectWallet /> */}
-        </div>
+        <div className="p-2">{/* <ConnectWallet /> */}</div>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer text-red-500 focus:text-red-500"

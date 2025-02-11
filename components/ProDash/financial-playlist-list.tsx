@@ -33,8 +33,8 @@ const playlists: Playlist[] = [
     profit: 520,
     pools: [
       { name: "USDC/USDT", allocation: 40, apr: 4.8 },
-      { name: "XLM/USDC", allocation: 60, apr: 5.5 }
-    ]
+      { name: "XLM/USDC", allocation: 60, apr: 5.5 },
+    ],
   },
   {
     id: 2,
@@ -46,8 +46,8 @@ const playlists: Playlist[] = [
     profit: 625,
     pools: [
       { name: "yXLM/XLM", allocation: 50, apr: 15.2 },
-      { name: "yBTC/XLM", allocation: 50, apr: 9.8 }
-    ]
+      { name: "yBTC/XLM", allocation: 50, apr: 9.8 },
+    ],
   },
   {
     id: 3,
@@ -59,8 +59,8 @@ const playlists: Playlist[] = [
     profit: 570,
     pools: [
       { name: "USDC/USDT", allocation: 70, apr: 3.5 },
-      { name: "yUSDC/USDC", allocation: 30, apr: 4.5 }
-    ]
+      { name: "yUSDC/USDC", allocation: 30, apr: 4.5 },
+    ],
   },
   {
     id: 4,
@@ -73,16 +73,18 @@ const playlists: Playlist[] = [
     pools: [
       { name: "BTC/USDC", allocation: 40, apr: 6.8 },
       { name: "ETH/USDC", allocation: 40, apr: 7.4 },
-      { name: "XLM/USDC", allocation: 20, apr: 7.6 }
-    ]
-  }
+      { name: "XLM/USDC", allocation: 20, apr: 7.6 },
+    ],
+  },
 ];
 
 export default function FinancialPlaylistList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  const filteredPlaylists = playlists.filter((playlist) => playlist.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredPlaylists = playlists.filter((playlist) =>
+    playlist.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   return (
     <Card className="h-full bg-background">
@@ -108,7 +110,10 @@ export default function FinancialPlaylistList() {
           {filteredPlaylists.map((playlist) => (
             <Card
               key={playlist.id}
-              className={cn("transition-all duration-200 hover:bg-muted/50 cursor-pointer", expandedId === playlist.id && "bg-muted/50")}
+              className={cn(
+                "transition-all duration-200 hover:bg-muted/50 cursor-pointer",
+                expandedId === playlist.id && "bg-muted/50",
+              )}
               onClick={() => {
                 setExpandedId(expandedId === playlist.id ? null : playlist.id);
               }}
@@ -122,7 +127,11 @@ export default function FinancialPlaylistList() {
                       <p className="text-sm text-muted-foreground">{playlist.description}</p>
                     </div>
                   </div>
-                  {expandedId === playlist.id ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
+                  {expandedId === playlist.id ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  )}
                 </div>
 
                 {expandedId === playlist.id && (
@@ -138,7 +147,9 @@ export default function FinancialPlaylistList() {
                       </div>
                       <div>
                         <div className="text-sm text-muted-foreground">Profit</div>
-                        <div className="font-semibold text-green-500">+${playlist.profit.toLocaleString()}</div>
+                        <div className="font-semibold text-green-500">
+                          +${playlist.profit.toLocaleString()}
+                        </div>
                       </div>
                     </div>
                     <div>

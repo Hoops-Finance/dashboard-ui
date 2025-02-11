@@ -1,9 +1,20 @@
 "use client";
 
 import { FC } from "react";
-import { StellarWalletsKit, WalletNetwork, allowAllModules, XBULL_ID } from "@creit.tech/stellar-wallets-kit";
+import {
+  StellarWalletsKit,
+  WalletNetwork,
+  allowAllModules,
+  XBULL_ID,
+} from "@creit.tech/stellar-wallets-kit";
 import { useWallet } from "@/contexts/WalletContext";
-import { AccountResponse, BalanceLine, BalanceLineNative, BalanceLineAsset, BalanceLineLiquidityPool } from "@/utils/types";
+import {
+  AccountResponse,
+  BalanceLine,
+  BalanceLineNative,
+  BalanceLineAsset,
+  BalanceLineLiquidityPool,
+} from "@/utils/types";
 import { Horizon } from "@stellar/stellar-sdk/minimal";
 
 export const ConnectWallet: FC = () => {
@@ -13,7 +24,7 @@ export const ConnectWallet: FC = () => {
     const kit = new StellarWalletsKit({
       network: WalletNetwork.TESTNET,
       selectedWalletId: XBULL_ID,
-      modules: allowAllModules()
+      modules: allowAllModules(),
     });
 
     try {
@@ -33,7 +44,10 @@ export const ConnectWallet: FC = () => {
               const balances: BalanceLine[] = account.balances;
               let xlmBalance: BalanceLineNative | undefined;
 
-              const otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] = [];
+              const otherBalances: (
+                | BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12">
+                | BalanceLineLiquidityPool
+              )[] = [];
               balances.forEach((balance) => {
                 if (balance.asset_type === "native") {
                   xlmBalance = balance;
@@ -50,7 +64,7 @@ export const ConnectWallet: FC = () => {
               updateWalletInfo(true, null, "0", []);
             }
           })();
-        }
+        },
       });
     } catch (error) {
       console.error("Error connecting wallet:", error);
@@ -71,7 +85,9 @@ export const ConnectWallet: FC = () => {
         }
       }}
       className={`w-full px-2 py-1.5 text-sm rounded-md ${
-        isConnected ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : "bg-primary text-primary-foreground hover:bg-primary/90"
+        isConnected
+          ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          : "bg-primary text-primary-foreground hover:bg-primary/90"
       }`}
     >
       {isConnected ? "Disconnect Wallet" : "Connect Wallet"}

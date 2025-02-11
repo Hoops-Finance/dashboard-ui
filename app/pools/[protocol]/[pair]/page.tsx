@@ -1,7 +1,11 @@
 // /app/pools/[protocol]/[pairid]/page.tsx
 
 import PoolPageClient from "./PoolPageClient";
-import { fetchPeriodDataFromServer, fetchCoreData, fetchCandlesWithCacheAndRateLimit } from "@/services/serverData.service";
+import {
+  fetchPeriodDataFromServer,
+  fetchCoreData,
+  fetchCandlesWithCacheAndRateLimit,
+} from "@/services/serverData.service";
 import type { UTCTimestamp } from "lightweight-charts";
 import type { AllowedPeriods } from "@/utils/utilities";
 
@@ -90,7 +94,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: { protocol: string; pair: string } }) {
   return {
     title: `Pool: ${params.protocol} – ${params.pair}`,
-    description: `Details for pool ${params.protocol} with pair ${params.pair}.`
+    description: `Details for pool ${params.protocol} with pair ${params.pair}.`,
   };
 }
 
@@ -139,13 +143,23 @@ export default async function PoolPage({ params }: { params: { protocol: string;
     high: c.high,
     low: c.low,
     close: c.close,
-    baseVolume: c.baseVolume // now included so types match
+    baseVolume: c.baseVolume, // now included so types match
   }));
   const chartVolumeData = rawCandleData.map((c) => ({
     time: c.time,
     value: c.baseVolume,
-    color: c.close >= c.open ? "#26a69a" : "#ef5350"
+    color: c.close >= c.open ? "#26a69a" : "#ef5350",
   }));
 
-  return <PoolPageClient params={params} period={defaultPeriod} poolRiskData={poolRiskData} pairs={pairs} tokens={tokens} candleData={chartCandleData} volumeData={chartVolumeData} />;
+  return (
+    <PoolPageClient
+      params={params}
+      period={defaultPeriod}
+      poolRiskData={poolRiskData}
+      pairs={pairs}
+      tokens={tokens}
+      candleData={chartCandleData}
+      volumeData={chartVolumeData}
+    />
+  );
 }

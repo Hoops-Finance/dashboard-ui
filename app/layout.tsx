@@ -13,7 +13,7 @@ import { SessionProvider } from "next-auth/react";
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-inter"
+  variable: "--font-inter",
 });
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -22,15 +22,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={cn(inter.variable, initialTheme)}>
       <body className="min-h-screen bg-background antialiased">
-          <SessionProvider>
-            <ClientWalletProvider>
-              <DataProvider>
-               <Navbar />
-                <main className="flex-1">{children}</main>
-                <Footer />
-              </DataProvider>
-            </ClientWalletProvider>
-          </SessionProvider>
+        <SessionProvider>
+          <ClientWalletProvider>
+            <DataProvider>
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </DataProvider>
+          </ClientWalletProvider>
+        </SessionProvider>
       </body>
     </html>
   );

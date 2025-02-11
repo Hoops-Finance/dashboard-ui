@@ -8,7 +8,7 @@ import type {
   Pair,
   Token,
   AssetDetails,
-  TransformedCandleData
+  TransformedCandleData,
 } from "@/utils/types";
 import { AllowedPeriods } from "@/utils/utilities";
 
@@ -31,7 +31,12 @@ interface DataContextValue {
   tokens: Token[];
   period: AllowedPeriods;
   setPeriod: (p: AllowedPeriods) => void;
-  fetchCandles: (token0: string, token1: string | null, from: number, to: number) => Promise<TransformedCandleData[]>;
+  fetchCandles: (
+    token0: string,
+    token1: string | null,
+    from: number,
+    to: number,
+  ) => Promise<TransformedCandleData[]>;
   fetchTokenDetails: (asset: string) => Promise<AssetDetails | null>;
   getPairsForToken: (token: Token) => Pair[];
   buildPoolRoute: (pool: PoolRiskApiResponseObject) => string;
@@ -71,20 +76,17 @@ export const DataProvider: FC<{ children: ReactNode }> = ({ children }) => {
   /**
    * Fetch data that depends on the 'period' (like metrics, pool stats, etc.).
    */
-  const processPeriodData = useCallback(
-    async (p: AllowedPeriods) => {
-      try {
-        const { globalMetrics, poolRiskData } = await fetchPeriodData(p);
-        setGlobalMetrics(globalMetrics);
-        setPoolRiskData(poolRiskData);
-      } catch (error) {
-        console.error("Error fetching period-based data:", error);
-        setGlobalMetrics(null);
-        setPoolRiskData([]);
-      }
-    },
-    []
-  );
+  const processPeriodData = useCallback(async (p: AllowedPeriods) => {
+    try {
+      const { globalMetrics, poolRiskData } = await fetchPeriodData(p);
+      setGlobalMetrics(globalMetrics);
+      setPoolRiskData(poolRiskData);
+    } catch (error) {
+      console.error("Error fetching period-based data:", error);
+      setGlobalMetrics(null);
+      setPoolRiskData([]);
+    }
+  }, []);
 
   useEffect(() => {
     void processCoreData();

@@ -62,7 +62,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ provide
       redirect: false,
       provider,
       code,
-      state: returnedState
+      state: returnedState,
     })) as string;
   } catch (err) {
     if (err instanceof AuthError) {
