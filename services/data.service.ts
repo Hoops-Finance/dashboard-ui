@@ -70,7 +70,7 @@ let lastCallTime = 0;
     const convertedTokens: Token[] = tokensData.map((token) => ({
       ...token,
       id: token._id,
-      lastUpdated: convertToEpoch(token.lastupdated),
+      lastUpdated: convertToEpoch(token.lastUpdated),
     }));
   
     // Convert pairs

@@ -1,9 +1,5 @@
 // app/tokens/[tokenid]/page.tsx
-//import 'source-map-support/register'
-
-// Instead of:
-import sourceMapSupport from 'source-map-support'
-sourceMapSupport.install()
+import 'source-map-support/register'
 
 import { notFound } from "next/navigation";
 import type { AllowedPeriods, CandleDataPoint, VolumeDataPoint } from "@/utils/utilities";
@@ -14,13 +10,14 @@ import type {
   PoolRiskApiResponseObject, 
   Token 
 } from "@/utils/types";
+
 import { 
-  fetchCoreData, 
-  fetchPeriodDataFromServer, 
-  fetchCandlesFromServer, 
-  fetchTokenDetailsFromServer, 
-  getPairsForToken, 
-  fetchCandlesWithRateLimit
+  fetchCoreData,
+  fetchPeriodDataFromServer,
+  getPairsForToken,
+  // [ADDED] We now will use fetchTokenDetailsWithCache, fetchCandlesWithCacheAndRateLimit
+  fetchTokenDetailsWithCache,
+  fetchCandlesWithCacheAndRateLimit
 } from "@/services/serverData.service";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,95 +30,104 @@ import ChartComponent from "@/components/ChartComponent";
 import { AlertCircle, ChevronRight } from "lucide-react";
 import { UTCTimestamp } from "lightweight-charts";
 
-// 1) Revalidation and dynamic params
-export const revalidate = 3600; // Rebuild each token page every hour
-export const dynamicParams = true; // On-demand for new tokens
+export const revalidate = 3600;
+export const dynamicParams = true;
+
+const validNamePattern = /^[A-Z0-9]+-G[A-Z0-9]{55}$/;
+const validIdPattern = /^C[A-Z0-9]{55}$/;
+
+/** Limit final routes to 10 */
+const MAX_ROUTES = 10;
 
 /**
- * Generate the list of tokenid param objects at build time.
- * We produce routes for token.name if it's a valid pattern
- * and token.id if it matches some pattern, plus "native" for XLM.
+ * generateStaticParams => produce *two* routes if possible:
+ *  - contract ID: (C[...])
+ *  - token.name (SYMBOL-ISSUER) or "native" if XLM
  */
-
-// app/tokens/[tokenid]/page.tsx
-
-const validNamePattern = /^[A-Z0-9]+-G[A-Z0-9]{55}$/; // e.g. "AQUA-GBNZIL..."
-const validIdPattern = /^C[A-Z0-9]{55}$/;             // e.g. "CABC123..."
 
 export async function generateStaticParams() {
   const { tokens } = await fetchCoreData();
   const routes: { tokenid: string }[] = [];
 
+  // We track added routes to avoid pushing duplicates (e.g. two XLM entries).
+  const addedRoutes = new Set<string>();
+
   for (const t of tokens) {
-    // 1) If symbol === XLM => "native" route
-    if (t.symbol.toUpperCase() === "XLM") {
+    // (1) Contract route if "C"-ID
+    if (validIdPattern.test(t.id) && !addedRoutes.has(t.id)) {
+      routes.push({ tokenid: t.id });
+      addedRoutes.add(t.id);
+    }
+
+    // (2) XLM => "native"
+    if (t.symbol.toUpperCase() === "XLM" && !addedRoutes.has("native")) {
       routes.push({ tokenid: "native" });
-      // Also optionally push contract route if it matches ^C
-      if (validIdPattern.test(t.id)) {
-        routes.push({ tokenid: t.id });
+      addedRoutes.add("native");
+    }
+
+    // (3) Name-based route if matches "SYMBOL-GISSUER"
+    if (validNamePattern.test(t.name)) {
+      const slug = t.name.replace(/:/g, "-");
+      if (!addedRoutes.has(slug)) {
+        routes.push({ tokenid: slug });
+        addedRoutes.add(slug);
       }
     }
-
-    // 2) If name looks like "SYMBOL-GISSUER55"
-    if (validNamePattern.test(t.name)) {
-      const slug = t.name.replace(/:/g, "-"); 
-      routes.push({ tokenid: slug });
-    }
-
-    // 3) If ID is ^C
-    if (validIdPattern.test(t.id)) {
-      routes.push({ tokenid: t.id });
-    }
   }
 
-  // 4) OPTIONAL: Check each route's tokeninfo. If it 404s, remove it from the final list.
+  // Verify routes via HEAD check (fetchTokenDetailsWithCache, headMode=true)
   const verifiedRoutes: { tokenid: string }[] = [];
+  // Keep track so we don't run HEAD on the same normalized asset more than once
+  const headCheckedAssets = new Map<string, boolean>();
+
   for (const r of routes) {
-    const normalized = r.tokenid === "native"
-      ? "XLM"
-      : r.tokenid.replace(/-/g, ":"); // revert slug => "AQUA:GBNZ..."
-    if (await checkTokenInfoExists(normalized)) {
-      verifiedRoutes.push(r);
+    const normalized = (r.tokenid === "native") ? "XLM" : r.tokenid.replace(/-/g, ":");
+
+    // Reuse HEAD result if we already checked this asset
+    if (headCheckedAssets.has(normalized)) {
+      if (headCheckedAssets.get(normalized) === true) {
+        verifiedRoutes.push(r);
+      } else {
+        console.warn("[generateStaticParams] skipping route for", r.tokenid, "(cached HEAD fail)");
+      }
+    } else {
+      const result = await fetchTokenDetailsWithCache(normalized, true);
+      headCheckedAssets.set(normalized, result === true);
+
+      if (result === true) {
+        verifiedRoutes.push(r);
+      } else {
+        console.warn("[generateStaticParams] skipping route for", r.tokenid, "(HEAD fail)");
+      }
+      await sleep(350);
     }
-    // wait 350ms so we don't exceed 3 requests/second
-    await sleep(350);
+
+    if (verifiedRoutes.length >= MAX_ROUTES) {
+      console.log("[generateStaticParams] Reached MAX_ROUTES limit of", MAX_ROUTES);
+      break;
+    }
   }
 
-  console.log("Final verified token routes:", verifiedRoutes);
+  console.log("Final verified token routes (limited):", verifiedRoutes);
   return verifiedRoutes;
 }
 
-/** HEAD request (or GET) to see if token info is valid. Returns true if OK, false if 404. */
-async function checkTokenInfoExists(assetSlug: string): Promise<boolean> {
-  const slug = assetSlug.toLowerCase() === "native"
-    ? "XLM"
-    : assetSlug.replace(/:/g, "-");
-  const url = `https://app.hoops.finance/api/tokeninfo/${slug}`;
-  const res = await fetch(url, { method: "HEAD" });
-  return res.ok;
+
+export async function generateMetadata({ params }: { params: { tokenid: string } }) {
+  const { tokenid } = await params;
+  return {
+    title: `Token: ${tokenid}`,
+    description: `Details for token ${tokenid}`
+  };
 }
 
-/** Utility sleep function */
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** Minimal SEO for each route (optional). */
-export async function generateMetadata({ params }: { params: { tokenid: string } }) {
-  return {
-    title: `Token: ${params.tokenid}`,
-    description: `Details for token ${params.tokenid}`
-  };
-}
-
-/**
- * Utility to compute "from" timestamp given an AllowedPeriods string.
- * (Matches your original switch-case from the client side.)
- */
 function getTimeRangeForPeriod(period: AllowedPeriods): { from: number; to: number } {
   const to = Math.floor(Date.now() / 1000);
   let from: number;
-
   switch (period) {
     case "24h":
       from = to - 24 * 3600;
@@ -145,83 +151,129 @@ function getTimeRangeForPeriod(period: AllowedPeriods): { from: number; to: numb
       from = to - 360 * 24 * 3600;
       break;
     default:
-      from = to - 7 * 24 * 3600; // fallback
+      from = to - 14 * 24 * 3600;
       break;
   }
   return { from, to };
 }
 
+const ALL_PERIODS: AllowedPeriods[] = ["24h","7d","14d","30d","90d","180d","360d"];
+
 /**
- * Server component for a single token's details page, fully rendered on the server.
+ * The main server component for a single token's details page
  */
 export default async function TokenDetailsPage({ params }: { params: { tokenid: string } }) {
+  const chartPeriod: AllowedPeriods = "14d"
+  const { tokenid } = await params;
 
-  // 1) We'll use "14d" as a default period or just pick one
-  const period: AllowedPeriods = "14d";
-
-  // 2) Fetch large data sets in parallel
-  const [{ tokens, pairs, markets }, { poolRiskData }] = await Promise.all([
+  const [{ tokens, pairs }, { poolRiskData }] = await Promise.all([
     fetchCoreData(),
-    fetchPeriodDataFromServer(period),
+    fetchPeriodDataFromServer(chartPeriod),
   ]);
 
-  // 3) Convert route param to actual token name/id 
-  let routeParam = params.tokenid;
+  let routeParam = tokenid;
   if (routeParam === "native") {
     routeParam = "native";
   } else {
     routeParam = routeParam.replace(/-/g, ":");
   }
 
-  // 4) Find the matching token
-  const foundToken: Token | undefined = tokens.find((t) => 
-    t.symbol.toUpperCase() === "XLM"
+  const foundToken: Token | undefined = tokens.find((t) =>
+    (t.symbol.toUpperCase() === "XLM")
       ? routeParam === "native"
-      : t.name === routeParam || t.id === routeParam
+      : (t.name === routeParam || t.id === routeParam)
   );
   if (!foundToken) {
+    console.warn("[TokenDetailsPage] No matching token found => notFound()", routeParam);
     notFound();
   }
 
-  // 5) Derive pairs and pool data for this token
+  const isPoolShare = foundToken.name.includes("Pool Share Token");
   const tokenPairs: Pair[] = getPairsForToken(foundToken, pairs);
   const pairIds = new Set(tokenPairs.map((p) => p.id));
   const tokenPools: PoolRiskApiResponseObject[] = poolRiskData.filter((pool) => pairIds.has(pool.pairId));
-
-  // 6) Fetch token details from the server
   
-  //if (routeParam !== "native" && routeParam !== "XLM") {
-    const tokenDetails = await fetchTokenDetailsFromServer(routeParam);
- // } else {
-    // or fetch details for XLM if you have an endpoint for that,
-    // or leave null if native doesn't need details
-   // tokenDetails = null; 
-  //}
 
-  // 7) Fetch candle data (for "14d" period) from the server
-  const { from, to } = getTimeRangeForPeriod(period);
-  const candlesRaw = await fetchCandlesWithRateLimit(routeParam, null, from, to);
+  // [ADDED] fetch the tokeninfo => get "asset" which might be "AQUA-GBNZ...-1"
+  let tokenDetails: AssetDetails | null = null;
+  let classicAssetString: string = "XLM";
+  try {
+    const result = await fetchTokenDetailsWithCache(routeParam, false);
+    if (typeof result === "object" && result !== null) {
+      tokenDetails = result;
+  
+      // If tokenDetails.asset is something like "AQUA-GBNZILSTVQZ4R7I...-1",
+      // remove that trailing dash + digit
+      if (tokenDetails.asset && tokenDetails.asset.toUpperCase() !== "XLM") {
+        classicAssetString = tokenDetails.asset;
+        const stripped = classicAssetString.replace(/-\d+$/, "");
+        if (stripped !== classicAssetString) {
+          console.log("[TokenDetailsPage] Removing trailing '-1' etc:", classicAssetString, "=>", stripped);
+          classicAssetString = stripped;
+        }
+      }
+    } else {
+      console.warn("[TokenDetailsPage] tokeninfo GET returned false => partial data");
+      // fallback: classicAssetString remains "XLM" if no details
+    }
+  } catch (err) {
+    console.error("[TokenDetailsPage] error loading token info => partial page", err);
+    // fallback: classicAssetString remains "XLM"
+  }
 
-  // Transform candle data if needed
-  const candleData: CandleDataPoint[] = candlesRaw.map((c) => ({
-    time: c.time as UTCTimestamp,
-    open: c.open,
-    high: c.high,
-    low: c.low,
-    close: c.close,
-  }));
-  const volumeData: VolumeDataPoint[] = candlesRaw.map((c) => ({
-    time: c.time as UTCTimestamp,
-    value: c.baseVolume,
-    color: c.close >= c.open ? "#26a69a" : "#ef5350",
-  }));
+  // If it's not a Pool Share token, we prefetch candle data for all periods
+  // using the final "classicAssetString" string
+  if (!isPoolShare && classicAssetString) {
+    for (const p of ALL_PERIODS) {
+      const { from, to } = getTimeRangeForPeriod(p);
+      try {
+        await fetchCandlesWithCacheAndRateLimit(classicAssetString, from, to);
+      } catch (err) {
+        console.error("[TokenDetailsPage] prefetch error for", p, err);
+      }
+    }
+  }
 
-  // 8) Render the full HTML. All data is known server-side, so this is
-  //    an SSR page that search engines can crawl. No client hooks needed.
+  // We'll show chartPeriod=14d
+  let chartCandleData: CandleDataPoint[] = [];
+  let chartVolumeData: VolumeDataPoint[] = [];
+  if (!isPoolShare && classicAssetString) {
+    const { from, to } = getTimeRangeForPeriod(chartPeriod);
+    try {
+      const raw = await fetchCandlesWithCacheAndRateLimit(classicAssetString, from, to);
+      chartCandleData = raw.map((c) => ({
+        time: c.time as UTCTimestamp,
+        open: c.open,
+        high: c.high,
+        low: c.low,
+        close: c.close
+      }));
+      chartVolumeData = raw.map((c) => ({
+        time: c.time as UTCTimestamp,
+        value: c.baseVolume,
+        color: c.close >= c.open ? "#26a69a" : "#ef5350"
+      }));
+    } catch (err) {
+      console.error("[TokenDetailsPage] Error fetching candle data => partial chart", err);
+    }
+  }
 
   const displaySymbol = foundToken.symbol;
   const [displayName] = foundToken.name.split(":");
   const imageUrl = tokenDetails?.toml_info?.image ?? "";
+
+  const priceStr = tokenDetails?.price != null
+    ? tokenDetails.price.toLocaleString(undefined, { minimumFractionDigits: 2 })
+    : "N/A";
+  const supplyStr = tokenDetails?.supply != null
+    ? tokenDetails.supply.toLocaleString()
+    : "N/A";
+  const volume7dStr = tokenDetails?.volume7d != null
+    ? tokenDetails.volume7d.toLocaleString()
+    : "N/A";
+  const tradesStr = tokenDetails?.trades != null
+    ? tokenDetails.trades.toLocaleString()
+    : "N/A";
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -229,13 +281,10 @@ export default async function TokenDetailsPage({ params }: { params: { tokenid: 
 
         {/* Header */}
         <header className="flex items-center gap-2">
+          {/* No onClick in server component */}
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => {
-              // In a server component, this won't be a client-side action
-              // Typically you'd link <Link> to "/tokens" or do a normal anchor
-            }}
             className="gap-2 -ml-2 text-muted-foreground"
             title="Go back to tokens list"
           >
@@ -243,10 +292,7 @@ export default async function TokenDetailsPage({ params }: { params: { tokenid: 
             Back to Tokens
           </Button>
           {imageUrl && (
-            <div
-              className="w-10 h-10 rounded-full overflow-hidden relative"
-              title={`${displaySymbol} logo`}
-            >
+            <div className="w-10 h-10 rounded-full overflow-hidden relative" title={`${displaySymbol} logo`}>
               <Image
                 src={imageUrl}
                 alt={`${displaySymbol} logo`}
@@ -256,23 +302,19 @@ export default async function TokenDetailsPage({ params }: { params: { tokenid: 
               />
             </div>
           )}
-          <h1
-            className="text-xl font-bold tracking-tight"
-            title={`${displayName} token details`}
-          >
+          <h1 className="text-xl font-bold tracking-tight">
             {displayName} ({displaySymbol})
           </h1>
         </header>
 
-        {/* Period label (here we're hardcoding 14d) */}
+        {/* Chart period => 14d */}
         <div className="flex justify-end">
-          <Select value={period} disabled>
+          <Select value={chartPeriod} disabled>
             <SelectTrigger className="w-[100px] h-9" title="Selected period">
               <SelectValue placeholder="Select period" />
             </SelectTrigger>
             <SelectContent align="end">
               <SelectItem value="14d">14D</SelectItem>
-              {/* If you want other items, you can add them, but they're disabled in SSR */}
             </SelectContent>
           </Select>
         </div>
@@ -282,8 +324,8 @@ export default async function TokenDetailsPage({ params }: { params: { tokenid: 
           className="h-[400px] lg:h-[500px] rounded-lg border bg-card overflow-hidden relative"
           aria-label="Price & Volume Chart"
         >
-          {candleData.length > 0 ? (
-            <ChartComponent candleData={candleData} volumeData={volumeData} />
+          {chartCandleData.length > 0 ? (
+            <ChartComponent candleData={chartCandleData} volumeData={chartVolumeData} />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center p-4">
@@ -294,7 +336,7 @@ export default async function TokenDetailsPage({ params }: { params: { tokenid: 
           )}
         </section>
 
-        {/* Token details if any */}
+        {/* Token details */}
         {tokenDetails ? (
           <div className="space-y-6" aria-label="Token details and pools">
             <div className="flex flex-wrap gap-4">
@@ -304,7 +346,7 @@ export default async function TokenDetailsPage({ params }: { params: { tokenid: 
                 </CardHeader>
                 <CardContent>
                   <h3 className="token-card-title">
-                    ${tokenDetails.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    ${priceStr}
                   </h3>
                 </CardContent>
               </Card>
@@ -314,7 +356,7 @@ export default async function TokenDetailsPage({ params }: { params: { tokenid: 
                 </CardHeader>
                 <CardContent>
                   <h3 className="token-card-title">
-                    {tokenDetails.supply.toLocaleString()}
+                    {supplyStr}
                   </h3>
                 </CardContent>
               </Card>
@@ -324,7 +366,7 @@ export default async function TokenDetailsPage({ params }: { params: { tokenid: 
                 </CardHeader>
                 <CardContent>
                   <h3 className="token-card-title">
-                    ${tokenDetails.volume7d.toLocaleString()}
+                    ${volume7dStr}
                   </h3>
                 </CardContent>
               </Card>
@@ -334,7 +376,7 @@ export default async function TokenDetailsPage({ params }: { params: { tokenid: 
                 </CardHeader>
                 <CardContent>
                   <h3 className="token-card-title">
-                    {tokenDetails.trades.toLocaleString()}
+                    {tradesStr}
                   </h3>
                 </CardContent>
               </Card>
@@ -352,7 +394,6 @@ export default async function TokenDetailsPage({ params }: { params: { tokenid: 
                     target="_blank"
                     rel="noreferrer"
                     className="text-primary hover:underline"
-                    title="Token home domain"
                   >
                     {tokenDetails.home_domain}
                   </a>
@@ -361,27 +402,24 @@ export default async function TokenDetailsPage({ params }: { params: { tokenid: 
             )}
           </div>
         ) : (
-          // If no tokenDetails (e.g., it's native XLM?), you can show a fallback:
           <div>
             <p className="text-muted-foreground">No extra details for this token.</p>
           </div>
         )}
 
-        {/* Top Pools */}
         <TopPools
           data={tokenPools}
           pairs={pairs}
           tokens={tokens}
-          stablecoinIds={new Set()} // or some stablecoin set
-          period={period}
+          stablecoinIds={new Set()}
+          period={chartPeriod}
         />
 
-        {/* Pools table */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold" title={`Pools for ${displayName}`}>
             Pools for {displayName}
           </h2>
-          <PoolsTable data={tokenPools} pairs={pairs} tokens={tokens} />
+          <PoolsTable data={tokenPools} pairs={pairs} tokens={tokens} /> 
         </div>
       </div>
     </div>

@@ -1,0 +1,1987 @@
+{
+  "CBL3WJQR3WFRTAGD3VTTZXPPYJZ3D5SNNUKC6DUDDFYKSFHKZE25V63P": {
+    "data": {
+      "asset": "CBL3WJQR3WFRTAGD3VTTZXPPYJZ3D5SNNUKC6DUDDFYKSFHKZE25V63P",
+      "created": 1715117335,
+      "supply": 1789943798166,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 137
+      },
+      "payments": 1859,
+      "payments_amount": 19707255220284,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 6,
+        "trades": 0,
+        "payments": 4,
+        "trustlines": 4,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 2.1
+      }
+    },
+    "fetchedAt": 1738752154799
+  },
+  "CBSM6C6OZJN2CS27RFTTYZJNAGRZ4MFHWVSV6GKLMCOYTQXD6K7UEA2A": {
+    "data": {
+      "asset": "CBSM6C6OZJN2CS27RFTTYZJNAGRZ4MFHWVSV6GKLMCOYTQXD6K7UEA2A",
+      "created": 1715118269,
+      "supply": 345070121931,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 69
+      },
+      "payments": 783,
+      "payments_amount": 2174655401566,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 6,
+        "trades": 0,
+        "payments": 3,
+        "trustlines": 3,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1.9
+      }
+    },
+    "fetchedAt": 1738752154799
+  },
+  "CAF66C4NSYDN5A7BAFBWQCAIHYNL4TQPSHC76RXHEWJQJJ5PN5EZFKVT": {
+    "data": {
+      "asset": "CAF66C4NSYDN5A7BAFBWQCAIHYNL4TQPSHC76RXHEWJQJJ5PN5EZFKVT",
+      "created": 1717243695,
+      "supply": 112735079618,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 4
+      },
+      "payments": 24,
+      "payments_amount": 75645331216,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 6,
+        "trades": 0,
+        "payments": 2,
+        "trustlines": 1,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1.4
+      }
+    },
+    "fetchedAt": 1738752154799
+  },
+  "CBCU5VMZ3GNHHKJUWZ2GI7K36MEAXOJW2RJCIJHFPVFGBME3WADLXA6W": {
+    "data": {
+      "asset": "CBCU5VMZ3GNHHKJUWZ2GI7K36MEAXOJW2RJCIJHFPVFGBME3WADLXA6W",
+      "created": 1710174681,
+      "supply": 75050000000000,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 6
+      },
+      "payments": 6,
+      "payments_amount": 6027502749899,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 6,
+        "trades": 0,
+        "payments": 1,
+        "trustlines": 1,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1.3
+      }
+    },
+    "fetchedAt": 1738752154799
+  },
+  "CBZ7M5B3Y4WWBZ5XK5UZCAFOEZ23KSSZXYECYX3IXM6E2JOLQC52DK32": {
+    "data": {
+      "asset": "PHO-GAX5TXB5RYJNLBUR477PEXM4X75APK2PGMTN6KEFQSESGWFXEAKFSXJO-1",
+      "created": 1715112013,
+      "supply": 1999999999396735,
+      "trustlines": {
+        "total": 752,
+        "authorized": 752,
+        "funded": 356
+      },
+      "payments": 27634,
+      "payments_amount": 1421775446395642,
+      "trades": 71577,
+      "traded_amount": 1220131093956,
+      "price": 0.5321102797677731,
+      "volume": 1263860377222,
+      "volume7d": 6329139061,
+      "price7d": [
+        [
+          1738108800,
+          0.55727148
+        ],
+        [
+          1738195200,
+          0.5921619274193548
+        ],
+        [
+          1738281600,
+          0.6079262341772153
+        ],
+        [
+          1738368000,
+          0.5883553509803922
+        ],
+        [
+          1738454400,
+          0.5518141865853659
+        ],
+        [
+          1738540800,
+          0.5096155943661972
+        ],
+        [
+          1738627200,
+          0.5150238927835051
+        ],
+        [
+          1738713600,
+          0.5232866666666666
+        ]
+      ],
+      "contract": "CBZ7M5B3Y4WWBZ5XK5UZCAFOEZ23KSSZXYECYX3IXM6E2JOLQC52DK32",
+      "toml_info": {
+        "code": "PHO",
+        "issuer": "GAX5TXB5RYJNLBUR477PEXM4X75APK2PGMTN6KEFQSESGWFXEAKFSXJO",
+        "image": "https://stellar.myfilebase.com/ipfs/QmPqH2eYHpEcMNSgXYhxagt5LvNntm38wKMUUcGwzzG9qt",
+        "decimals": 7,
+        "orgName": "Phoenix Protocol Group",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/QmPqH2eYHpEcMNSgXYhxagt5LvNntm38wKMUUcGwzzG9qt"
+      },
+      "home_domain": "app.phoenix-hub.io",
+      "rating": {
+        "age": 6,
+        "trades": 7,
+        "payments": 5,
+        "trustlines": 4,
+        "volume7d": 7,
+        "interop": 4,
+        "liquidity": 2,
+        "average": 5
+      }
+    },
+    "fetchedAt": 1738752154798
+  },
+  "CBJQXWMAXJPBWQ75JW26HAI72I5D5GRHMKQNAZ2YHEDGFORXCVA3NFGJ": {
+    "data": {
+      "asset": "CBJQXWMAXJPBWQ75JW26HAI72I5D5GRHMKQNAZ2YHEDGFORXCVA3NFGJ",
+      "created": 1726662420,
+      "supply": 4282245128,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 36
+      },
+      "payments": 0,
+      "payments_amount": 0,
+      "volume": null,
+      "volume7d": null
+    },
+    "fetchedAt": 1738752154797
+  },
+  "CCBJNX4B23ZDXEE3KRS2IAQJSLNQY4ZJ24K44BI7FYYIF5ZAZMRYPRRD": {
+    "data": {
+      "asset": "CCBJNX4B23ZDXEE3KRS2IAQJSLNQY4ZJ24K44BI7FYYIF5ZAZMRYPRRD",
+      "created": 1710174693,
+      "supply": 75000000000000,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 4
+      },
+      "payments": 3,
+      "payments_amount": 3750000000000,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 6,
+        "trades": 0,
+        "payments": 1,
+        "trustlines": 1,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1.3
+      }
+    },
+    "fetchedAt": 1738780046128
+  },
+  "CD6IN4UFNPDX35H7YB53XAA2XE6S2UPXL7AZL6DSFZFNNZSLE7FFSIVP": {
+    "data": {
+      "asset": "CD6IN4UFNPDX35H7YB53XAA2XE6S2UPXL7AZL6DSFZFNNZSLE7FFSIVP",
+      "created": 1710174820,
+      "supply": 50000000000000,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 3
+      },
+      "payments": 2,
+      "payments_amount": 3250000000000,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 6,
+        "trades": 0,
+        "payments": 0,
+        "trustlines": 1,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1.1
+      }
+    },
+    "fetchedAt": 1738780046156
+  },
+  "CD5E7YM4MTL5S4B4FKLAMFLMXCN26L4QGPAS7JCVBG4TPW5EIP5WXIQO": {
+    "data": {
+      "asset": "CD5E7YM4MTL5S4B4FKLAMFLMXCN26L4QGPAS7JCVBG4TPW5EIP5WXIQO",
+      "created": 1710174729,
+      "supply": 50000000000000,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 3
+      },
+      "payments": 2,
+      "payments_amount": 3250000000000,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 6,
+        "trades": 0,
+        "payments": 0,
+        "trustlines": 1,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1.1
+      }
+    },
+    "fetchedAt": 1738780046156
+  },
+  "CB2IMINSODLFTKXG6AAS7DZNETFRTJ4ES5WRBO4ROY4ANFQJTKOC6SS6": {
+    "data": {
+      "asset": "CB2IMINSODLFTKXG6AAS7DZNETFRTJ4ES5WRBO4ROY4ANFQJTKOC6SS6",
+      "created": 1710175339,
+      "supply": 0,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 1
+      },
+      "payments": 1,
+      "payments_amount": 2499999900,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 6,
+        "trades": 0,
+        "payments": 0,
+        "trustlines": 0,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1
+      }
+    },
+    "fetchedAt": 1738780046156
+  },
+  "CDXFLNBIBD75DKS2HLNMMWMBMTTYWAJLH7OUUH3S5NWZ3FD7LERNOE4W": {
+    "data": {
+      "asset": "CDXFLNBIBD75DKS2HLNMMWMBMTTYWAJLH7OUUH3S5NWZ3FD7LERNOE4W",
+      "created": 1726663774,
+      "supply": 195178984852,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 109
+      },
+      "payments": 46,
+      "payments_amount": 122075295834,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 5,
+        "trades": 0,
+        "payments": 2,
+        "trustlines": 3,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1.6
+      }
+    },
+    "fetchedAt": 1738780877158
+  },
+  "CBJGGZJTESHK3HZD3KVTGNKCUOEDZK653DYV7WLDOCWAAOYFLIBMZDYZ": {
+    "data": {
+      "asset": "CBJGGZJTESHK3HZD3KVTGNKCUOEDZK653DYV7WLDOCWAAOYFLIBMZDYZ",
+      "created": 1737003259,
+      "supply": 291583469,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 21
+      },
+      "payments": 8,
+      "payments_amount": 27503482,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 2,
+        "trades": 0,
+        "payments": 1,
+        "trustlines": 2,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 0.9
+      }
+    },
+    "fetchedAt": 1738780877212
+  },
+  "CBXLF3WE3FVHEV4DNCCJI2XV6ZFBNP7HJUZBF3L2FWQLZELIXXP5V2D6": {
+    "data": {
+      "asset": "CBXLF3WE3FVHEV4DNCCJI2XV6ZFBNP7HJUZBF3L2FWQLZELIXXP5V2D6",
+      "created": 1737004202,
+      "supply": 723346709,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 27
+      },
+      "payments": 4,
+      "payments_amount": 3006695,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 2,
+        "trades": 0,
+        "payments": 1,
+        "trustlines": 2,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 0.9
+      }
+    },
+    "fetchedAt": 1738780877213
+  },
+  "CAAOJNJF6SE2BMCW2NQYIIXSTNLTE5Q53ZJAXWYJYVWL22ZKKMEDIUJZ": {
+    "data": {
+      "asset": "CAAOJNJF6SE2BMCW2NQYIIXSTNLTE5Q53ZJAXWYJYVWL22ZKKMEDIUJZ",
+      "created": 1737397943,
+      "supply": 2285915167,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 13
+      },
+      "payments": 4,
+      "payments_amount": 134147782,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 1,
+        "trades": 0,
+        "payments": 1,
+        "trustlines": 2,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 0.7
+      }
+    },
+    "fetchedAt": 1738780877214
+  },
+  "CAT3LXMQMZDTJYLWHKVQV64TKD72CLGXJSWZK5G45DUQO55TQD7BMTFY": {
+    "data": {
+      "asset": "CAT3LXMQMZDTJYLWHKVQV64TKD72CLGXJSWZK5G45DUQO55TQD7BMTFY",
+      "created": 1737437718,
+      "supply": 251181456438,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 10
+      },
+      "payments": 7,
+      "payments_amount": 1319632680,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 1,
+        "trades": 0,
+        "payments": 1,
+        "trustlines": 2,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 0.7
+      }
+    },
+    "fetchedAt": 1738780877214
+  },
+  "CDYEOOVL6WV4JRY45CXQKOBJFFAPOM5KNQCCDNM333L6RM2L4RO3LKYG": {
+    "data": {
+      "asset": "yETH-GDYQNEF2UWTK4L6HITMT53MZ6F5QWO3Q4UVE6SCGC4OMEQIZQQDERQFD-1",
+      "created": 1615892268,
+      "supply": 4860404929,
+      "trustlines": {
+        "total": 3864,
+        "authorized": 3864,
+        "funded": 1472
+      },
+      "payments": 1726749,
+      "payments_amount": 337051593862,
+      "trades": 291236,
+      "traded_amount": "2867363949",
+      "price": 2728.2166888621637,
+      "volume": 8808547753040,
+      "volume7d": 33861684089,
+      "price7d": [
+        [
+          1738108800,
+          3118.46884
+        ],
+        [
+          1738195200,
+          3241.8108252427187
+        ],
+        [
+          1738281600,
+          3283.439014388489
+        ],
+        [
+          1738368000,
+          3253.4990945945947
+        ],
+        [
+          1738454400,
+          3028.0148524590163
+        ],
+        [
+          1738540800,
+          2639.0249354838706
+        ],
+        [
+          1738627200,
+          2756.3255217391306
+        ],
+        [
+          1738713600,
+          2719.6207692307694
+        ]
+      ],
+      "contract": "CDYEOOVL6WV4JRY45CXQKOBJFFAPOM5KNQCCDNM333L6RM2L4RO3LKYG",
+      "toml_info": {
+        "code": "yETH",
+        "issuer": "GDYQNEF2UWTK4L6HITMT53MZ6F5QWO3Q4UVE6SCGC4OMEQIZQQDERQFD",
+        "image": "https://stellar.myfilebase.com/ipfs/QmavC22bVfCkzHX2AJQZAh6Vbw83JtKDZhKZFUcktomdQn",
+        "status": "live",
+        "anchorAssetType": "crypto",
+        "anchorAsset": "ETH",
+        "orgName": "Ultra Capital LLC dba Ultra Capital",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/Qmaw6X1uP8ohKodhiveFygHBRBfW95TovoBfodJhGJRUho"
+      },
+      "home_domain": "ultracapital.xyz",
+      "rating": {
+        "age": 9,
+        "trades": 8,
+        "payments": 7,
+        "trustlines": 5,
+        "volume7d": 7,
+        "interop": 10,
+        "liquidity": 4,
+        "average": 7.1
+      }
+    },
+    "fetchedAt": 1738780877213
+  },
+  "CACTIOUW5FHYD3Q6ENKAU2IBLO2YFRWST4OGPDB4H32OGFMMJQF6SAJ5": {
+    "data": {
+      "asset": "CACTIOUW5FHYD3Q6ENKAU2IBLO2YFRWST4OGPDB4H32OGFMMJQF6SAJ5",
+      "created": 1724983715,
+      "supply": 0,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 1
+      },
+      "payments": 2,
+      "payments_amount": 24653520,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 5,
+        "trades": 0,
+        "payments": 0,
+        "trustlines": 0,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 0.9
+      }
+    },
+    "fetchedAt": 1738782118741
+  },
+  "CACXKRVCW7I6CWX6RS6ANFDKVCOUI2PB6LTDUROL3J3FMJCRZ4ZLQRF6": {
+    "data": {
+      "asset": "AUDD-GDC7X2MXTYSAKUUGAIQ7J7RPEIM7GXSAIWFYWWH4GLNFECQVJJLB2EEU-1",
+      "created": 1659474130,
+      "supply": 1712929344943,
+      "trustlines": {
+        "total": 1015,
+        "authorized": 1015,
+        "funded": 353
+      },
+      "payments": 20709,
+      "payments_amount": 2906948486450287,
+      "trades": 272261,
+      "traded_amount": 5225072132677,
+      "price": 0.6094768697351363,
+      "volume": 3399369346885,
+      "volume7d": 44520047281,
+      "price7d": [
+        [
+          1738108800,
+          0.6308792051282051
+        ],
+        [
+          1738195200,
+          0.6336520358974359
+        ],
+        [
+          1738281600,
+          0.6224860234177215
+        ],
+        [
+          1738368000,
+          0.6137153252336449
+        ],
+        [
+          1738454400,
+          0.6157148172619047
+        ],
+        [
+          1738540800,
+          0.6046597754237287
+        ],
+        [
+          1738627200,
+          0.6122677426035503
+        ],
+        [
+          1738713600,
+          0.607989175
+        ]
+      ],
+      "contract": "CACXKRVCW7I6CWX6RS6ANFDKVCOUI2PB6LTDUROL3J3FMJCRZ4ZLQRF6",
+      "rating": {
+        "age": 8,
+        "trades": 7,
+        "payments": 5,
+        "trustlines": 4,
+        "volume7d": 7,
+        "interop": 1,
+        "liquidity": 4,
+        "average": 5.1
+      }
+    },
+    "fetchedAt": 1738782118740
+  },
+  "CCH3CJZWG6UMW522ESP3UHL4DCZLNXZLUHKYG5GCGNG5HXRL4A6O4A23": {
+    "data": {
+      "asset": "CCH3CJZWG6UMW522ESP3UHL4DCZLNXZLUHKYG5GCGNG5HXRL4A6O4A23",
+      "created": 1725244823,
+      "supply": 0,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 1
+      },
+      "payments": 1,
+      "payments_amount": 2207939418,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 5,
+        "trades": 0,
+        "payments": 0,
+        "trustlines": 0,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 0.9
+      }
+    },
+    "fetchedAt": 1738782118740
+  },
+  "CAAV3AE3VKD2P4TY7LWTQMMJHIJ4WOCZ5ANCIJPC3NRSERKVXNHBU2W7": {
+    "data": {
+      "asset": "XRP-GBXRPL45NPHCVMFFAYZVUVFFVKSIZ362ZXFP7I2ETNQ3QKZMFLPRDTD5-1",
+      "created": 1517906561,
+      "supply": 984608615813614,
+      "trustlines": {
+        "total": 46046,
+        "authorized": 46045,
+        "funded": 25513
+      },
+      "payments": 371984,
+      "payments_amount": 1863425561573542,
+      "trades": 6926775,
+      "traded_amount": 2056052103564128,
+      "price": 2.5042935418663435,
+      "volume": 1387209999888507,
+      "volume7d": 44407916979783,
+      "price7d": [
+        [
+          1738108800,
+          3.0720317517730495
+        ],
+        [
+          1738195200,
+          3.103233292857143
+        ],
+        [
+          1738281600,
+          3.0603844064748205
+        ],
+        [
+          1738368000,
+          2.9814256183745584
+        ],
+        [
+          1738454400,
+          2.781121711267606
+        ],
+        [
+          1738540800,
+          2.4413564374999996
+        ],
+        [
+          1738627200,
+          2.6090735226480835
+        ],
+        [
+          1738713600,
+          2.520879163265306
+        ]
+      ],
+      "contract": "CAAV3AE3VKD2P4TY7LWTQMMJHIJ4WOCZ5ANCIJPC3NRSERKVXNHBU2W7",
+      "toml_info": {
+        "code": "XRP",
+        "issuer": "GBXRPL45NPHCVMFFAYZVUVFFVKSIZ362ZXFP7I2ETNQ3QKZMFLPRDTD5",
+        "image": "https://stellar.myfilebase.com/ipfs/QmPYsJjR623oATjwfLtnqW4BEDAgBsnMktjXcLC2pfNiEm",
+        "anchorAssetType": "crypto",
+        "anchorAsset": "XRP",
+        "orgName": "Muyu Network",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/QmPHoZRvBxUcdvHuECXcbfyJLqyx52cHRpgBiMzseAGCco"
+      },
+      "home_domain": "fchain.io",
+      "rating": {
+        "age": 10,
+        "trades": 9,
+        "payments": 7,
+        "trustlines": 7,
+        "volume7d": 9,
+        "interop": 8,
+        "liquidity": 6,
+        "average": 8
+      }
+    },
+    "fetchedAt": 1738782118741
+  },
+  "CCG27OZ5AV4WUXS6XTECWAXEY5UOMEFI2CWFA3LHZGBTLYZWTJF3MJYQ": {
+    "data": {
+      "asset": "AFR-GBX6YI45VU7WNAAKA3RBFDR3I3UKNFHTJPQ5F6KOOKSGYIAM4TRQN54W-1",
+      "created": 1601921461,
+      "supply": 79997705606988940,
+      "trustlines": {
+        "total": 35423,
+        "authorized": 35423,
+        "funded": 15625
+      },
+      "payments": 66593,
+      "payments_amount": 578856126338826600,
+      "trades": 4505061,
+      "traded_amount": 275157317618321000,
+      "price": 0.0006771548474732759,
+      "volume": 151472645159125,
+      "volume7d": 554576691946,
+      "price7d": [
+        [
+          1738108800,
+          0.0007116694404166666
+        ],
+        [
+          1738195200,
+          0.0007540569190871369
+        ],
+        [
+          1738281600,
+          0.0007556750291666667
+        ],
+        [
+          1738368000,
+          0.0007338105062992126
+        ],
+        [
+          1738454400,
+          0.0007030730305343511
+        ],
+        [
+          1738540800,
+          0.0006446981079710145
+        ],
+        [
+          1738627200,
+          0.0007102340394636015
+        ],
+        [
+          1738713600,
+          0.0007080271199999999
+        ]
+      ],
+      "contract": "CCG27OZ5AV4WUXS6XTECWAXEY5UOMEFI2CWFA3LHZGBTLYZWTJF3MJYQ",
+      "toml_info": {
+        "code": "AFR",
+        "issuer": "GBX6YI45VU7WNAAKA3RBFDR3I3UKNFHTJPQ5F6KOOKSGYIAM4TRQN54W",
+        "name": "AFREUM",
+        "image": "https://stellar.myfilebase.com/ipfs/QmRGezPHkaVJuqxDebHrfqEeESLbEDY3m596wnCWrdCaXw",
+        "decimals": 7,
+        "status": "live",
+        "orgName": "Afreum Inc dba Afreum",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/QmXKkc1Ka3n21DN2qCdMBTv4yxua7b3D3pShRC8umpvS3Z"
+      },
+      "home_domain": "afreum.com",
+      "rating": {
+        "age": 9,
+        "trades": 9,
+        "payments": 6,
+        "trustlines": 7,
+        "volume7d": 8,
+        "interop": 4,
+        "liquidity": 5,
+        "average": 6.9
+      }
+    },
+    "fetchedAt": 1738782118737
+  },
+  "CATUJXDUO7SSSTAKSUV5YU6RSTB4B5AVIHQDV26QTCXOB46T6SLMWNMY": {
+    "data": {
+      "asset": "CATUJXDUO7SSSTAKSUV5YU6RSTB4B5AVIHQDV26QTCXOB46T6SLMWNMY",
+      "created": 1727850420,
+      "supply": 0,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 1
+      },
+      "payments": 1,
+      "payments_amount": 23716332,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 5,
+        "trades": 0,
+        "payments": 0,
+        "trustlines": 0,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 0.9
+      }
+    },
+    "fetchedAt": 1738782118740
+  },
+  "CDQ4UKVWHJKR465B3NN2YP3IMWBEZ77YYJYTHYZA3BWNTPRHFOJ4OY57": {
+    "data": {
+      "asset": "CDQ4UKVWHJKR465B3NN2YP3IMWBEZ77YYJYTHYZA3BWNTPRHFOJ4OY57",
+      "created": 1721866696,
+      "supply": 0,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 1
+      },
+      "payments": 1,
+      "payments_amount": 7403033161157,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 5,
+        "trades": 0,
+        "payments": 0,
+        "trustlines": 0,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 0.9
+      }
+    },
+    "fetchedAt": 1738782118738
+  },
+  "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY": {
+    "data": {
+      "asset": "BLND-GDJEHTBE6ZHUXSWFI642DCGLUOECLHPF3KSXHPXTSTJ7E3JF6MQ5EZYY-1",
+      "created": 1714683540,
+      "supply": 740787162623978,
+      "trustlines": {
+        "total": 2222,
+        "authorized": 2222,
+        "funded": 1163
+      },
+      "payments": 57796,
+      "payments_amount": 754057657961675,
+      "trades": 189435,
+      "traded_amount": 74265576166955,
+      "price": 0.08951956944864663,
+      "volume": 6441709956624,
+      "volume7d": 338296964681,
+      "price7d": [
+        [
+          1738108800,
+          0.0857630835862069
+        ],
+        [
+          1738195200,
+          0.09546782564705882
+        ],
+        [
+          1738281600,
+          0.09309948152173914
+        ],
+        [
+          1738368000,
+          0.09299867663934426
+        ],
+        [
+          1738454400,
+          0.09240376666666666
+        ],
+        [
+          1738540800,
+          0.09047809553398059
+        ],
+        [
+          1738627200,
+          0.09067105657608696
+        ],
+        [
+          1738713600,
+          0.09041614046511628
+        ]
+      ],
+      "contract": "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY",
+      "toml_info": {
+        "code": "BLND",
+        "issuer": "GDJEHTBE6ZHUXSWFI642DCGLUOECLHPF3KSXHPXTSTJ7E3JF6MQ5EZYY",
+        "image": "https://stellar.myfilebase.com/ipfs/QmaDc2ArxQom1bFkE7JsqqZ2VdThvLV2GTRimaeJcpxU8L",
+        "decimals": 7,
+        "status": "live"
+      },
+      "home_domain": "blend.capital",
+      "rating": {
+        "age": 6,
+        "trades": 7,
+        "payments": 6,
+        "trustlines": 5,
+        "volume7d": 8,
+        "interop": 2,
+        "liquidity": 3,
+        "average": 5.3
+      }
+    },
+    "fetchedAt": 1738783625281
+  },
+  "CA2KG5ZCUZSAHC2MMDSNPRLTFPRAS7OUR5EYNGJW3FHJPLYB3WLO3WQK": {
+    "data": {
+      "asset": "CA2KG5ZCUZSAHC2MMDSNPRLTFPRAS7OUR5EYNGJW3FHJPLYB3WLO3WQK",
+      "created": 1726664276,
+      "supply": 48729668334078,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 509
+      },
+      "payments": 92,
+      "payments_amount": 36952914084615,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 5,
+        "trades": 0,
+        "payments": 2,
+        "trustlines": 5,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1.9
+      }
+    },
+    "fetchedAt": 1738783625283
+  },
+  "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK": {
+    "data": {
+      "asset": "AQUA-GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA-1",
+      "created": 1620331559,
+      "supply": 999657797951086300,
+      "trustlines": {
+        "total": 184540,
+        "authorized": 184540,
+        "funded": 128594
+      },
+      "payments": 291477146,
+      "payments_amount": 3214837173015233500,
+      "trades": 54448609,
+      "traded_amount": 1400602064097925000,
+      "price": 0.0010846525001978642,
+      "volume": 4340805419251495,
+      "volume7d": 11080721176774,
+      "price7d": [
+        [
+          1738454400,
+          0.0012754034459930312
+        ],
+        [
+          1738540800,
+          0.0011672724270833333
+        ],
+        [
+          1738627200,
+          0.001175038361111111
+        ],
+        [
+          1738713600,
+          0.00115577871875
+        ],
+        [
+          1738800000,
+          0.0011287975624999999
+        ],
+        [
+          1738886400,
+          0.0011197520486111111
+        ],
+        [
+          1738972800,
+          0.0011090092743055557
+        ],
+        [
+          1739059200,
+          0.0011146124102564103
+        ]
+      ],
+      "contract": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+      "toml_info": {
+        "code": "AQUA",
+        "issuer": "GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA",
+        "name": "AQUA",
+        "image": "https://stellar.myfilebase.com/ipfs/QmTqE6DhQftp51YXXL8HtkEBhr1PpW6F8W1NxnVoyK6G93",
+        "decimals": 7,
+        "orgName": "Aquarius dba AQUA token",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/QmTqE6DhQftp51YXXL8HtkEBhr1PpW6F8W1NxnVoyK6G93"
+      },
+      "home_domain": "aqua.network",
+      "rating": {
+        "age": 9,
+        "trades": 10,
+        "payments": 10,
+        "trustlines": 9,
+        "volume7d": 9,
+        "interop": 4,
+        "liquidity": 6,
+        "average": 8.1
+      }
+    },
+    "fetchedAt": 1739128717913
+  },
+  "CA73MQDXDHT7Z37KIWP5BCRGAKOXDK2FLR3OPVKNUJUEHK5SWL74SE4K": {
+    "data": {
+      "asset": "CA73MQDXDHT7Z37KIWP5BCRGAKOXDK2FLR3OPVKNUJUEHK5SWL74SE4K",
+      "created": 1726663484,
+      "supply": 20290705134703,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 47
+      },
+      "payments": 150,
+      "payments_amount": 1056032829797,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 5,
+        "trades": 0,
+        "payments": 3,
+        "trustlines": 3,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1.7
+      }
+    },
+    "fetchedAt": 1738783637334
+  },
+  "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75": {
+    "data": {
+      "asset": "USDC-GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN-1",
+      "created": 1611089770,
+      "supply": 2029391452769841,
+      "trustlines": {
+        "total": 1278749,
+        "authorized": 1278749,
+        "funded": 412370
+      },
+      "payments": 38331603,
+      "payments_amount": 175957693978989000,
+      "trades": 86397065,
+      "traded_amount": 52444769764258420,
+      "price": 0.999983385888911,
+      "volume": 52451405804257650,
+      "volume7d": 617662997002910,
+      "price7d": [
+        [
+          1738108800,
+          1.0000708146341464
+        ],
+        [
+          1738195200,
+          1.000071835763889
+        ],
+        [
+          1738281600,
+          0.9999910559027777
+        ],
+        [
+          1738368000,
+          1.0000499041666666
+        ],
+        [
+          1738454400,
+          1.0000799829861111
+        ],
+        [
+          1738540800,
+          1.0000073086805557
+        ],
+        [
+          1738627200,
+          1.0001137979166665
+        ],
+        [
+          1738713600,
+          1.0000221297435898
+        ]
+      ],
+      "contract": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+      "toml_info": {
+        "code": "USDC",
+        "issuer": "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+        "name": "USD Coin",
+        "image": "https://stellar.myfilebase.com/ipfs/QmNcfZxs8e9uVyhEa3xoPWCsj3ZogGirtixMEC9Km4Fjm2",
+        "anchorAssetType": "fiat",
+        "anchorAsset": "USD",
+        "orgName": "Centre Consortium LLC dba Centre Consortium",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/QmfAKNcYWpQCPFgckEuTboks1GsaRYhzqgSrM6ZGFXMToo"
+      },
+      "home_domain": "centre.io",
+      "rating": {
+        "age": 9,
+        "trades": 10,
+        "payments": 9,
+        "trustlines": 10,
+        "volume7d": 10,
+        "interop": 4,
+        "liquidity": 9,
+        "average": 8.7
+      }
+    },
+    "fetchedAt": 1738783637320
+  },
+  "CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP": {
+    "data": {
+      "asset": "USDx-GAVH5ZWACAY2PHPUG4FL3LHHJIYIHOFPSIUGM2KHK25CJWXHAV6QKDMN-1",
+      "created": 1716686858,
+      "supply": 26036530291942,
+      "trustlines": {
+        "total": 250,
+        "authorized": 250,
+        "funded": 88
+      },
+      "payments": 26240,
+      "payments_amount": 135242657445910,
+      "trades": 14748,
+      "traded_amount": 14147430675505,
+      "price": 0.9962857289327395,
+      "volume": 14133492490511,
+      "volume7d": 2034668149306,
+      "price7d": [
+        [
+          1738108800,
+          0.9977932841269841
+        ],
+        [
+          1738195200,
+          0.9999428245283019
+        ],
+        [
+          1738281600,
+          0.9991433962264151
+        ],
+        [
+          1738368000,
+          0.998557594
+        ],
+        [
+          1738454400,
+          0.9978494180851064
+        ],
+        [
+          1738540800,
+          1.000043075
+        ],
+        [
+          1738627200,
+          0.9993591194805194
+        ],
+        [
+          1738713600,
+          1.000079101923077
+        ]
+      ],
+      "contract": "CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP",
+      "toml_info": {
+        "code": "USDx",
+        "issuer": "GAVH5ZWACAY2PHPUG4FL3LHHJIYIHOFPSIUGM2KHK25CJWXHAV6QKDMN",
+        "name": "Decentralized USD Coin",
+        "image": "https://stellar.myfilebase.com/ipfs/QmQqpy1GLcGqqsg6DaHqLQntPPuFcdHZYG2pLBpHohvCUd",
+        "anchorAssetType": "fiat",
+        "anchorAsset": "USD",
+        "orgName": "FxDAO LLC dba FxDAO",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/QmUzuSw8xioCXCKksvbATPEzxUCS7NKnenSssb4G4yxMQP"
+      },
+      "home_domain": "assets.fxdao.io",
+      "rating": {
+        "age": 6,
+        "trades": 5,
+        "payments": 5,
+        "trustlines": 3,
+        "volume7d": 8,
+        "interop": 4,
+        "liquidity": 3,
+        "average": 4.9
+      }
+    },
+    "fetchedAt": 1738783637328
+  },
+  "CBHBD77PWZ3AXPQVYVDBHDKEMVNOR26UZUZHWCB6QC7J5SETQPRUQAS4": {
+    "data": {
+      "asset": "SSLX-GBHFGY3ZNEJWLNO4LBUKLYOCEK4V7ENEBJGPRHHX7JU47GWHBREH37UR-1",
+      "created": 1621789313,
+      "supply": 99978771726120130,
+      "trustlines": {
+        "total": 55844,
+        "authorized": 55844,
+        "funded": 54648
+      },
+      "payments": 145509385,
+      "payments_amount": 239912023454231780,
+      "trades": 1849223,
+      "traded_amount": 23288390924009524,
+      "price": 0.0034442568325646575,
+      "volume": 93805341320728,
+      "volume7d": 2127072366827,
+      "price7d": [
+        [
+          1738108800,
+          0.0038437157741935484
+        ],
+        [
+          1738195200,
+          0.0040498955
+        ],
+        [
+          1738281600,
+          0.003919653157894738
+        ],
+        [
+          1738368000,
+          0.0037083424357142853
+        ],
+        [
+          1738454400,
+          0.003652130285714286
+        ],
+        [
+          1738540800,
+          0.003521762675958188
+        ],
+        [
+          1738627200,
+          0.0036796976795774646
+        ],
+        [
+          1738713600,
+          0.003561408893258427
+        ]
+      ],
+      "contract": "CBHBD77PWZ3AXPQVYVDBHDKEMVNOR26UZUZHWCB6QC7J5SETQPRUQAS4",
+      "toml_info": {
+        "code": "SSLX",
+        "issuer": "GBHFGY3ZNEJWLNO4LBUKLYOCEK4V7ENEBJGPRHHX7JU47GWHBREH37UR",
+        "name": "SSLX",
+        "image": "https://stellar.myfilebase.com/ipfs/QmYkosLbMRMPZSiRZBUuCBaGRbaxiuxPmXeFfs6QYeSWCY",
+        "decimals": 7,
+        "status": "live",
+        "anchorAssetType": "crypto",
+        "anchorAsset": "USDC",
+        "orgName": "Cassator Corp.",
+        "orgLogo": null
+      },
+      "home_domain": "sslx.sl8.online",
+      "rating": {
+        "age": 9,
+        "trades": 8,
+        "payments": 10,
+        "trustlines": 8,
+        "volume7d": 8,
+        "interop": 10,
+        "liquidity": 5,
+        "average": 8.3
+      }
+    },
+    "fetchedAt": 1738783637341
+  },
+  "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA": {
+    "data": {
+      "asset": "XLM",
+      "created": 0,
+      "supply": 1054439020873472900,
+      "trustlines": {
+        "total": 9104391,
+        "authorized": 0,
+        "funded": 8395800
+      },
+      "payments": 267591635,
+      "payments_amount": 11273439621984418000,
+      "trades": 987531292,
+      "traded_amount": 472259635697861300,
+      "price": 0.32879317462533497,
+      "volume": 100547031394767360,
+      "volume7d": 564303102462685,
+      "price7d": [
+        [
+          1738108800,
+          0.39590398292682927
+        ],
+        [
+          1738195200,
+          0.4133462458333333
+        ],
+        [
+          1738281600,
+          0.42001644826388884
+        ],
+        [
+          1738368000,
+          0.408740396875
+        ],
+        [
+          1738454400,
+          0.37882323368055554
+        ],
+        [
+          1738540800,
+          0.33804642534722223
+        ],
+        [
+          1738627200,
+          0.3518785
+        ],
+        [
+          1738713600,
+          0.34203880205128206
+        ]
+      ],
+      "contract": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+      "fee_pool": "52154716768794",
+      "reserve": "747898059260743464"
+    },
+    "fetchedAt": 1738783637358
+  },
+  "CBLLEW7HD2RWATVSMLAGWM4G3WCHSHDJ25ALP4DI6LULV5TU35N2CIZA": {
+    "data": {
+      "asset": "XRF-GCHI6I3X62ND5XUMWINNNKXS2HPYZWKFQBZZYBSMHJ4MIP2XJXSZTXRF-1",
+      "created": 1722480452,
+      "supply": 1198942354131129,
+      "trustlines": {
+        "total": 1064,
+        "authorized": 1064,
+        "funded": 544
+      },
+      "payments": 14672,
+      "payments_amount": 1181107189398898,
+      "trades": 231955,
+      "traded_amount": 23215643587325,
+      "price": 0.2555078354740462,
+      "volume": 6015646497330,
+      "volume7d": 308118766961,
+      "price7d": [
+        [
+          1738108800,
+          0.27267465629629634
+        ],
+        [
+          1738195200,
+          0.27612200640569395
+        ],
+        [
+          1738281600,
+          0.2731866388692579
+        ],
+        [
+          1738368000,
+          0.2709332168458781
+        ],
+        [
+          1738454400,
+          0.27016937357142856
+        ],
+        [
+          1738540800,
+          0.2628968868312757
+        ],
+        [
+          1738627200,
+          0.26393684197530864
+        ],
+        [
+          1738713600,
+          0.2601279145945946
+        ]
+      ],
+      "contract": "CBLLEW7HD2RWATVSMLAGWM4G3WCHSHDJ25ALP4DI6LULV5TU35N2CIZA",
+      "toml_info": {
+        "code": "XRF",
+        "issuer": "GCHI6I3X62ND5XUMWINNNKXS2HPYZWKFQBZZYBSMHJ4MIP2XJXSZTXRF",
+        "name": "Reflector XRF token",
+        "image": "https://stellar.myfilebase.com/ipfs/QmXrzJrjy1SqRnJvX2hRGQvrZLfzQVjoWwk3D77hT3H1gG",
+        "decimals": 7,
+        "status": "live",
+        "orgName": "Reflector",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/QmXrzJrjy1SqRnJvX2hRGQvrZLfzQVjoWwk3D77hT3H1gG"
+      },
+      "home_domain": "reflector.network",
+      "rating": {
+        "age": 5,
+        "trades": 7,
+        "payments": 5,
+        "trustlines": 5,
+        "volume7d": 8,
+        "interop": 4,
+        "liquidity": 4,
+        "average": 5.4
+      }
+    },
+    "fetchedAt": 1738783637353
+  },
+  "CC4S3VFV4UHIBAKUUBRLSIQTGA33NY4DF36A6ZT7GNJWJFUDZBZNPNUS": {
+    "data": {
+      "asset": "CC4S3VFV4UHIBAKUUBRLSIQTGA33NY4DF36A6ZT7GNJWJFUDZBZNPNUS",
+      "created": 1736013760,
+      "supply": 0,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 1
+      },
+      "payments": 8,
+      "payments_amount": 73446399,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 2,
+        "trades": 0,
+        "payments": 1,
+        "trustlines": 0,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 0.6
+      }
+    },
+    "fetchedAt": 1738801213854
+  },
+  "CCNUBGR34VVM2KUATNEQMNHGUYGE7NABE6ZIBCG3EJ74CWHVHNOG5W4H": {
+    "data": {
+      "asset": "CCNUBGR34VVM2KUATNEQMNHGUYGE7NABE6ZIBCG3EJ74CWHVHNOG5W4H",
+      "created": 1736155544,
+      "supply": 98069776892,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 89
+      },
+      "payments": 53,
+      "payments_amount": 575147795921,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 2,
+        "trades": 0,
+        "payments": 2,
+        "trustlines": 3,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1.1
+      }
+    },
+    "fetchedAt": 1738801213853
+  },
+  "CBNJ54GNIRXBRB2P7PVKI7LVUBVR4ATTK6QDPZZKHM47VAP3CSJ7VYNB": {
+    "data": {
+      "asset": "abUSDC-GALLBRBQHAPW5FOVXXHYWR6J4ZDAQ35BMSNADYGBW25VOUHUYRZM4XIL-2",
+      "created": 1675082605,
+      "supply": 85284403057,
+      "trustlines": {
+        "total": 415,
+        "authorized": 415,
+        "funded": 45
+      },
+      "payments": 158,
+      "payments_amount": 49632993879,
+      "trades": 5894,
+      "traded_amount": 55415063361,
+      "price": 0.998108965702861,
+      "volume": 56239143210,
+      "volume7d": 5801601726,
+      "price7d": [
+        [
+          1738195200,
+          1.0052958264705882
+        ],
+        [
+          1738281600,
+          1.003893604255319
+        ],
+        [
+          1738368000,
+          0.9999352892857143
+        ],
+        [
+          1738454400,
+          1.0029744612244897
+        ],
+        [
+          1738540800,
+          1.046059827586207
+        ],
+        [
+          1738627200,
+          1.0041781074074074
+        ],
+        [
+          1738713600,
+          1.0024868882352942
+        ],
+        [
+          1738800000,
+          0.998109
+        ]
+      ],
+      "contract": "CBNJ54GNIRXBRB2P7PVKI7LVUBVR4ATTK6QDPZZKHM47VAP3CSJ7VYNB",
+      "toml_info": {
+        "code": "abUSDC",
+        "issuer": "GALLBRBQHAPW5FOVXXHYWR6J4ZDAQ35BMSNADYGBW25VOUHUYRZM4XIL",
+        "name": "BNB Chain USDC",
+        "image": "https://stellar.myfilebase.com/ipfs/QmfKnioKgpZN753CeokHZnLtxC2GKs8EPBjFfDjwgwNR5h",
+        "status": "live",
+        "anchorAssetType": "crypto",
+        "anchorAsset": "USDC",
+        "orgName": "APY Foundation LTD",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/QmaA9WWpBSRfP6qtVJdepBbey4UgS6Ja3s4MzFf2EzLVpJ"
+      },
+      "home_domain": "allbridge.io",
+      "rating": {
+        "age": 8,
+        "trades": 5,
+        "payments": 3,
+        "trustlines": 3,
+        "volume7d": 6,
+        "interop": 4,
+        "liquidity": 0,
+        "average": 4.1
+      }
+    },
+    "fetchedAt": 1738801213847
+  },
+  "CB7VCORLWN5N4ZUTKSK7OQN6JC5ENKBK6NSKUZDEEPFMJGMH3U6AAIK4": {
+    "data": {
+      "asset": "apUSDC-GALLBRBQHAPW5FOVXXHYWR6J4ZDAQ35BMSNADYGBW25VOUHUYRZM4XIL-2",
+      "created": 1675085432,
+      "supply": 93055453775,
+      "trustlines": {
+        "total": 606,
+        "authorized": 606,
+        "funded": 158
+      },
+      "payments": 593,
+      "payments_amount": 480334778575,
+      "trades": 46016,
+      "traded_amount": 269461731057,
+      "price": 0.9963892340724029,
+      "volume": 294531795630,
+      "volume7d": 15417711278,
+      "price7d": [
+        [
+          1738195200,
+          1.0031287652777778
+        ],
+        [
+          1738281600,
+          0.9946718695652174
+        ],
+        [
+          1738368000,
+          0.9960164938461538
+        ],
+        [
+          1738454400,
+          1.002017460952381
+        ],
+        [
+          1738540800,
+          1.0303550204301075
+        ],
+        [
+          1738627200,
+          1.0102080543209875
+        ],
+        [
+          1738713600,
+          1.003318392
+        ],
+        [
+          1738800000,
+          0.99591305
+        ]
+      ],
+      "contract": "CB7VCORLWN5N4ZUTKSK7OQN6JC5ENKBK6NSKUZDEEPFMJGMH3U6AAIK4",
+      "toml_info": {
+        "code": "apUSDC",
+        "issuer": "GALLBRBQHAPW5FOVXXHYWR6J4ZDAQ35BMSNADYGBW25VOUHUYRZM4XIL",
+        "name": "Polygon USDC",
+        "image": "https://stellar.myfilebase.com/ipfs/QmfKnioKgpZN753CeokHZnLtxC2GKs8EPBjFfDjwgwNR5h",
+        "status": "live",
+        "anchorAssetType": "crypto",
+        "anchorAsset": "USDC",
+        "orgName": "APY Foundation LTD",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/QmaA9WWpBSRfP6qtVJdepBbey4UgS6Ja3s4MzFf2EzLVpJ"
+      },
+      "home_domain": "allbridge.io",
+      "rating": {
+        "age": 8,
+        "trades": 6,
+        "payments": 3,
+        "trustlines": 4,
+        "volume7d": 7,
+        "interop": 4,
+        "liquidity": 1,
+        "average": 4.7
+      }
+    },
+    "fetchedAt": 1738801213850
+  },
+  "CBH5FAS7EPGM4KGSUHTGMJYGNAMUUMFDXLFD7CWDWWG4JLSXBCCPAXTZ": {
+    "data": {
+      "asset": "yQBTC-GBMUGKI6P4QKNHX5GMKKWDD746WP3HUM5SPH5MSNZUW3VXDTA6S4ALDZ-2",
+      "created": 1734185725,
+      "supply": 210000000000000,
+      "trustlines": {
+        "total": 7,
+        "authorized": 7,
+        "funded": 6
+      },
+      "payments": 30,
+      "payments_amount": 20021401998000,
+      "trades": 25,
+      "traded_amount": 409999990001095,
+      "price": 85053.40713448361,
+      "volume": 127350545,
+      "volume7d": 0,
+      "contract": "CBH5FAS7EPGM4KGSUHTGMJYGNAMUUMFDXLFD7CWDWWG4JLSXBCCPAXTZ",
+      "toml_info": {
+        "code": "yQBTC",
+        "issuer": "GBMUGKI6P4QKNHX5GMKKWDD746WP3HUM5SPH5MSNZUW3VXDTA6S4ALDZ",
+        "name": "yieldQBTC",
+        "image": "https://stellar.myfilebase.com/ipfs/QmT5rtQV8NKZ6huUKntDrH1dcasuBA1V7Ee6K7PEiSCVP9",
+        "decimals": 7,
+        "status": "live",
+        "anchorAssetType": "crypto",
+        "anchorAsset": "QBTC",
+        "orgName": "qfssys dba qfssys.github.io",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/QmTX1e965a6gnnz8vBVUCikyHBvo3he4P6c2sLSwsBHsiC"
+      },
+      "home_domain": "qfssys.github.io",
+      "rating": {
+        "age": 3,
+        "trades": 3,
+        "payments": 2,
+        "trustlines": 1,
+        "volume7d": 0,
+        "interop": 4,
+        "liquidity": 0,
+        "average": 1.9
+      }
+    },
+    "fetchedAt": 1738801213852
+  },
+  "CA5JJHF5LKBB6LKFKOVVTOO5QE4ZPFIHULSBC5AB5PZXKX2J543HZQJX": {
+    "data": {
+      "asset": "CA5JJHF5LKBB6LKFKOVVTOO5QE4ZPFIHULSBC5AB5PZXKX2J543HZQJX",
+      "created": 1735890259,
+      "supply": 0,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 3
+      },
+      "payments": 6,
+      "payments_amount": 10000500997000,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 3,
+        "trades": 0,
+        "payments": 1,
+        "trustlines": 1,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 0.9
+      }
+    },
+    "fetchedAt": 1738801213853
+  },
+  "CD7DGEJY4Q6LF6UH3T6K5GGTOMOGYVHENEFO6ZNQMYXMXN4UH52VJQB4": {
+    "data": {
+      "asset": "CD7DGEJY4Q6LF6UH3T6K5GGTOMOGYVHENEFO6ZNQMYXMXN4UH52VJQB4",
+      "created": 1735545961,
+      "supply": 916735075,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 27
+      },
+      "payments": 13,
+      "payments_amount": 17121844629,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 3,
+        "trades": 0,
+        "payments": 1,
+        "trustlines": 2,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1
+      }
+    },
+    "fetchedAt": 1738801213851
+  },
+  "CCCWT5Q6RZJWEUEICQXST5UX46MFTQNZRXBIEMP6LIPV7PJYAPH4CR3W": {
+    "data": {
+      "asset": "QBTC-GAX46QEMVKRQKREMHQXGDF2YLOTHVY76JKZPQPV2MVIQI43EKK7SHCCZ-1",
+      "created": 1734183302,
+      "supply": 210000000000000,
+      "trustlines": {
+        "total": 15,
+        "authorized": 15,
+        "funded": 9
+      },
+      "payments": 38,
+      "payments_amount": 20011402012834,
+      "trades": 3313,
+      "traded_amount": 409999990022571,
+      "price": 66318.41079200307,
+      "volume": 2277006445,
+      "volume7d": 0,
+      "contract": "CCCWT5Q6RZJWEUEICQXST5UX46MFTQNZRXBIEMP6LIPV7PJYAPH4CR3W",
+      "toml_info": {
+        "code": "QBTC",
+        "issuer": "GAX46QEMVKRQKREMHQXGDF2YLOTHVY76JKZPQPV2MVIQI43EKK7SHCCZ",
+        "name": "QUANTBTC",
+        "image": "https://stellar.myfilebase.com/ipfs/QmXo19X4KHi4uLGhDNbMXsRwvhyJoLKUJ4j2RP9YbBzYXq",
+        "decimals": 7,
+        "status": "live",
+        "anchorAssetType": "crypto",
+        "anchorAsset": "BTC",
+        "orgName": "qfssys dba qfssys.github.io",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/QmTX1e965a6gnnz8vBVUCikyHBvo3he4P6c2sLSwsBHsiC"
+      },
+      "home_domain": "qfssys.github.io",
+      "rating": {
+        "age": 3,
+        "trades": 4,
+        "payments": 2,
+        "trustlines": 2,
+        "volume7d": 3,
+        "interop": 4,
+        "liquidity": 0,
+        "average": 2.6
+      }
+    },
+    "fetchedAt": 1738801213852
+  },
+  "CCAKJOLEVUCMKPLNQLBJE4UIDJ2KQW6DX34NIRNQRRGQDJ6T6PTKG4DL": {
+    "data": {
+      "asset": "CCAKJOLEVUCMKPLNQLBJE4UIDJ2KQW6DX34NIRNQRRGQDJ6T6PTKG4DL",
+      "created": 1736154595,
+      "supply": 688061404998,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 116
+      },
+      "payments": 38,
+      "payments_amount": 92110620689,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 2,
+        "trades": 0,
+        "payments": 2,
+        "trustlines": 3,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1.1
+      }
+    },
+    "fetchedAt": 1738801384076
+  },
+  "CDRZETG7R7YM45NPBNCVM43BM6VCCRRDWLL57MARN4V5KGTJA4OQOHR5": {
+    "data": {
+      "asset": "CDRZETG7R7YM45NPBNCVM43BM6VCCRRDWLL57MARN4V5KGTJA4OQOHR5",
+      "created": 1736604748,
+      "supply": 56014351205150,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 4
+      },
+      "payments": 3,
+      "payments_amount": 291252354358114,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 2,
+        "trades": 0,
+        "payments": 1,
+        "trustlines": 1,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 0.7
+      }
+    },
+    "fetchedAt": 1738801384108
+  },
+  "CAMYGX5CJ2W2F6VV5FTAKADQBH4HMDOGT55WZ7I6JRD77NK3NKKYJN7E": {
+    "data": {
+      "asset": "CAMYGX5CJ2W2F6VV5FTAKADQBH4HMDOGT55WZ7I6JRD77NK3NKKYJN7E",
+      "created": 1736154410,
+      "supply": 20461244193727,
+      "trustlines": {
+        "total": 0,
+        "authorized": 0,
+        "funded": 86
+      },
+      "payments": 25,
+      "payments_amount": 1914837407439,
+      "volume": null,
+      "volume7d": null,
+      "rating": {
+        "age": 2,
+        "trades": 0,
+        "payments": 2,
+        "trustlines": 3,
+        "volume7d": 0,
+        "interop": 1,
+        "liquidity": 0,
+        "average": 1.1
+      }
+    },
+    "fetchedAt": 1738801384083
+  },
+  "CDWGJD5R37BQIU23LBNUQXIW45WS3CIJPJSP3I4FG5OYDX5MZDTP2RZ6": {
+    "data": {
+      "asset": "LBTC-GCT6JZXDCXW5LNVYE6KZP2TSNTDPNGOXPKJW45O7ROC5NSA3O57C6K3X-1",
+      "created": 1654597835,
+      "supply": 5949191,
+      "trustlines": {
+        "total": 384,
+        "authorized": 384,
+        "funded": 114
+      },
+      "payments": 1797,
+      "payments_amount": 366532168,
+      "trades": 96957,
+      "traded_amount": 585615444,
+      "price": 78205.95094845755,
+      "volume": 17996743397646,
+      "volume7d": 63046697433,
+      "price7d": [
+        [
+          1738195200,
+          97558.07409090908
+        ],
+        [
+          1738281600,
+          96917.91
+        ],
+        [
+          1738368000,
+          94950.21
+        ],
+        [
+          1738454400,
+          86237.64333333333
+        ],
+        [
+          1738540800,
+          77486.29627906978
+        ],
+        [
+          1738627200,
+          84057.60083333333
+        ],
+        [
+          1738713600,
+          79967.82
+        ]
+      ],
+      "contract": "CDWGJD5R37BQIU23LBNUQXIW45WS3CIJPJSP3I4FG5OYDX5MZDTP2RZ6",
+      "toml_info": {
+        "code": "LBTC",
+        "issuer": "GCT6JZXDCXW5LNVYE6KZP2TSNTDPNGOXPKJW45O7ROC5NSA3O57C6K3X",
+        "name": "LBTC",
+        "image": "https://stellar.myfilebase.com/ipfs/Qmb4yhZvaJfEEjHEbCEEMi7C5CsDMUkNk7cURwqK3u7JYM",
+        "decimals": 7,
+        "status": "live",
+        "orgName": "Lumenswap LLC dba Lumenswap",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/Qmbk5bcNAPk41Djk2GPiVXNumLJvMTyMj158wMQ2UjKCym"
+      },
+      "home_domain": "lumenswap.io",
+      "rating": {
+        "age": 8,
+        "trades": 6,
+        "payments": 4,
+        "trustlines": 3,
+        "volume7d": 7,
+        "interop": 4,
+        "liquidity": 4,
+        "average": 5.1
+      }
+    },
+    "fetchedAt": 1738801384116
+  },
+  "AQUA-GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA": {
+    "data": {
+      "asset": "AQUA-GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA-1",
+      "created": 1620331559,
+      "supply": 999656797951085700,
+      "trustlines": {
+        "total": 184553,
+        "authorized": 184553,
+        "funded": 128310
+      },
+      "payments": 291501844,
+      "payments_amount": 3219247386008635400,
+      "trades": 54457363,
+      "traded_amount": 1401085416664130600,
+      "price": 0.001084881964272047,
+      "volume": 4341326107843393,
+      "volume7d": 9898830559230,
+      "price7d": [
+        [
+          1738540800,
+          0.00116715506271777
+        ],
+        [
+          1738627200,
+          0.001175038361111111
+        ],
+        [
+          1738713600,
+          0.00115577871875
+        ],
+        [
+          1738800000,
+          0.0011287975624999999
+        ],
+        [
+          1738886400,
+          0.0011197520486111111
+        ],
+        [
+          1738972800,
+          0.0011090092743055557
+        ],
+        [
+          1739059200,
+          0.0011033022013888889
+        ],
+        [
+          1739145600,
+          0.0010751496
+        ]
+      ],
+      "contract": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+      "toml_info": {
+        "code": "AQUA",
+        "issuer": "GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA",
+        "name": "AQUA",
+        "image": "https://stellar.myfilebase.com/ipfs/QmTqE6DhQftp51YXXL8HtkEBhr1PpW6F8W1NxnVoyK6G93",
+        "decimals": 7,
+        "orgName": "Aquarius dba AQUA token",
+        "orgLogo": "https://stellar.myfilebase.com/ipfs/QmTqE6DhQftp51YXXL8HtkEBhr1PpW6F8W1NxnVoyK6G93"
+      },
+      "home_domain": "aqua.network",
+      "rating": {
+        "age": 9,
+        "trades": 10,
+        "payments": 10,
+        "trustlines": 9,
+        "volume7d": 9,
+        "interop": 4,
+        "liquidity": 6,
+        "average": 8.1
+      }
+    },
+    "fetchedAt": 1739204199903
+  }
+}

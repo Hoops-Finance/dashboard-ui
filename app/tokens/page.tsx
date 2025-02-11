@@ -1,12 +1,17 @@
 // app/tokens/page.tsx
-
 import { Metadata } from "next";
 import { fetchCoreData, fetchPeriodDataFromServer } from "@/services/serverData.service";
 import type { Market, Pair, PoolRiskApiResponseObject, Token } from "@/utils/types";
 import { PageLayout } from "@/components/ui/PageLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { STABLECOIN_IDS } from "@/utils/utilities";
+
+import { Suspense } from "react";
+import { DollarIcon, LightningIcon, WaterIcon } from "@/components/ui/icons";
+import { TopTokens } from "@/components/TopTokens";
+import { TokenTable } from "@/components/TokenTable";
+import { TokenCard } from "@/components/TopTokenCard";
+import { TableColumn, TokenTableBody, TokenTableHeader } from "@/components/Tokens/TokenTableParts";
 
 // Revalidate every hour
 export const revalidate = 3600;
@@ -32,11 +37,11 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      url: "https://hoops.finance/tokens", // Adjust if your domain differs
+      url: "https://app.hoops.finance/tokens",
       siteName: "Hoops Finance",
     },
     alternates: {
-      canonical: "https://hoops.finance/tokens", // Adjust if your domain differs
+      canonical: "https://app.hoops.finance/tokens",
     },
   };
 }
@@ -79,42 +84,77 @@ export default async function TokensPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <div className="space-y-6">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-foreground">Tokens</h1>
-          <p className="text-muted-foreground">
+      <div className="tokensHomePage">
+        <div className="tokensHomeTitleBar">
+          <h1>Tokens</h1>
+          <p>
             Track and analyze token performance
           </p>
         </div>
 
-        {/* Top Tokens Metrics (server-side) */}
-        <ServerSideTopTokens
-          tokens={tokens}
-          pairs={pairs}
-          poolRiskData={poolRiskData}
-          volumeMap={volumeMap}
-          tvlMap={tvlMap}
-        />
+        {/* Wrap TopTokens in a Suspense boundary: */}
+        {/* The fallback is your existing ServerSideTopTokens */}
+        {/* We use a server render compatible component for the fallback */}
+        {/*so that the page is prestuctured/prebuilt for SEO and accessibility */}
+        {/*purposes and to make the site more scalable. */}
+        <Suspense
+          fallback={
+
+            <ServerSideTopTokens
+              tokens={tokens}
+              pairs={pairs}
+              poolRiskData={poolRiskData}
+              volumeMap={volumeMap}
+              tvlMap={tvlMap}
+            />
+
+          }
+        >
+          {/*
+            Once the client JS loads, 
+            <TopTokens> (the clientside component) replaces the fallback, it has animations or other client only functionality. we want the server one first for SEO.
+            */}
+          <TopTokens
+            tokens={tokens}
+            pairs={pairs}
+            poolRiskData={poolRiskData}
+          />
+        </Suspense>
 
         {/* A "Read the docs" button (accessible and responsive) */}
-        <div className="flex items-center justify-end">
+        <div className="apiDocsButton">
           <Button
             variant="outline"
-            className="h-9 gap-2"
             aria-label="Read the documentation about token analytics on Hoops Finance"
           >
             Read the docs
           </Button>
         </div>
 
-        {/* Tokens Table */}
-        <ServerSideTokenTable
-          tokens={tokens}
-          pairs={pairs}
-          poolRiskData={poolRiskData}
-          volumeMap={volumeMap}
-          tvlMap={tvlMap}
-        />
+        {/* 
+          Wrap TokenTable in a Suspense boundary: 
+          The fallback is your existing ServerSideTokenTable 
+        */}
+        <Suspense
+          fallback={
+            <ServerSideTokenTable
+              tokens={tokens}
+              pairs={pairs}
+              volumeMap={volumeMap}
+              tvlMap={tvlMap}
+            />
+          }
+        >
+          {/* 
+            Once client JS loads, 
+            <TokenTable> (your "use client" component) replaces the fallback 
+          */}
+          <TokenTable
+            tokens={tokens}
+            pairs={pairs}
+            poolRiskData={poolRiskData}
+          />
+        </Suspense>
       </div>
     </PageLayout>
   );
@@ -123,6 +163,8 @@ export default async function TokensPage() {
 /* ------------------------------------------------------------------ */
 /* Helper to build JSON-LD for tokens */
 /* ------------------------------------------------------------------ */
+
+/*
 function createTokensJSONLD(tokens: Token[]) {
   // We’ll create an ItemList schema containing basic info about each token.
   // Adjust fields as necessary for your use case.
@@ -150,7 +192,90 @@ function createTokensJSONLD(tokens: Token[]) {
   //console.log(retval);
   return retval;
 }
+  */
+function createTokensJSONLD(tokens: Token[]) {
+  const nowIso = new Date().toISOString(); 
+  const distributionUrl = "https://api.hoops.finance/api/tokens"; 
 
+  // We build an array of "FinancialProduct" items, one per token
+  const tokenItems = tokens.map((token) => {
+    // For display name (symbolName)
+    const [symbolName] = token.name.split(":");
+    // Construct the detail URL for the token
+    const detailUrl =
+      token.symbol.toUpperCase() === "XLM"
+        ? "https://app.hoops.finance/tokens/native"
+        : `https://app.hoops.finance/tokens/${token.name.replace(/:/g, "-")}`;
+
+    // Basic "Offer" object for the token's current price
+    // This is optional but often used for financial products in schema.org
+    const offers = {
+      "@type": "Offer",
+      price: token.price || 0,
+      priceCurrency: "USD", 
+      // or use the appropriate currency
+      url: detailUrl,
+      availability: "https://schema.org/InStock", 
+    };
+
+    // Additional properties that schema.org doesn’t have official fields for
+    // We can store them in "additionalProperty" or "additionalType"
+    const additionalProps = [
+      {
+        "@type": "PropertyValue",
+        name: "symbol",
+        value: token.symbol,
+      },
+      {
+        "@type": "PropertyValue",
+        name: "id",
+        value: token.id,
+      },
+      // You could also store lastUpdated, TVL, or other fields similarly
+    ];
+
+    // Return a single "FinancialProduct" describing the token
+    return {
+      "@type": "FinancialProduct",
+      // Core fields
+      name: symbolName, 
+      description: `Token symbol: ${token.symbol}`,
+      identifier: token.id, 
+      url: detailUrl,
+
+      // The "offers" property is a recommended approach for price
+      offers,
+
+      // If you want to incorporate lastUpdated as "dateModified":
+      dateModified: token.lastUpdated,
+      
+      // Extra fields
+      additionalProperty: additionalProps,
+    };
+  });
+
+  // Now wrap everything in a Dataset
+  // that references your tokens array via "hasPart" or "about"
+  const datasetSchema = {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: "Tokens on Hoops Finance",
+    description: "List of Stellar assets on soroban, with their price and metadata.",
+    dateModified: new Date(Date.now() - (Math.random() * (3 * 24 * 60 * 60 * 1000))),
+    // Keywords can help AI/crawlers contextually
+    keywords: "crypto, tokens, DeFi, finance, stellar, soroban, amm, exchange, yield generation, savings accounts, stablecoins, usdc, usdy, xlm, aqua, btc, eth, usd",
+    // This references your API as a direct data download
+    distribution: {
+      "@type": "DataDownload",
+      contentUrl: distributionUrl,
+      encodingFormat: "application/json",
+    },
+    // "hasPart" is one way to include multiple items in a Dataset
+    hasPart: tokenItems,
+  };
+
+  return datasetSchema;
+}
 /* ------------------------------------------------------------------ */
 /* Server-Side Replacement for TopTokens component                    */
 /* ------------------------------------------------------------------ */
@@ -191,97 +316,32 @@ function ServerSideTopTokens({
     .sort((a, b) => b.tvl - a.tvl)
     .slice(0, 5);
 
+
   return (
-    <div className="grid gap-6 md:grid-cols-3" role="region" aria-label="Top Tokens Overview">
-      {/* By Volume */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Top Tokens by Volume</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {topByVolume.map((item, i) => {
-            const rank = i + 1;
-            const symbolName = item.token.name.split(":")[0];
-            return (
-              <div
-                key={item.token.id}
-                className="flex items-center justify-between"
-                aria-label={`Token ranked ${rank} by volume`}
-              >
-                <div className="flex gap-2">
-                  <span className="text-muted-foreground">#{rank}</span>
-                  <span className="text-foreground font-medium">
-                    {symbolName} ({item.token.symbol})
-                  </span>
-                </div>
-                <span className="text-foreground">
-                  ${item.volume.toLocaleString()}
-                </span>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
+    <div className="topTokensOverview" role="region" aria-label="Top Tokens Overview">
+      <TokenCard
+        icon={<LightningIcon />}
+        title="Top Volume"
+        delay={0.1}
+        data={topByVolume.map((item) => ({ token: item.token, value: item.volume }))}
+        isServer={true}
+      />
 
-      {/* By Liquidity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Top Tokens by Liquidity</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {topByLiquidity.map((item, i) => {
-            const rank = i + 1;
-            const symbolName = item.token.name.split(":")[0];
-            return (
-              <div
-                key={item.token.id}
-                className="flex items-center justify-between"
-                aria-label={`Token ranked ${rank} by liquidity`}
-              >
-                <div className="flex gap-2">
-                  <span className="text-muted-foreground">#{rank}</span>
-                  <span className="text-foreground font-medium">
-                    {symbolName} ({item.token.symbol})
-                  </span>
-                </div>
-                <span className="text-foreground">
-                  ${item.tvl.toLocaleString()}
-                </span>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
+      <TokenCard
+        icon={<WaterIcon />}
+        title="Top Liquidity"
+        delay={0.2}
+        data={topByLiquidity.map((item) => ({ token: item.token, value: item.tvl }))}
+        isServer={true}
+      />
 
-      {/* Stablecoins */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Top Stablecoins</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {topStables.map((item, i) => {
-            const rank = i + 1;
-            const symbolName = item.token.name.split(":")[0];
-            return (
-              <div
-                key={item.token.id}
-                className="flex items-center justify-between"
-                aria-label={`Stablecoin ranked ${rank}`}
-              >
-                <div className="flex gap-2">
-                  <span className="text-muted-foreground">#{rank}</span>
-                  <span className="text-foreground font-medium">
-                    {symbolName} ({item.token.symbol})
-                  </span>
-                </div>
-                <span className="text-foreground">
-                  ${item.tvl.toLocaleString()}
-                </span>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
+      <TokenCard
+        icon={<DollarIcon />}
+        title="Top Stablecoins"
+        delay={0.3}
+        data={topStables.map((item) => ({ token: item.token, value: item.tvl }))}
+        isServer={true}
+      />
     </div>
   );
 }
@@ -290,21 +350,28 @@ function ServerSideTopTokens({
 /* Server-Side Replacement for the TokenTable                         */
 /* ------------------------------------------------------------------ */
 interface ServerSideTokenTableProps {
-  tokens: Token[];
-  pairs: Pair[];
-  poolRiskData: PoolRiskApiResponseObject[];
-  volumeMap: Map<string, number>;
-  tvlMap: Map<string, number>;
+  tokens: Token[]
+  pairs: Pair[]
+  volumeMap: Map<string, number>
+  tvlMap: Map<string, number>
 }
+
+const HEADERS: TableColumn[] = [
+  { label: "Token", align: "left" },
+  { label: "Price", align: "right" },
+  { label: "TVL", align: "right" },
+  { label: "Volume", align: "right" },
+  { label: "Counter Assets", align: "right" },
+  { label: "Last Updated", align: "right" },
+  { label: "Actions", align: "right" },
+];
 
 function ServerSideTokenTable({
   tokens,
   pairs,
-  poolRiskData,
   volumeMap,
   tvlMap,
 }: ServerSideTokenTableProps) {
-  // Filter to “real” tokens as in your original approach
   const realTokenRegex = /^[^:]+:G[A-Z0-9]{55}$/;
   const filteredTokens = tokens.filter(
     (t) => realTokenRegex.test(t.name) || t.symbol.toUpperCase() === "XLM"
@@ -312,127 +379,26 @@ function ServerSideTokenTable({
 
   const pairMap = new Map<string, Pair>(pairs.map((p) => [p.id, p]));
 
-  // Example function to compute how many unique counter assets for each token
-  function getCounterAssetsCount(token: Token): number {
-    let count = 0;
-    for (const tokenPair of token.pairs) {
-      const p = pairMap.get(tokenPair.pairId);
-      if (p) {
-        // If token is token0, the other side is token1, etc.
-        count++;
-      }
-    }
-    return count;
-  }
-
   return (
-    <div className="mt-4 w-full overflow-auto" role="region" aria-label="All Tokens Table">
-      <div className="p-4">
-        <h2 className="text-xl font-bold">All Tokens</h2>
+    <div className="serverTokenTableDiv" role="region" aria-label="All Tokens Table">
+      <div className="serverTokenHeader">
+        <h2 role="heading">All Tokens</h2>
       </div>
-      <table className="w-full border-collapse" role="table">
-        <thead>
-          <tr className="border-b" role="row">
-            <th className="px-4 py-2 text-left" role="columnheader">
-              Token
-            </th>
-            <th className="px-4 py-2 text-right" role="columnheader">
-              Price
-            </th>
-            <th className="px-4 py-2 text-right" role="columnheader">
-              TVL
-            </th>
-            <th className="px-4 py-2 text-right" role="columnheader">
-              Counter Assets
-            </th>
-            <th className="px-4 py-2 text-right" role="columnheader">
-              Last Updated
-            </th>
-            <th className="px-4 py-2 text-right" role="columnheader">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredTokens.length === 0 ? (
-            <tr role="row">
-              <td
-                colSpan={6}
-                className="h-10 px-4 text-center text-sm text-muted-foreground"
-                role="cell"
-              >
-                No tokens found
-              </td>
-            </tr>
-          ) : (
-            filteredTokens.map((token) => {
-              const [symbolName] = token.name.split(":");
-              const price =
-                token.price > 0
-                  ? token.price.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 6,
-                    })
-                  : "0.00";
-              const tvl = tvlMap.get(token.id) ?? 0;
-              const counterCount = getCounterAssetsCount(token);
+      <table className="serverSideTokenTable anim-fadeSlideInUp" role="table">
+        <caption className="hidden">
+          A table of all the tokens tracked by Hoops Finance available in Stellars Soroban Smart Contract system.
+        </caption>
+        <TokenTableHeader ColLabels={HEADERS} />
 
-              // Basic route logic
-              let detailsUrl: string;
-              if (token.symbol.toUpperCase() === "XLM") {
-                detailsUrl = "/tokens/native";
-              } else {
-                detailsUrl = `/tokens/${token.name.replace(/:/g, "-")}`;
-              }
+        <TokenTableBody
+          tokens={filteredTokens}
+          pairMap={pairMap}
+          tvlMap={tvlMap}
+          volumeMap={volumeMap}
+          isServer={true}
+          noTokensColSpan={HEADERS.length}
+        />
 
-              return (
-                <tr
-                  key={token.id}
-                  aria-label={`Token ${symbolName}`}
-                >
-                  <td className="px-4 py-2" role="cell">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-primary/10 flex items-center justify-center">
-                        {token.symbol.slice(0, 1).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="font-medium">{symbolName}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {token.symbol}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-2 text-right" role="cell">
-                    ${price}
-                  </td>
-                  <td className="px-4 py-2 text-right" role="cell">
-                    ${tvl.toLocaleString()}
-                  </td>
-                  <td className="px-4 py-2 text-right" role="cell">
-                    {counterCount}
-                  </td>
-                  <td
-                    className="px-4 py-2 text-right text-sm text-muted-foreground"
-                    role="cell"
-                  >
-                    {new Date(token.lastUpdated).toLocaleString()}
-                  </td>
-                  <td className="px-4 py-2 text-right" role="cell">
-                    <a
-                      href={`https://stellar.expert/explorer/public/asset/${symbolName}-???`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="underline text-primary hover:text-primary/80"
-                    >
-                      Explorer
-                    </a>
-                  </td>
-                </tr>
-              );
-            })
-          )}
-        </tbody>
       </table>
     </div>
   );
