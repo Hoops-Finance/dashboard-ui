@@ -7,7 +7,7 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import { Address } from "@stellar/stellar-sdk";
+import { type Address } from "@stellar/stellar-sdk/minimal";
 
 export interface TokenSwapInfo {
   tokenAddress: Address;

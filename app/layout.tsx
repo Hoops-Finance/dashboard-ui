@@ -1,5 +1,6 @@
+"use client";
+export const experimental_ppr = true;
 import { ReactNode } from "react";
-import { cookies } from "next/headers";
 import { ClientWalletProvider } from "@/components/ClientWalletProvider";
 import Navbar from "@/components/Navbar";
 import { Footer } from "@/components/ui/Footer";
@@ -15,16 +16,8 @@ const inter = Inter({
   variable: "--font-inter"
 });
 
-// Read the 'theme' cookie server-side, default to 'dark'
-async function getInitialThemeCookie(): Promise<"dark" | "light"> {
-  "use server";
-  const themeCookies = await cookies();
-  const themeCookie = themeCookies.get("theme")?.value;
-  if (themeCookie === "light") return "light";
-  return "dark";
-}
-export default async function RootLayout({ children }: { children: ReactNode }) {
-  const initialTheme = await getInitialThemeCookie();
+export default function RootLayout({ children }: { children: ReactNode }) {
+  const initialTheme = "dark";
 
   return (
     <html lang="en" className={cn(inter.variable, initialTheme)}>
@@ -32,7 +25,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <SessionProvider>
             <ClientWalletProvider>
               <DataProvider>
-                <Navbar />
+               <Navbar />
                 <main className="flex-1">{children}</main>
                 <Footer />
               </DataProvider>
