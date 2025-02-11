@@ -9,7 +9,15 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PencilIcon } from "@heroicons/react/24/outline";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { getCsrfToken } from "next-auth/react";
@@ -41,7 +49,7 @@ export default function Profile() {
     })();
 
     if (status === "loading") return;
-    if (session?.user?.accessToken) {
+    if (session?.user.accessToken) {
       void fetchUserProfile();
     } else {
       router.push("/signup?mode=login&next=" + pathname);
@@ -70,9 +78,9 @@ export default function Profile() {
     e.preventDefault();
     setError("");
     const formData = new FormData(e.currentTarget);
-    const imageFile = formData.get("avatar") as File;
+    const imageFile = formData.get("avatar");
 
-    if (imageFile && imageFile.size > 0) {
+    if (imageFile instanceof File && imageFile.size > 0) {
       // Validate file type
       if (!ALLOWED_FILE_TYPES.includes(imageFile.type)) {
         setError("Please upload a valid image file (JPG, JPEG, PNG, GIF, or WebP)");
@@ -110,7 +118,7 @@ export default function Profile() {
   }
 
   function linkAccount(provider: string) {
-    if (!session?.user?.accessToken) {
+    if (!session?.user.accessToken) {
       console.error("[Profile] No session token found, can't link account");
       return;
     }
@@ -121,7 +129,7 @@ export default function Profile() {
   async function updateSetting(checked: boolean, settingOption: string) {
     const updatedSettings: SettingUserType = {
       ...profileData?.settings,
-      [settingOption]: checked
+      [settingOption]: checked,
     };
     try {
       const jsonData = { settings: updatedSettings };
@@ -134,20 +142,33 @@ export default function Profile() {
 
   function renderEditProfile() {
     return (
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={(e) => {
+          void handleSubmit(e);
+        }}
+      >
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           <Avatar className="h-24 w-24">
             {/* If avatar from backend is present, use it. Otherwise fallback. */}
             {profileData?.avatar ? (
               <AvatarImage src={profileData.avatar} alt="User avatar" />
             ) : (
-              <AvatarFallback className="AvatarFallback">{(profileData?.email ?? session?.user.email ?? "H")[0].toUpperCase()}</AvatarFallback>
+              <AvatarFallback className="AvatarFallback">
+                {(profileData?.email ?? session?.user.email ?? "H")[0].toUpperCase()}
+              </AvatarFallback>
             )}
           </Avatar>
           <div className="space-y-1 text-center sm:text-left">
             <div className="grid gap-2">
               <Label htmlFor="avatar">Profile Picture</Label>
-              <Input id="avatar" name="avatar" type="file" accept="image/*" className="cursor-pointer" aria-label="Profile picture" />
+              <Input
+                id="avatar"
+                name="avatar"
+                type="file"
+                accept="image/*"
+                className="cursor-pointer"
+                aria-label="Profile picture"
+              />
             </div>
           </div>
         </div>
@@ -158,14 +179,20 @@ export default function Profile() {
               id="name"
               name="name"
               // If the backend sets top-level name, use it. Fallback to "Anon".
-              defaultValue={profileData?.name || "Anon"}
+              defaultValue={profileData?.name ?? "Anon"}
               aria-label="Full name"
               required
             />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="phoneNumber">Phone</Label>
-            <Input id="phoneNumber" name="phoneNumber" defaultValue={profileData?.phoneNumber || ""} type="tel" aria-label="Phone number" />
+            <Input
+              id="phoneNumber"
+              name="phoneNumber"
+              defaultValue={profileData?.phoneNumber ?? ""}
+              type="tel"
+              aria-label="Phone number"
+            />
           </div>
         </div>
         <div>
@@ -174,79 +201,101 @@ export default function Profile() {
       </form>
     );
   }
-  
+
   function renderLinkedAccounts() {
     if (!profileData || !Array.isArray(profileData.linkedAccounts)) return null;
-  
+
     // If no linked accounts, show both link buttons
     if (profileData.linkedAccounts.length === 0) {
       return (
         <div className="mt-4">
           <p className="text-muted-foreground text-sm mb-2">No social accounts linked.</p>
           <div className="flex space-x-2">
-            <Button variant="outline" size="sm" onClick={() => linkAccount("google")}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                linkAccount("google");
+              }}
+            >
               Link Google
             </Button>
-            <Button variant="outline" size="sm" onClick={() => linkAccount("discord")}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                linkAccount("discord");
+              }}
+            >
               Link Discord
             </Button>
           </div>
         </div>
       );
     }
-  
+
     // Some accounts are linked => show them in a friendlier format
     return (
       <div className="mt-4 space-y-2">
-      {profileData.linkedAccounts.map((acct: any, idx: number) => {
-        // Attempt to extract a "friendly" display name
-        let displayName = "";
-        if (acct.provider === "google" && acct.providerProfile?.name) {
-          displayName = acct.providerProfile.name;
-        } else if (acct.provider === "discord" && acct.providerProfile?.username) {
-          displayName = acct.providerProfile.username;
-        } else {
-          // fallback to email/sub if available
-          displayName =
-            acct.providerProfile?.email ||
-            acct.providerProfile?.sub ||
-            acct.provider;
-        }
+        {profileData.linkedAccounts.map((acct, idx: number) => {
+          // Attempt to extract a "friendly" display name
+          let displayName = "";
+          if (acct.provider === "google" && acct.providerProfile.name) {
+            displayName = acct.providerProfile.name;
+          } else if (acct.provider === "discord" && acct.providerProfile.username) {
+            displayName = acct.providerProfile.username;
+          } else if (acct.provider === "google") {
+            displayName = acct.providerProfile.sub
+              ? acct.providerProfile.sub
+              : acct.providerProfile.email;
+          } else {
+            // For Discord, username is required; no fallback is applied
+            displayName = acct.providerProfile.username;
+          }
 
-        // Attempt to extract an avatar/picture if available
-        let avatarUrl = "";
-        if (acct.provider === "google" && acct.providerProfile?.picture) {
-          avatarUrl = acct.providerProfile.picture;
-        } else if (acct.provider === "discord" && acct.providerProfile?.avatar) {
-          // For Discord, the raw avatar field is just an ID. You might need to build the URL:
-          // e.g. `https://cdn.discordapp.com/avatars/<userId>/<avatarId>.png`
-          // But as an example:
-          avatarUrl = "";
-        }
+          // Attempt to extract an avatar/picture if available
+          let avatarUrl = "";
+          if (acct.provider === "google" && acct.providerProfile.picture) {
+            avatarUrl = acct.providerProfile.picture;
+          } else if (acct.provider === "discord" && acct.providerProfile.avatar) {
+            // For Discord, the raw avatar field is just an ID. You might need to build the URL:
+            // e.g. `https://cdn.discordapp.com/avatars/<userId>/<avatarId>.png`
+            // But as an example:
+            avatarUrl = "";
+          }
 
-        return (
-          <div key={idx} className="flex items-center space-x-3">
-            {avatarUrl ? 
-              <img
-                src={avatarUrl}
-                alt={`${acct.provider} avatar`}
-                className="h-6 w-6 rounded-full"
-              /> : null}
-            <p className="text-sm font-medium capitalize">{acct.provider}</p>
-            <p className="text-sm text-muted-foreground">{displayName}</p>
-          </div>
-        );
-})}
+          return (
+            <div key={idx} className="flex items-center space-x-3">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={`${acct.provider} avatar`} className="h-6 w-6 rounded-full" />
+              ) : null}
+              <p className="text-sm font-medium capitalize">{acct.provider}</p>
+              <p className="text-sm text-muted-foreground">{displayName}</p>
+            </div>
+          );
+        })}
 
         {/* If user only has Google => show "Link Discord", etc. */}
         <div className="flex space-x-2 pt-2">
-          {!profileData.linkedAccounts.some((a: any) => a.provider === "google") && (
-            <Button variant="outline" size="sm" onClick={() => linkAccount("google")}>
+          {!profileData.linkedAccounts.some((account) => account.provider === "google") && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                linkAccount("google");
+              }}
+            >
               Link Google
             </Button>
           )}
-          {!profileData.linkedAccounts.some((a: any) => a.provider === "discord") && (
-            <Button variant="outline" size="sm" onClick={() => linkAccount("discord")}>
+          {!profileData.linkedAccounts.some((account) => account.provider === "discord") && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                linkAccount("discord");
+              }}
+            >
               Link Discord
             </Button>
           )}
@@ -265,7 +314,9 @@ export default function Profile() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Profile Settings</h1>
-                <p className="text-sm text-muted-foreground">Manage your account settings and preferences</p>
+                <p className="text-sm text-muted-foreground">
+                  Manage your account settings and preferences
+                </p>
               </div>
               <Button
                 variant="outline"
@@ -300,13 +351,22 @@ export default function Profile() {
                         {profileData?.avatar ? (
                           <AvatarImage src={profileData.avatar} alt="User avatar" />
                         ) : (
-                          <AvatarFallback className="AvatarFallback">{(profileData?.email ?? session?.user.email ?? "H")[0].toUpperCase()}</AvatarFallback>
+                          <AvatarFallback className="AvatarFallback">
+                            {(profileData?.email ?? session?.user.email ?? "H")[0].toUpperCase()}
+                          </AvatarFallback>
                         )}
                       </Avatar>
                       <div className="space-y-1 text-center sm:text-left">
-                        <h3 className="text-2xl font-semibold">{profileData?.name || profileData?.emails?.[0]?.email || session?.user.email || "John Doe"}</h3>
+                        <h3 className="text-2xl font-semibold">
+                          {profileData?.name ??
+                            profileData?.emails?.[0]?.email ??
+                            session?.user.email ??
+                            "John Doe"}
+                        </h3>
                         <p className="text-sm text-muted-foreground">{profileData?.email}</p>
-                        <p className="text-sm text-muted-foreground">{profileData?.phoneNumber || "+1 (555) 000-0000"}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {profileData?.phoneNumber ?? "+1 (555) 000-0000"}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -327,21 +387,27 @@ export default function Profile() {
                 <CardHeader>
                   <CardTitle>Notifications</CardTitle>
                   <CardDescription>Manage your notification preferences.</CardDescription>
-                  {updatedProfile ? <p className="text-sm text-primary font-semibold">Profile setting updated successfully.</p> : null}
+                  {updatedProfile ? (
+                    <p className="text-sm text-primary font-semibold">
+                      Profile setting updated successfully.
+                    </p>
+                  ) : null}
                   <span></span>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <Label htmlFor="email-notifications">Email Notifications</Label>
-                      <p className="text-sm text-muted-foreground">Receive email updates about your account</p>
+                      <p className="text-sm text-muted-foreground">
+                        Receive email updates about your account
+                      </p>
                     </div>
                     <Switch
                       id="email-notifications"
                       defaultChecked={profileData?.settings?.emailNotification ?? true}
                       aria-label="Toggle email notifications"
                       onCheckedChange={(checked) => {
-                        updateSetting(checked, "emailNotification");
+                        void updateSetting(checked, "emailNotification");
                       }}
                     />
                   </div>
@@ -358,7 +424,7 @@ export default function Profile() {
                       defaultChecked={profileData?.settings?.marketingEmails ?? false}
                       aria-label="Toggle marketing emails"
                       onCheckedChange={(checked) => {
-                        updateSetting(checked, "marketingEmails");
+                        void updateSetting(checked, "marketingEmails");
                       }}
                     />
                   </div>
@@ -366,14 +432,16 @@ export default function Profile() {
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <Label htmlFor="security-alerts">Security Alerts</Label>
-                      <p className="text-sm text-muted-foreground">Get notified about security updates</p>
+                      <p className="text-sm text-muted-foreground">
+                        Get notified about security updates
+                      </p>
                     </div>
                     <Switch
                       id="security-alerts"
                       defaultChecked={profileData?.settings?.securityAlerts ?? false}
                       aria-label="Toggle security alerts"
                       onCheckedChange={(checked) => {
-                        updateSetting(checked, "securityAlerts");
+                        void updateSetting(checked, "securityAlerts");
                       }}
                     />
                   </div>
