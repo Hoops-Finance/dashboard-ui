@@ -2,11 +2,16 @@ import type { Config } from "tailwindcss";
 import tailwindAnimate from "tailwindcss-animate";
 
 const config: Config = {
-  darkMode: ["class", "class"], // Enable class-based dark mode
+  darkMode: ["class"],
   content: [
-    "**/*.{js,ts,jsx,tsx,mdx}", // Include all relevant files
-    "!node_modules/**/*", // Exclude node_modules
-    "!dist/**/*" // Exclude dist/build folders
+    "**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+    "*.{js,ts,jsx,tsx,mdx}",
+    "!node_modules/**/*",
+    "!dist/**/*"
   ],
   theme: {
     extend: {
@@ -18,23 +23,22 @@ const config: Config = {
         yellow: { DEFAULT: "#F7D423" },
         black: { DEFAULT: "#0F0F0F" },
         purple: { DEFAULT: "#B7A7E5" },
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))"
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))"
-        },
         primary: {
-          DEFAULT: "hsl(var(--primary))",
+          DEFAULT: "#FDB514",
           foreground: "hsl(var(--primary-foreground))"
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))"
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))"
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -44,13 +48,15 @@ const config: Config = {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))"
         },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))"
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))"
         },
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))"
+        },
+        success: "#00ff00",
         chart: {
           1: "hsl(var(--chart-1))",
           2: "hsl(var(--chart-2))",
