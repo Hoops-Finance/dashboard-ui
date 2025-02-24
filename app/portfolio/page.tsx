@@ -1052,7 +1052,8 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
               <option value="">Select a pair</option>
               {limitedPairs.map((pr) => (
                 <option key={pr.id} value={pr.id}>
-                  {pr.token0Details.symbol}/{pr.token1Details.symbol} ({pr.protocol})
+                  {pr.token0Details ? pr.token0Details.symbol : pr.token0}/
+                  {pr.token1Details ? pr.token1Details.symbol : pr.token1} ({pr.protocol})
                 </option>
               ))}
             </select>
@@ -1078,7 +1079,8 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
                   >
                     <div className="flex-1">
                       <p className="text-sm text-foreground">
-                        {pr.token0Details.symbol}/{pr.token1Details.symbol} ({pr.protocol}) &nbsp;
+                        {pr.token0Details ? pr.token0Details.symbol : pr.token0}/
+                        {pr.token1Details ? pr.token1Details.symbol : pr.token1} ({pr.protocol}) &nbsp;
                         <span className="text-xs text-muted-foreground">{pr.id}</span>
                       </p>
                       <input

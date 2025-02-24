@@ -8,8 +8,8 @@ const API_KEY = process.env.SXX_API_KEY;
 interface ErrorResponse {
   error: string;
 }
-export async function GET(request: NextRequest, { params }: { params: { token0: string } }) {
-  let { token0 } = params;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ token0: string }> }) {
+  let { token0 } = await params;
 
   // Normalize token name by replacing ":" with "-"
   if (token0 === "xlm" || token0 === "native") {

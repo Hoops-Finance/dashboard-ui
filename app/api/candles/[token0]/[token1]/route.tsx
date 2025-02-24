@@ -9,9 +9,9 @@ const API_KEY = process.env.SXX_API_KEY;
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { token0: string; token1: string } },
+  { params }: { params: Promise<{ token0: string; token1: string }> },
 ) {
-  let { token0, token1 } = params;
+  let { token0, token1 } = await params;
 
   if (token0.toLowerCase() === "xlm" || token0.toLowerCase() === "native") {
     token0 = "XLM";

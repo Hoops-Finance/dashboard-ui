@@ -25,7 +25,7 @@ import { UserProfile } from "@/utils/types";
 import { updateProfileService } from "@/services/profile.service.ts";
 import { SettingUserType } from "@/types/user.ts";
 import { convertToBase64 } from "@/utils/files.ts";
-
+import Image from "next/image";
 const MAX_FILE_SIZE = 300 * 1024; // 300KB
 const ALLOWED_FILE_TYPES = ["image/jpg", "image/jpeg", "image/png", "image/gif", "image/webp"];
 
@@ -267,7 +267,11 @@ export default function Profile() {
           return (
             <div key={idx} className="flex items-center space-x-3">
               {avatarUrl ? (
-                <img src={avatarUrl} alt={`${acct.provider} avatar`} className="h-6 w-6 rounded-full" />
+                <Image
+                  src={avatarUrl}
+                  alt={`${acct.provider} avatar`}
+                  className="h-6 w-6 rounded-full"
+                />
               ) : null}
               <p className="text-sm font-medium capitalize">{acct.provider}</p>
               <p className="text-sm text-muted-foreground">{displayName}</p>

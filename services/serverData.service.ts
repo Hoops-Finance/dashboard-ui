@@ -152,37 +152,6 @@ export async function fetchCoreData(): Promise<{
 }
 
 /**
- * fetchCandles => local route for candle data (unchanged)
- * (You can still use /api/candles internally if desired)
- */
-export async function fetchCandles(
-  token0: string,
-  token1: string | null,
-  from: number,
-  to: number,
-): Promise<TransformedCandleData[]> {
-  const normalize = (t: string): string =>
-    t.toLowerCase() === "xlm" || t.toLowerCase() === "native" ? "XLM" : t.replace(/:/g, "-");
-
-  const t0 = normalize(token0);
-  let endpoint: string;
-  if (token1) {
-    const t1 = normalize(token1);
-    endpoint = `/api/candles/${t0}/${t1}?from=${from}&to=${to}`;
-  } else {
-    endpoint = `/api/candles/${t0}?from=${from}&to=${to}`;
-  }
-
-  console.log("[fetchCandles] local route =>", endpoint);
-  const res = await fetch(endpoint);
-  if (!res.ok) {
-    console.error("[fetchCandles] local route fetch failed with status:", res.status);
-    throw new Error(`Failed to fetch Candles. Status: ${res.status}`);
-  }
-  return (await res.json()) as TransformedCandleData[];
-}
-
-/**
  * Candle cache & concurrency lock
  * We'll store them as: candleJsonCache[asset][resolution]
  */
@@ -246,6 +215,13 @@ function mergeCandleArrays(
 }
 
 /**
+ * snapCandle => force candle's time to align with the chosen resolution
+ */
+function snapCandle(candle: TransformedCandleData, resolution: number): TransformedCandleData {
+  return { ...candle, time: snapDown(candle.time as number, resolution) as UTCTimestamp };
+}
+
+/**
  * snapDown => snaps 'val' down to nearest multiple of 'step'
  */
 function snapDown(ts: number, step: number): number {
@@ -289,7 +265,7 @@ let lastApiCallTime = 0;
  */
 async function waitForRateLimit(): Promise<void> {
   const now = Date.now();
-  const gap = 450;
+  const gap = 3000;
   const wait = lastApiCallTime + gap - now;
   if (wait > 0) {
     console.log("[waitForRateLimit] sleeping for", wait, "ms");
@@ -300,8 +276,27 @@ async function waitForRateLimit(): Promise<void> {
 
 // Normalize tokens: if token is "native" or "xlm", return "XLM", else replace ':' with '-'
 export function normalizeToken(s: string): string {
-  if (!s) return "XLM";
-  if (s.toLowerCase() === "native" || s.toLowerCase() === "xlm") return "XLM";
+  const contractPattern = /^C[A-Z0-9]{55}$/;
+  const XLM_CONTRACT = "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA";
+
+  // If the entire string is the special XLM contract (case-insensitive), return "XLM"
+  if (s.toUpperCase() === XLM_CONTRACT) return "XLM";
+
+  // If the token is exactly "native" or "xlm" (case-insensitive), return "XLM"
+  const lower = s.toLowerCase();
+  if (lower === "native" || lower === "xlm") return "XLM";
+
+  // Split the token on both ":" and "-" and check each segment.
+  const parts = s.split(/[:\-]/);
+  for (const part of parts) {
+    const trimmed = part.trim();
+    if (contractPattern.test(trimmed)) {
+      if (trimmed === XLM_CONTRACT) return "XLM"; // Special case for XLM contract
+      return trimmed;
+    }
+  }
+
+  // If no valid contract address is found, replace colons with dashes.
   return s.replace(/:/g, "-");
 }
 
@@ -442,6 +437,18 @@ export async function fetchCandlesWithCacheAndRateLimit(
 
     // Set the initial cursor.
     let cursor = Math.max(haveMax + resolution, snappedFrom);
+    // -------------------------------------------------------------------
+    //  If there's fewer than 5 intervals' worth of new data between haveMax and originalTo,
+    //  we skip external fetch to avoid small, frequent calls.
+    //  -------------------------------------------------------------------
+    if (originalTo - haveMax < resolution * 5) {
+      console.log("[fetchCandlesWithCacheAndRateLimit] Not enough new intervals => skipping fetch");
+      const finalSubset = existing.filter((candle) => {
+        const timestamp = candle.time as number;
+        return timestamp >= originalFrom && timestamp <= originalTo;
+      });
+      return finalSubset;
+    }
 
     // Fetch new chunks until we've covered the requested time range.
     while (cursor <= originalTo) {
@@ -466,7 +473,8 @@ export async function fetchCandlesWithCacheAndRateLimit(
         console.log("[fetchCandlesWithCacheAndRateLimit] => no new data => done");
         break;
       }
-
+      // snap the candles to align.
+      chunk = chunk.map((c) => snapCandle(c, resolution));
       // Merge the new chunk with the cached data.
       const beforeCount = existing.length;
       existing = mergeCandleArrays(existing, chunk);
@@ -546,89 +554,268 @@ async function saveTokenInfoCache(): Promise<void> {
   }
 }
 
+async function buildBasicDetails(localToken: Token, assetIdentifier: string): Promise<AssetDetails> {
+  const basicDetails: AssetDetails = {
+    asset: assetIdentifier,
+    contract: localToken.id,
+    toml_info: {
+      code: localToken.symbol,
+      issuer: localToken.id, // later the issuer should probably be the address that deployed the pool i'm not sure. for now it's just it's self.
+      name: localToken.name,
+      image: localToken.logoUrl ?? "",
+      anchorAssetType: "",
+      anchorAsset: "",
+      orgName: "",
+      orgLogo: "",
+    },
+  };
+  return basicDetails;
+}
+
+async function getToken(assetIdentifier: string, tokens: Token[]): Promise<Token> {
+  try {
+    const contractPattern = /^C[A-Z0-9]{55}$/;
+    const XLM_CONTRACT = "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA";
+    const trimmed = assetIdentifier.trim();
+
+    // Step 0: If the entire string equals "xlm", "native", or the XLM contract address.
+    if (
+      trimmed.toLowerCase() === "xlm" ||
+      trimmed.toLowerCase() === "native" ||
+      trimmed.toUpperCase() === XLM_CONTRACT
+    ) {
+      const xlmToken = tokens.find((token) => token.id.toUpperCase() === XLM_CONTRACT);
+      if (xlmToken) return xlmToken;
+    }
+
+    // Step 1: Split the identifier on ":" or "-" and trim each part.
+    const parts = trimmed.split(/[:\-]/).map((p) => p.trim());
+
+    // Step 2: If any part equals "xlm", "native", or the XLM contract address, return the XLM token.
+    if (
+      parts.some(
+        (part) =>
+          part.toLowerCase() === "xlm" ||
+          part.toLowerCase() === "native" ||
+          part.toUpperCase() === XLM_CONTRACT,
+      )
+    ) {
+      const xlmToken = tokens.find((token) => token.id.toUpperCase() === XLM_CONTRACT);
+      if (xlmToken) return xlmToken;
+    }
+
+    // Step 3: Direct match on the entire identifier against token.id or token.name.
+    let foundToken = tokens.find(
+      (token) =>
+        token.id.toUpperCase() === trimmed.toUpperCase() ||
+        token.name.toLowerCase() === trimmed.toLowerCase(),
+    );
+    if (foundToken) return foundToken;
+
+    // Step 4: Look for a valid contract candidate in the split parts.
+    const contractCandidate = parts.find((part) => contractPattern.test(part.toUpperCase()));
+    if (contractCandidate) {
+      foundToken = tokens.find((token) => token.id.toUpperCase() === contractCandidate.toUpperCase());
+      if (foundToken) return foundToken;
+    }
+
+    // Step 5: If there are exactly 2 parts, assume symbol and issuer format.
+    if (parts.length === 2) {
+      const normalizedAssetName = parts.join("-").toLowerCase();
+      foundToken = tokens.find(
+        (token) => token.name.replace(/:/g, "-").toLowerCase() === normalizedAssetName,
+      );
+      if (foundToken) return foundToken;
+    } else {
+      // Step 6: Otherwise, normalize the entire identifier by replacing colons with dashes.
+      const normalizedAssetIdentifier = trimmed.replace(/:/g, "-").toLowerCase();
+      foundToken = tokens.find(
+        (token) => token.name.replace(/:/g, "-").toLowerCase() === normalizedAssetIdentifier,
+      );
+      if (foundToken) return foundToken;
+    }
+
+    console.log(`[fetchTokenDetailsWithCache] No matching token found for ${assetIdentifier}`);
+    throw new Error(`No matching token found for ${assetIdentifier}`);
+  } catch (error) {
+    console.warn(`[fetchTokenDetailsWithCache] Error finding token: ${error}`);
+    throw error;
+  }
+}
+
+async function mergeTokenDetails(localToken: Token, externalData: AssetDetails): Promise<AssetDetails> {
+  // Merge localToken info.
+  console.log(`[fetchTokenDetailsWithCache] Merging local data for ${localToken.name}`);
+  if ((externalData.price == null || externalData.price === 0) && localToken.price > 0) {
+    externalData.price = localToken.price;
+    console.log(
+      `[fetchTokenDetailsWithCache] Using local price for ${localToken.name}: ${localToken.price}`,
+    );
+  }
+  if (!externalData.toml_info) {
+    externalData.toml_info = {
+      code: localToken.symbol,
+      issuer: "",
+      name: localToken.name,
+      image: localToken.logoUrl ?? "",
+      anchorAssetType: "",
+      anchorAsset: "",
+      orgName: "",
+      orgLogo: "",
+    };
+    console.log(`[fetchTokenDetailsWithCache] Created basic toml_info for ${localToken.name}`);
+  }
+  return externalData;
+}
+
 /**
  * fetchTokenDetailsWithCache => optional HEAD-based check or GET
  */
-export async function fetchTokenDetailsWithCache(
-  asset: string,
-  headMode?: boolean,
-): Promise<AssetDetails | boolean | null> {
-  const normalized =
-    asset.toLowerCase() === "native" || asset.toLowerCase() === "xlm" ? "XLM" : asset.replace(/:/g, "-");
+export async function fetchTokenDetailsWithCache(asset: string, tokens: Token[]): Promise<AssetDetails> {
+  // Normalize asset string: if "native" or "xlm", return "XLM", else replace ':' with '-'
+  const assetIdentifier = normalizeToken(asset);
+  console.log(`[fetchTokenDetailsWithCache] Normalized asset: ${asset} => ${assetIdentifier}`); // log if there was a change.
 
-  await loadTokenInfoCache();
+  const localToken = await getToken(assetIdentifier, tokens);
+  console.log(
+    `[fetchTokenDetailsWithCache] Found raw token info from db: ${localToken.name} (${localToken.id})`,
+  );
+  console.log(`[fetchTokenDetailsWithCache] Local token info: ${JSON.stringify(localToken)}`);
 
-  if (headMode) {
-    const c = tokenInfoCache?.[normalized];
-    if (c) {
-      const ageMs = Date.now() - c.fetchedAt;
-      console.log(
-        `[fetchTokenDetailsWithCache] HEAD => already have cache for ${normalized}, age=${ageMs}ms => skipping HEAD`,
-      );
-      return true;
-    }
-    const url = `https://app.hoops.finance/api/tokeninfo/${normalized}`;
-    console.log("[fetchTokenDetailsWithCache] HEAD =>", url);
-    await waitForRateLimit();
-    let headRes: Response;
-    try {
-      headRes = await fetch(url, { method: "HEAD" });
-    } catch (err) {
-      console.error("[fetchTokenDetailsWithCache] HEAD => error => skip route", err);
-      return false;
-    }
-    if (!headRes.ok) {
-      if (headRes.status === 404) {
-        console.warn("[fetchTokenDetailsWithCache] HEAD => 404 => skip");
-        return false;
-      } else if (headRes.status === 429 || headRes.status === 503) {
-        console.warn(
-          `[fetchTokenDetailsWithCache] HEAD => ${headRes.status} => waiting 60s then proceed`,
-        );
-        await new Promise((r) => setTimeout(r, 60000));
-        return true;
-      }
-      console.warn("[fetchTokenDetailsWithCache] HEAD => Not 200:", headRes.status, "=> skip");
-      return false;
-    }
-    return true;
+  // Check for tokens that we know won't have external token details, derive them from what we can currently get, then return that info.
+  if (
+    localToken.name.includes("Pool Share Token") ||
+    localToken.symbol.toUpperCase().includes("POOL") ||
+    localToken.name.toLowerCase().includes("LP Token")
+  ) {
+    console.log(
+      `[fetchTokenDetailsWithCache] Skipping external fetch for ${localToken.name} (${localToken.id}) as it has no details.`,
+    );
+    console.log(`[fetchTokenDetailsWithCache] Returning basic details for ${localToken.name}`);
+    const basicDetails = await buildBasicDetails(localToken, assetIdentifier);
+    return basicDetails;
   }
 
+  // Load the cache from disk (if not already loaded)
+  await loadTokenInfoCache();
   if (!tokenInfoCache) {
     tokenInfoCache = {};
+    console.log(`[fetchTokenDetailsWithCache] Initialized New tokenInfoCache`);
   }
+  console.log(
+    `[fetchTokenDetailsWithCache] Initialized tokenInfoCache with ${JSON.stringify(tokenInfoCache).length} entries`,
+  );
 
-  const existing = tokenInfoCache[normalized];
+  const cacheHit = tokenInfoCache[assetIdentifier];
   const now = Date.now();
   const oneDayMs = 24 * 60 * 60 * 1000;
-  if (existing) {
-    const age = now - existing.fetchedAt;
+
+  if (cacheHit) {
+    const age = now - cacheHit.fetchedAt;
     if (age < oneDayMs) {
-      console.log(`[fetchTokenDetailsWithCache] using cached data for ${normalized}, age=${age}ms`);
-      return existing.data;
+      console.log(`[fetchTokenDetailsWithCache] using cacheHit for ${assetIdentifier}, age=${age}ms`);
+      return cacheHit.data;
+    } else {
+      console.log(`[fetchTokenDetailsWithCache] expired cacheHit for ${assetIdentifier}, age=${age}ms`);
     }
   }
 
-  const url = `https://app.hoops.finance/api/tokeninfo/${normalized}`;
-  console.log("[fetchTokenDetailsWithCache] GET =>", url);
+  // update the cache if we must.
+  // Build the URL for a GET request using the assetIdentifier.
+  const url = `https://app.hoops.finance/api/tokeninfo/${assetIdentifier}`;
+  console.log(`[fetchTokenDetailsWithCache] GET => ${url}`);
   await waitForRateLimit();
 
   let res: Response;
   try {
     res = await fetch(url);
+    console.log(`[fetchTokenDetailsWithCache] Received response with status ${res.status}`);
   } catch (err) {
-    console.error("[fetchTokenDetailsWithCache] GET => error => returning false:", err);
-    return false;
+    console.error("[fetchTokenDetailsWithCache] GET => error:", err);
+    console.log("[fetchTokenDetailsWithCache] Attempting fallback...");
+    return await tryFallback(asset, tokens, assetIdentifier, now);
+  }
+  while (res.status === 429) {
+    console.warn("[fetchTokenDetailsWithCache] => got 429 => waiting 60s...");
+    await new Promise((r) => setTimeout(r, 62000));
+    console.warn("[fetchTokenDetailsWithCache] => continuing fallback after 429 wait");
+    // it needs to refetch til it's not.
+    res = await fetch(url);
   }
   if (!res.ok) {
-    console.warn("[fetchTokenDetailsWithCache] GET => not 200, status=", res.status);
-    return false;
+    // handle other errors here
+    console.warn(`[fetchTokenDetailsWithCache] GET => not 200, status= ${res.status} on url ${url}`);
+    console.log("[fetchTokenDetailsWithCache] Attempting fallback due to non-200 response...");
+    return await tryFallback(asset, tokens, assetIdentifier, now);
   }
-  const data = (await res.json()) as AssetDetails;
-  tokenInfoCache[normalized] = { data, fetchedAt: now };
-  await saveTokenInfoCache();
 
-  return data;
+  // Successful GET: parse external data.
+  const externalData = (await res.json()) as AssetDetails;
+  console.log(
+    `[fetchTokenDetailsWithCache] External data fetched for ${assetIdentifier}:`,
+    externalData,
+  );
+  const newData = await mergeTokenDetails(localToken, externalData);
+
+  tokenInfoCache[assetIdentifier] = { data: newData, fetchedAt: now };
+  // this should actually like upsert the existing cache but whatever for now it's fine.
+  await saveTokenInfoCache();
+  console.log(`[fetchTokenDetailsWithCache] Cached external data for ${assetIdentifier}`);
+  return newData;
+}
+
+/**
+ * tryFallback: if the external GET fails, try using the local token info to generate basic details.
+ */
+async function tryFallback(
+  asset: string,
+  tokens: Token[],
+  assetIdentifier: string,
+  now: number,
+): Promise<AssetDetails> {
+  console.error(
+    "[fetchTokenDetailsWithCache] Fallback: External fetch failed, trying local token info.",
+    asset,
+    assetIdentifier,
+  );
+  const contractPattern = /^C[A-Z0-9]{55}$/;
+  const parts = assetIdentifier.split(/[:\-]/); // splits on both ":" and "-"
+  if (parts.length > 1 && contractPattern.test(parts[-1])) {
+    asset = parts[-1];
+  }
+  const localToken = tokens.find(
+    (token) =>
+      token.id === asset ||
+      token.id === assetIdentifier ||
+      token.name === asset ||
+      normalizeToken(token.name) === assetIdentifier,
+  );
+  if (!localToken) {
+    console.warn("[fetchTokenDetailsWithCache] Fallback: No matching local token found.");
+    throw new Error(`No matching local token found. for ${assetIdentifier} (${asset})`);
+  }
+  console.log(
+    `[fetchTokenDetailsWithCache] Fallback: Generating basic details for ${localToken.name} (${localToken.id}).`,
+  );
+  const basicDetails: AssetDetails = {
+    asset: assetIdentifier,
+    contract: localToken.id,
+    toml_info: {
+      code: localToken.symbol,
+      issuer: localToken.id,
+      name: localToken.name,
+      image: localToken.logoUrl ?? "",
+      anchorAssetType: "",
+      anchorAsset: "",
+      orgName: "",
+      orgLogo: "",
+    },
+  };
+  if (tokenInfoCache) {
+    tokenInfoCache[assetIdentifier] = { data: basicDetails, fetchedAt: now };
+    await saveTokenInfoCache();
+  }
+  return basicDetails;
 }
 
 /**
@@ -673,149 +860,41 @@ export function buildPoolRoute(
 }
 
 /**
- * We track a "lastCallTime" so we ensure at least 350ms => ~3 calls/sec
- */
-let lastCallTime2 = 0;
-
-/**
- * Global in-memory cache (keyed by <token0>:<token1>:<from>:<to>)
- * for the older approach
- */
-const cache = new Map<string, Promise<TransformedCandleData[]>>();
-
-/**
- * [EXPORTED] fetchCandlesWithRateLimit => older approach (unchanged).
- */
-export async function fetchCandlesWithRateLimit(
-  token0: string,
-  token1: string | null,
-  from: number,
-  to: number,
-): Promise<TransformedCandleData[]> {
-  const cacheKey = `${token0}:${token1 ?? "null"}:${from}:${to}`;
-  if (cache.has(cacheKey)) {
-    console.log("[fetchCandlesWithRateLimit] cache hit for", cacheKey);
-    const cachedPromise = cache.get(cacheKey);
-    if (cachedPromise !== undefined) {
-      return cachedPromise;
-    }
-  }
-  console.log("[fetchCandlesWithRateLimit] cache miss for", cacheKey);
-
-  const promise = (async () => {
-    const now = Date.now();
-    const gap = 350;
-    const wait = lastCallTime2 + gap - now;
-    if (wait > 0) {
-      console.log("[fetchCandlesWithRateLimit] sleeping", wait, "ms for rate-limit");
-      await new Promise((r) => setTimeout(r, wait));
-    }
-    lastCallTime2 = Date.now();
-
-    let attempts = 3;
-    while (attempts > 0) {
-      try {
-        const data = await fetchCandlesFromServer(token0, token1, from, to);
-        console.log(
-          "[fetchCandlesWithRateLimit] fetched",
-          data.length,
-          "candles from server for",
-          token0,
-          token1,
-        );
-        return data;
-      } catch (err: unknown) {
-        const e = err as Error;
-        console.warn("[fetchCandlesWithRateLimit] fetch attempt failed:", e.message);
-        if (e.message.includes("status=429") || e.message.includes("status=503")) {
-          attempts--;
-          if (attempts > 0) {
-            console.log("[fetchCandlesWithRateLimit] retrying after 1s...");
-            await new Promise((r) => setTimeout(r, 1000));
-            continue;
-          }
-        }
-        console.error("[fetchCandlesWithRateLimit] final error => returning empty array:", e);
-        return [];
-      }
-    }
-    return [];
-  })();
-
-  cache.set(cacheKey, promise);
-
-  promise.catch(() => {
-    cache.delete(cacheKey);
-  });
-
-  return promise;
-}
-
-/**
- * fetchCandlesFromServer => direct call with (token0, token1, from, to)
- * used by fetchCandlesWithRateLimit
- */
-export async function fetchCandlesFromServer(
-  token0: string,
-  token1: string | null,
-  from: number,
-  to: number,
-): Promise<TransformedCandleData[]> {
-  const API_BASE = process.env.SXX_API_BASE ?? "";
-  const API_KEY = process.env.SXX_API_KEY ?? "";
-
-  function normalizeToken(s: string): string {
-    if (!s) return "XLM";
-    if (s.toLowerCase() === "native" || s.toLowerCase() === "xlm") return "XLM";
-    return s.replace(/:/g, "-");
-  }
-
-  const t0 = normalizeToken(token0);
-  let fetchUrl: string;
-
-  if (token1) {
-    const t1 = normalizeToken(token1);
-    fetchUrl = `${API_BASE}/explorer/public/market/${t0}/${t1}/candles?from=${from}&to=${to}`;
-  } else {
-    fetchUrl = `${API_BASE}/explorer/public/asset/${t0}/candles?from=${from}&to=${to}`;
-  }
-
-  console.log("[fetchCandlesFromServer] =>", fetchUrl);
-  const response = await fetch(fetchUrl, {
-    headers: { Authorization: `Bearer ${API_KEY}` },
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch candles. URL=${fetchUrl}, status=${response.status}`);
-  }
-
-  const rawData = (await response.json()) as [
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number,
-    number?,
-  ][];
-  return rawData.map((record, index, array) => {
-    const nextOpen = index < array.length - 1 ? array[index + 1][1] : record[1];
-    return {
-      time: record[0] as UTCTimestamp,
-      open: record[1],
-      high: record[2],
-      low: record[3],
-      close: nextOpen,
-      baseVolume: record[4],
-      quoteVolume: record[5],
-      tradesCount: record[6],
-    };
-  });
-}
-
-/**
  * sleep => basic delay
  */
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+/**
+ * fetchCandles => local route for candle data (unchanged)
+ * (You can still use /api/candles internally if desired)
+ */
+/*
+export async function fetchCandles(
+  token0: string,
+  token1: string | null,
+  from: number,
+  to: number,
+): Promise<TransformedCandleData[]> {
+  const normalize = (t: string): string =>
+    t.toLowerCase() === "xlm" || t.toLowerCase() === "native" ? "XLM" : t.replace(/:/g, "-");
+
+  const t0 = normalize(token0);
+  let endpoint: string;
+  if (token1) {
+    const t1 = normalize(token1);
+    endpoint = `/api/candles/${t0}/${t1}?from=${from}&to=${to}`;
+  } else {
+    endpoint = `/api/candles/${t0}?from=${from}&to=${to}`;
+  }
+
+  console.log("[fetchCandles] local route =>", endpoint);
+  const res = await fetch(endpoint);
+  if (!res.ok) {
+    console.error("[fetchCandles] local route fetch failed with status:", res.status);
+    throw new Error(`Failed to fetch Candles. Status: ${res.status}`);
+  }
+  return (await res.json()) as TransformedCandleData[];
+}
+  */

@@ -1,17 +1,24 @@
 // app/tokens/[tokenid]/page.tsx
-import "source-map-support/register";
 
 import { notFound } from "next/navigation";
-import type { AllowedPeriods, CandleDataPoint, VolumeDataPoint } from "@/utils/utilities";
+import {
+  ALL_PERIODS,
+  getTimeRangeForPeriod,
+  hslToHex,
+  sleep,
+  type AllowedPeriods,
+  type CandleDataPoint,
+  type VolumeDataPoint,
+} from "@/utils/utilities";
 import type { AssetDetails, Market, Pair, PoolRiskApiResponseObject, Token } from "@/utils/types";
 
 import {
   fetchCoreData,
   fetchPeriodDataFromServer,
   getPairsForToken,
-  // [ADDED] We now will use fetchTokenDetailsWithCache, fetchCandlesWithCacheAndRateLimit
   fetchTokenDetailsWithCache,
   fetchCandlesWithCacheAndRateLimit,
+  normalizeToken,
 } from "@/services/serverData.service";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,76 +31,77 @@ import ChartComponent from "@/components/ChartComponent";
 import { AlertCircle, ChevronRight } from "lucide-react";
 import { UTCTimestamp } from "lightweight-charts";
 import { Metadata, ResolvingMetadata } from "next";
+import Link from "next/link";
+import { getCachedRoutes } from "@/lib/routeCache";
+import { generatePairRoutes } from "@/app/pools/[protocol]/[pair]/page";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 export const dynamicParams = true;
 
 const validNamePattern = /^[A-Z0-9]+-G[A-Z0-9]{55}$/;
 const validIdPattern = /^C[A-Z0-9]{55}$/;
 
 /** Limit final routes to 10 */
-const MAX_ROUTES = 10;
+const MAX_ROUTES = 1000;
 
-/**
- * generateStaticParams => produce *two* routes if possible:
- *  - contract ID: (C[...])
- *  - token.name (SYMBOL-ISSUER) or "native" if XLM
- */
-
-export async function generateStaticParams() {
+export async function generateTokenRoutes() {
   const { tokens } = await fetchCoreData();
   const routes: { tokenid: string }[] = [];
 
-  // We track added routes to avoid pushing duplicates (e.g. two XLM entries).
   const addedRoutes = new Set<string>();
+  //console.error('[generateStaticParams] tokens', tokens);
 
-  for (const t of tokens) {
-    // (1) Contract route if "C"-ID
-    if (validIdPattern.test(t.id) && !addedRoutes.has(t.id)) {
-      routes.push({ tokenid: t.id });
-      addedRoutes.add(t.id);
+  for (const token of tokens) {
+    console.log("[generateStaticParams] running for", token.name, token.id, token.symbol);
+    // (1) Always add the token id route.
+    if (!addedRoutes.has(token.id)) {
+      console.log("[generateStaticParams] adding contract route", token.id);
+      routes.push({ tokenid: token.id });
+      addedRoutes.add(token.id);
     }
 
-    // (2) XLM => "native"
-    if (t.symbol.toUpperCase() === "XLM" && !addedRoutes.has("native")) {
+    // (2) For XLM, add "native" route.
+    if (token.symbol.toUpperCase() === "XLM" && !addedRoutes.has("native")) {
+      console.log("[generateStaticParams] adding native route");
       routes.push({ tokenid: "native" });
       addedRoutes.add("native");
     }
 
-    // (3) Name-based route if matches "SYMBOL-GISSUER"
-    if (validNamePattern.test(t.name)) {
-      const slug = t.name.replace(/:/g, "-");
-      if (!addedRoutes.has(slug)) {
-        routes.push({ tokenid: slug });
-        addedRoutes.add(slug);
+    // (3) Build an alias route.
+    let alias: string;
+    if (token.symbol.toUpperCase() !== "XLM") {
+      if (token.name.includes(":")) {
+        // If the name contains ":", replace it with "-".
+        alias = token.name.replace(/:/g, "-");
+      } else {
+        // Otherwise, use an alternative alias in case it is a custom token.
+        alias = `${token.symbol}-${token.id}`;
+      }
+      if (!addedRoutes.has(alias)) {
+        console.log("[generateStaticParams] adding alias route", alias);
+        routes.push({ tokenid: alias });
+        addedRoutes.add(alias);
       }
     }
   }
 
-  // Verify routes via HEAD check (fetchTokenDetailsWithCache, headMode=true)
   const verifiedRoutes: { tokenid: string }[] = [];
-  // Keep track so we don't run HEAD on the same normalized asset more than once
   const headCheckedAssets = new Map<string, boolean>();
 
-  for (const r of routes) {
-    const normalized = r.tokenid === "native" ? "XLM" : r.tokenid.replace(/-/g, ":");
+  for (const route of routes) {
+    const tokenIdentifier = normalizeToken(route.tokenid);
 
     // Reuse HEAD result if we already checked this asset
-    if (headCheckedAssets.has(normalized)) {
-      if (headCheckedAssets.get(normalized) === true) {
-        verifiedRoutes.push(r);
+    if (headCheckedAssets.has(tokenIdentifier)) {
+      if (headCheckedAssets.get(tokenIdentifier)) {
+        verifiedRoutes.push(route);
       } else {
-        console.warn("[generateStaticParams] skipping route for", r.tokenid, "(cached HEAD fail)");
+        console.warn(`[generateStaticParams] have cache but failed hit for ${route.tokenid}`);
       }
     } else {
-      const result = await fetchTokenDetailsWithCache(normalized, true);
-      headCheckedAssets.set(normalized, result === true);
-
-      if (result === true) {
-        verifiedRoutes.push(r);
-      } else {
-        console.warn("[generateStaticParams] skipping route for", r.tokenid, "(HEAD fail)");
-      }
+      const result = await fetchTokenDetailsWithCache(tokenIdentifier, tokens);
+      headCheckedAssets.set(tokenIdentifier, true);
+      verifiedRoutes.push(route);
       await sleep(350);
     }
 
@@ -103,8 +111,18 @@ export async function generateStaticParams() {
     }
   }
 
-  console.log("Final verified token routes (limited):", verifiedRoutes);
+  console.log("Final verified token routes:", verifiedRoutes);
   return verifiedRoutes;
+}
+/**
+ * generateStaticParams => produce *two* routes if possible:
+ *  - contract ID: (C[...])
+ *  - token.name (SYMBOL-ISSUER) or "native" if XLM
+ */
+
+export async function generateStaticParams() {
+  const { tokenRoutes } = await getCachedRoutes(generateTokenRoutes, generatePairRoutes);
+  return tokenRoutes;
 }
 
 interface Props {
@@ -120,51 +138,20 @@ export async function generateMetadata(
   return {
     title: `Token: ${tokenid}`,
     description: `Details for token ${tokenid}`,
+    openGraph: {
+      images: [`https://example.com/tokens/${tokenid}/opengraph-image`],
+    },
+    twitter: {
+      images: [`https://example.com/tokens/${tokenid}/opengraph-image`],
+    },
   };
 }
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function getTimeRangeForPeriod(period: AllowedPeriods): { from: number; to: number } {
-  const to = Math.floor(Date.now() / 1000);
-  let from: number;
-  switch (period) {
-    case "24h":
-      from = to - 24 * 3600;
-      break;
-    case "7d":
-      from = to - 7 * 24 * 3600;
-      break;
-    case "14d":
-      from = to - 14 * 24 * 3600;
-      break;
-    case "30d":
-      from = to - 30 * 24 * 3600;
-      break;
-    case "90d":
-      from = to - 90 * 24 * 3600;
-      break;
-    case "180d":
-      from = to - 180 * 24 * 3600;
-      break;
-    case "360d":
-      from = to - 360 * 24 * 3600;
-      break;
-    default:
-      from = to - 14 * 24 * 3600;
-      break;
-  }
-  return { from, to };
-}
-
-const ALL_PERIODS: AllowedPeriods[] = ["24h", "7d", "14d", "30d", "90d", "180d", "360d"];
 
 /**
  * The main server component for a single token's details page
  */
 export default async function TokenDetailsPage({ params }: { params: Promise<{ tokenid: string }> }) {
+  const classicAssetRegex = /^[A-Z0-9]{3,12}-G[A-Z0-9]{55}(?:-\d+)?$/;
   const chartPeriod: AllowedPeriods = "14d";
   const { tokenid } = await params;
 
@@ -180,17 +167,21 @@ export default async function TokenDetailsPage({ params }: { params: Promise<{ t
     routeParam = routeParam.replace(/-/g, ":");
   }
 
-  const foundToken: Token | undefined = tokens.find((t) =>
-    t.symbol.toUpperCase() === "XLM"
+  const foundToken: Token | undefined = tokens.find((token) =>
+    token.symbol.toUpperCase() === "XLM"
       ? routeParam === "native"
-      : t.name === routeParam || t.id === routeParam,
+      : token.name === routeParam || token.id === routeParam,
   );
   if (!foundToken) {
     console.warn("[TokenDetailsPage] No matching token found => notFound()", routeParam);
     notFound();
   }
 
-  const isPoolShare = foundToken.name.includes("Pool Share Token");
+  const isPoolShare =
+    foundToken.name.includes("Pool Share Token") ||
+    foundToken.name.includes("LP Token") ||
+    foundToken.symbol.includes("POOL");
+
   const tokenPairs: Pair[] = getPairsForToken(foundToken, pairs);
   const pairIds = new Set(tokenPairs.map((p) => p.id));
   const tokenPools: PoolRiskApiResponseObject[] = poolRiskData.filter((pool) =>
@@ -199,39 +190,32 @@ export default async function TokenDetailsPage({ params }: { params: Promise<{ t
 
   // [ADDED] fetch the tokeninfo => get "asset" which might be "AQUA-GBNZ...-1"
   let tokenDetails: AssetDetails | null = null;
-  let classicAssetString = "XLM";
+  let classicAssetString;
   try {
-    const result = await fetchTokenDetailsWithCache(routeParam, false);
-    if (typeof result === "object" && result !== null) {
-      tokenDetails = result;
+    const result = await fetchTokenDetailsWithCache(routeParam, tokens);
+    // console.log("[TokenDetailsPage] tokeninfo result", result);
+    tokenDetails = result;
 
-      // If tokenDetails.asset is something like "AQUA-GBNZILSTVQZ4R7I...-1",
-      // remove that trailing dash + digit
-      if (tokenDetails.asset && tokenDetails.asset.toUpperCase() !== "XLM") {
-        classicAssetString = tokenDetails.asset;
-        const stripped = classicAssetString.replace(/-\d+$/, "");
-        if (stripped !== classicAssetString) {
-          console.log(
-            "[TokenDetailsPage] Removing trailing '-1' etc:",
-            classicAssetString,
-            "=>",
-            stripped,
-          );
-          classicAssetString = stripped;
-        }
+    if (tokenDetails.asset && tokenDetails.asset.toUpperCase() !== "XLM") {
+      classicAssetString = tokenDetails.asset;
+      const stripped = classicAssetString.replace(/-\d+$/, "");
+      if (stripped !== classicAssetString) {
+        console.log(
+          "[TokenDetailsPage] Removing trailing '-1' etc:",
+          classicAssetString,
+          "=>",
+          stripped,
+        );
+        classicAssetString = stripped;
       }
-    } else {
-      console.warn("[TokenDetailsPage] tokeninfo GET returned false => partial data");
-      // fallback: classicAssetString remains "XLM" if no details
     }
   } catch (err) {
     console.error("[TokenDetailsPage] error loading token info => partial page", err);
-    // fallback: classicAssetString remains "XLM"
   }
 
   // If it's not a Pool Share token, we prefetch candle data for all periods
   // using the final "classicAssetString" string
-  if (!isPoolShare && classicAssetString) {
+  if (!isPoolShare && classicAssetString && classicAssetRegex.test(classicAssetString)) {
     for (const p of ALL_PERIODS) {
       const { from, to } = getTimeRangeForPeriod(p);
       try {
@@ -240,12 +224,17 @@ export default async function TokenDetailsPage({ params }: { params: Promise<{ t
         console.error("[TokenDetailsPage] prefetch error for", p, err);
       }
     }
+  } else {
+    console.log(
+      "[TokenDetailsPage] Skipping candle prefetch because classicAssetString is invalid:",
+      classicAssetString,
+    );
   }
 
   // We'll show chartPeriod=14d
   let chartCandleData: CandleDataPoint[] = [];
   let chartVolumeData: VolumeDataPoint[] = [];
-  if (!isPoolShare && classicAssetString) {
+  if (!isPoolShare && classicAssetString && classicAssetRegex.test(classicAssetString)) {
     const { from, to } = getTimeRangeForPeriod(chartPeriod);
     try {
       const raw = await fetchCandlesWithCacheAndRateLimit(classicAssetString, from, to);
@@ -256,19 +245,59 @@ export default async function TokenDetailsPage({ params }: { params: Promise<{ t
         low: c.low,
         close: c.close,
       }));
-      chartVolumeData = raw.map((c) => ({
-        time: c.time,
-        value: c.baseVolume,
-        color: c.close >= c.open ? "#26a69a" : "#ef5350",
-      }));
+      // Compute maximum volume in the current dataset (avoid division by zero)
+      const maxVolume = Math.max(...raw.map((c) => c.baseVolume), 1);
+
+      // 1) Compute volume differences for each candle.
+      // For candle i (i>0): Δ_i = volume_i - volume_{i-1}
+      // For candle 0, default to 0 or any fallback you prefer.
+      const volumeDiffs = raw.map((c, i) => {
+        if (i === 0) return 0; // fallback for the first candle
+        return raw[i].baseVolume - raw[i - 1].baseVolume;
+      });
+
+      // 2) Find min/max difference
+      const minDiff = volumeDiffs.length > 1 ? Math.min(...volumeDiffs) : 0;
+      const maxDiff = volumeDiffs.length > 1 ? Math.max(...volumeDiffs) : 0;
+
+      // 3) Build the volume data series
+      chartVolumeData = raw.map((c, i) => {
+        const diff = volumeDiffs[i]; // difference for candle i
+        let normalizedDiff = 0.5; // default fallback
+
+        // Only normalize if we actually have a range
+        if (maxDiff !== minDiff) {
+          normalizedDiff = (diff - minDiff) / (maxDiff - minDiff);
+        }
+
+        // 4) Map normalizedDiff [0..1] to lightness [30..70]
+        const lightness = 30 + normalizedDiff * 40; // 30% to 70%
+
+        // 5) Hue is green if diff >= 0, red if diff < 0
+        const hue = diff >= 0 ? 120 : 0;
+
+        // Convert to hex
+        const color = hslToHex({ h: hue, s: 100, l: lightness });
+
+        return {
+          time: c.time,
+          value: c.baseVolume, // or c.quoteVolume, if you prefer
+          color,
+        };
+      });
     } catch (err) {
       console.error("[TokenDetailsPage] Error fetching candle data => partial chart", err);
     }
+  } else {
+    console.log(
+      "[TokenDetailsPage] Skipping chart candle fetch because classicAssetString is invalid:",
+      classicAssetString,
+    );
   }
 
   const displaySymbol = foundToken.symbol;
   const [displayName] = foundToken.name.split(":");
-  const imageUrl = tokenDetails?.toml_info.image ?? "";
+  const imageUrl = tokenDetails?.toml_info?.image ?? "";
 
   const priceStr =
     tokenDetails?.price != null
@@ -284,15 +313,17 @@ export default async function TokenDetailsPage({ params }: { params: Promise<{ t
         {/* Header */}
         <header className="flex items-center gap-2">
           {/* No onClick in server component */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-2 -ml-2 text-muted-foreground"
-            title="Go back to tokens list"
-          >
-            <ChevronRight className="h-4 w-4 rotate-180" />
-            Back to Tokens
-          </Button>
+          <Link href="/tokens">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2 -ml-2 text-muted-foreground"
+              title="Go back to tokens list"
+            >
+              <ChevronRight className="h-4 w-4 rotate-180" />
+              Back to Tokens
+            </Button>
+          </Link>
           {imageUrl && (
             <div
               className="w-10 h-10 rounded-full overflow-hidden relative"
@@ -314,7 +345,7 @@ export default async function TokenDetailsPage({ params }: { params: Promise<{ t
 
         {/* Chart period => 14d */}
         <div className="flex justify-end">
-          <Select value={chartPeriod} disabled>
+          <Select value={chartPeriod}>
             <SelectTrigger className="w-[100px] h-9" title="Selected period">
               <SelectValue placeholder="Select period" />
             </SelectTrigger>

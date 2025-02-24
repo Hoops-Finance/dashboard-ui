@@ -14,7 +14,7 @@ import { TokenCard } from "@/components/TopTokenCard";
 import { TableColumn, TokenTableBody, TokenTableHeader } from "@/components/Tokens/TokenTableParts";
 
 // Revalidate every hour
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 /**
  * Dynamic page-level metadata for SEO.
@@ -91,7 +91,7 @@ export default async function TokensPage() {
         </div>
 
         {/* Wrap TopTokens in a Suspense boundary: */}
-        {/* The fallback is your existing ServerSideTopTokens */}
+        {/* The fallback is our existing ServerSideTopTokens */}
         {/* We use a server render compatible component for the fallback */}
         {/*so that the page is prestuctured/prebuilt for SEO and accessibility */}
         {/*purposes and to make the site more scalable. */}
@@ -147,35 +147,6 @@ export default async function TokensPage() {
 /* Helper to build JSON-LD for tokens */
 /* ------------------------------------------------------------------ */
 
-/*
-function createTokensJSONLD(tokens: Token[]) {
-  // We’ll create an ItemList schema containing basic info about each token.
-  // Adjust fields as necessary for your use case.
-  const retval = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "Tokens on Hoops Finance",
-    description: "A list of tradeable tokens available on Hoops Finance.",
-    itemListElement: tokens.map((token, index) => {
-      const symbolName = token.name.split(":")[0];
-      // A rudimentary way to build the detail URL
-      const detailUrl =
-        token.symbol.toUpperCase() === "XLM"
-          ? "https://hoops.finance/tokens/native"
-          : `https://hoops.finance/tokens/${token.name.replace(/:/g, "-")}`;
-
-      return {
-        "@type": "ListItem",
-        position: index + 1,
-        name: symbolName,
-        url: detailUrl,
-      };
-    }),
-  }
-  //console.log(retval);
-  return retval;
-}
-  */
 function createTokensJSONLD(tokens: Token[]) {
   const nowIso = new Date().toISOString();
   const distributionUrl = "https://api.hoops.finance/api/tokens";
@@ -248,7 +219,7 @@ function createTokensJSONLD(tokens: Token[]) {
     // Keywords can help AI/crawlers contextually
     keywords:
       "crypto, tokens, DeFi, finance, stellar, soroban, amm, exchange, yield generation, savings accounts, stablecoins, usdc, usdy, xlm, aqua, btc, eth, usd",
-    // This references your API as a direct data download
+    // This references API as a direct data download
     distribution: {
       "@type": "DataDownload",
       contentUrl: distributionUrl,
@@ -263,14 +234,14 @@ function createTokensJSONLD(tokens: Token[]) {
 /* ------------------------------------------------------------------ */
 /* Server-Side Replacement for TopTokens component                    */
 /* ------------------------------------------------------------------ */
-interface ServerSideTopTokensProps {
+export interface ServerSideTopTokensProps {
   tokens: Token[];
   pairs: Pair[];
   poolRiskData: PoolRiskApiResponseObject[];
   volumeMap: Map<string, number>;
   tvlMap: Map<string, number>;
 }
-function ServerSideTopTokens({
+export function ServerSideTopTokens({
   tokens,
   pairs,
   poolRiskData,

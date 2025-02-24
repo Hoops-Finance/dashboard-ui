@@ -100,11 +100,9 @@ function getProtocolStats(pools: import("@/utils/types").PoolRiskApiResponseObje
 
 export default function ProtocolPage() {
   const { poolRiskData, period, loading, pairs, tokens } = useDataContext();
-  const params = useParams();
-  if (!params.protocol) {
-    throw new Error("Missing required protocol parameter.");
-  }
-  const protocol = params.protocol as Protocol;
+  const params = useParams<{ protocol: string }>();
+  const protocol = params.protocol.toLowerCase() as Protocol;
+
   const isValidProtocol = PROTOCOLS.includes(protocol);
   const protocolInfo = isValidProtocol ? PROTOCOL_INFO[protocol] : null;
   if (!protocolInfo) {

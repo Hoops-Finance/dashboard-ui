@@ -6,8 +6,8 @@ import httpStatus from "http-status";
 const API_BASE_URL = `${process.env.SXX_API_BASE}/explorer/public/asset`;
 const API_KEY = process.env.SXX_API_KEY; // Ensure this is set in your .env.local
 
-export async function GET(request: NextRequest, { params }: { params: { asset: string } }) {
-  const { asset } = params;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ asset: string }> }) {
+  const { asset } = await params;
 
   if (!asset) {
     return NextResponse.json(

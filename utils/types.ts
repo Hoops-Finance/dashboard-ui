@@ -48,8 +48,8 @@ export interface PairApiResponseObject {
   t1usd: string;
   token0: string; // Token ID
   token1: string; // Token ID
-  token0Details: TokenDetails; // <- Add this
-  token1Details: TokenDetails; // <- Add this
+  token0Details?: TokenDetails; // <- Add this
+  token1Details?: TokenDetails; // <- Add this
   tvl: number;
   lpToken: string;
   pairType?: string;
@@ -67,8 +67,8 @@ export interface Pair {
   t1usd: string;
   token0: string; // Token ID
   token1: string; // Token ID
-  token0Details: TokenDetails; // <- Add this
-  token1Details: TokenDetails; // <- Add this
+  token0Details?: TokenDetails; // <- Add this
+  token1Details?: TokenDetails; // <- Add this
   tvl: number;
   lpToken: string;
   pairType?: string;
@@ -169,34 +169,34 @@ export interface RankingFactors {
 export interface AssetDetails {
   // Define properties based on Stellar Expert's token details response
   asset: string;
-  created: number;
-  supply: number;
-  trustlines: {
+  created?: number;
+  supply?: number;
+  trustlines?: {
     total: number;
     authorized: number;
     funded: number;
   };
-  payments: number;
-  payments_amount: number;
-  trades: number;
-  traded_amount: number;
-  price: number;
-  volume: number;
-  volume7d: number;
-  price7d: { time: number; price: number }[]; // Adjust based on actual data structure
+  payments?: number;
+  payments_amount?: number;
+  trades?: number;
+  traded_amount?: number;
+  price?: number;
+  volume?: number;
+  volume7d?: number;
+  price7d?: number[][]; // Adjust based on actual data structure
   contract: string;
-  toml_info: {
-    code: string;
-    issuer: string;
-    name: string;
-    image: string;
-    anchorAssetType: string;
-    anchorAsset: string;
-    orgName: string;
-    orgLogo: string;
+  toml_info?: {
+    code?: string;
+    issuer?: string;
+    name?: string;
+    image?: string;
+    anchorAssetType?: string;
+    anchorAsset?: string;
+    orgName?: string;
+    orgLogo?: string;
   };
-  home_domain: string;
-  rating: {
+  home_domain?: string;
+  rating?: {
     age: number;
     trades: number;
     payments: number;
