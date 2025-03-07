@@ -56,13 +56,12 @@ export default function Profile() {
     }
   }, [session, status, router, pathname]);
 
-  async function fetchUserProfile() {
-    setLoadingProfile(true);
+  async function fetchUserProfile(withLoading = true) {
+    if (withLoading) setLoadingProfile(true);
     try {
       const res = await fetch("/api/auth/profile/one");
       if (!res.ok) {
         console.error("[Profile] GET /api/auth/profile/one failed:", res.status, await res.text());
-        setLoadingProfile(false);
         return;
       }
       const data: UserProfile = (await res.json()) as UserProfile;
@@ -70,7 +69,7 @@ export default function Profile() {
     } catch (err) {
       console.error("[Profile] Error fetching user profile:", err);
     } finally {
-      setLoadingProfile(false);
+      if (withLoading) setLoadingProfile(false);
     }
   }
 
@@ -110,7 +109,7 @@ export default function Profile() {
       const jsonData = Object.fromEntries(formData.entries());
       await updateProfileService(jsonData);
       // Re-fetch updated profile
-      await fetchUserProfile();
+      await fetchUserProfile(false);
       setIsEditProfile(false);
     } catch (err) {
       console.error("[Profile] Error updating user profile:", err);

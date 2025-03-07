@@ -90,7 +90,7 @@ export default function DeveloperPage() {
             />
             <Button
               onClick={() => {
-                void generateApiKey;
+                void generateApiKey();
               }}
               disabled={!newKeyName.trim() || isCreating || !session?.user}
             >
