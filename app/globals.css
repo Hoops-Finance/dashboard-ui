@@ -79,6 +79,100 @@
 
 /* Component styles using the new theme system */
 @layer components {
+  .tokensHomePage {
+    @apply space-y-6;
+  }
+  .tokenHomeTitleBar {
+    @apply space-y-1;
+  }
+  .tokenHomeTitleBar h1 {
+    @apply text-2xl font-bold text-foreground
+  }
+  .tokenHomeTitleBar p {
+    @apply text-muted-foreground;
+  }
+  .apiDocsButton {
+    @apply flex items-center justify-end;
+  }
+  .apiDocsButton button {
+    @apply h-9 gap-2;
+  }
+  .topTokensOverview {
+    @apply grid gap-6 md:grid-cols-3;
+  }
+  .topCardTitle {
+    @apply flex-center-g-2
+  }
+  .CardContentRow {
+    @apply flex items-center justify-between py-1;
+  }
+  .CardRowLabel {
+    @apply text-foreground font-medium;
+  }
+  
+  .TokenTableCell {
+    @apply text-right transition-transform duration-300 group-hover:scale-[1.15] group-hover:font-bold;
+  }
+  .serverTokenTableDiv {
+    @apply w-full overflow-visible rounded-lg border bg-card text-card-foreground shadow;
+  }
+  
+  .serverTokenHeader {
+    @apply p-4;
+  }
+
+  .serverTokenTableDiv h2 {
+    @apply text-xl font-bold;
+  }
+
+  .serverSideTokenTable {
+    @apply w-full border-collapse;
+  }
+
+  .serverSideTokenTable thead tr {
+    @apply border-b;
+  }
+  .token-row {
+    @apply hoverable-row;
+  }
+
+  .serverSideTokenTable th,
+  .serverSideTokenTable td {
+    @apply px-4 py-2 anim-fadeSlideInUp;
+  }
+
+  .textRightCol {
+    @apply text-right;
+  }
+
+  .noTokensFoundCell {
+    @apply h-10 text-center text-sm text-muted-foreground;
+  }
+
+  .tokenSymbolContainer {
+    @apply flex items-center gap-2 ;
+  }
+
+  .tokenSymbolLabel {
+    @apply w-8 h-8 bg-primary/10 flex items-center justify-center;
+  }
+
+  .tokenSymbolTitle {
+    @apply font-medium;
+  }
+
+  .tokenSymbolSubtitle {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .tokenLastUpdateCell {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .tokenExplorerLink {
+    @apply underline text-primary hover:text-primary/80;
+  }
+
   .navbar {
     @apply w-full bg-[#0D0D0D] fixed top-0 left-0 right-0 z-50 border-b border-border/10 h-[72px];
   }
@@ -256,9 +350,6 @@
   }
 
   /* Card content styles */
-  .card-content-row {
-    @apply flex items-center justify-between py-2;
-  }
 
   .card-content-label {
     @apply text-gray-300;
@@ -438,7 +529,18 @@
 .shake {
   animation: shake 0.5s ease-in-out;
 }
-
+.anim-fadeSlideInUp {
+  animation: fadeSlideInUp 1.5s ease-in forwards;
+}
+.anim-fadeSlideInUp-1s {
+  animation: fadeSlideInUp 1s ease-in forwards;
+}
+.anim-fadeSlideInUp-1-5s {
+  animation: fadeSlideInUp-30px 1.5s ease-in forwards;
+}
+.anim-fadeSlideInUp-2s {
+  animation: fadeSlideInUp-45px 2s ease-in forwards;
+}
 @keyframes shake {
   0%, 100% {
     transform: translateX(0);
@@ -453,7 +555,87 @@
     transform: translateX(-4px);
   }
 }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
 
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOutDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes fadeSlideInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeSlideInUp-30px {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeSlideInUp-45px {
+  0% {
+    opacity: 0;
+    transform: translateY(45px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeSlideInUpVar {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--slide-dist, 15px));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* A single class that references custom properties for distance & duration. */
+.fadeSlideInUpVar {
+  /* The var(--slide-duration) fallback is 1.5s */
+  animation: fadeSlideInUpVar var(--slide-duration, 1.5s) ease-in forwards;
+}
 .red-glow {
   box-shadow: 0 0 0 2px rgba(239,68,68, 1); /* Tailwind’s red-500 */
 }

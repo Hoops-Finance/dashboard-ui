@@ -1,13 +1,12 @@
 "use client";
-
-import { useState, useMemo, useEffect, ChangeEvent } from "react";
+import { useState, useMemo, ChangeEvent } from "react";
 import { Token, Pair, PoolRiskApiResponseObject } from "@/utils/types";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { STABLECOIN_IDS } from "@/utils/utilities";
+import { TableColumn, TokenTableBody, TokenTableHeader } from "./Tokens/TokenTableParts";
 
 type TokenFilter = "all" | "stablecoins" | "hot";
 
@@ -27,7 +26,9 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
   const realTokenRegex = useMemo(() => /^[^:]+:G[A-Z0-9]{55}$/, []);
 
   const filteredRealTokens = useMemo(() => {
-    return tokens.filter((token) => realTokenRegex.test(token.name) || token.symbol.toUpperCase() === "XLM");
+    return tokens.filter(
+      (token) => realTokenRegex.test(token.name) || token.symbol.toUpperCase() === "XLM",
+    );
   }, [tokens, realTokenRegex]);
 
   const pairMap = useMemo(() => {
@@ -119,7 +120,7 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
 
   const explorerLink = (token: Token) => {
     if (token.symbol.toUpperCase() === "XLM") {
-      return `https://stellar.expert/explorer/public/asset/native`;
+      return "https://stellar.expert/explorer/public/asset/native";
     } else {
       const [sym, iss] = token.name.split(":");
       return `https://stellar.expert/explorer/public/asset/${sym}-${iss}`;
@@ -144,6 +145,16 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
     return assetSet.size;
   };
 
+  const HEADERS: TableColumn[] = [
+    { label: "Token", align: "left" },
+    { label: "Price", align: "right" },
+    { label: "TVL", align: "right" },
+    { label: "Volume", align: "right" },
+    { label: "Counter Assets", align: "right" },
+    { label: "Last Updated", align: "right" },
+    { label: "Actions", align: "right" },
+  ];
+
   return (
     <div className="space-y-4 p-4">
       <div className="flex flex-wrap gap-2 items-center">
@@ -153,7 +164,7 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
             setSelectedTab("all");
             setCurrentPage(1);
           }}
-          className="h-9"
+          className="h-9 anim-fadeSlideInUp-1s"
         >
           All Tokens
         </Button>
@@ -163,7 +174,7 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
             setSelectedTab("stablecoins");
             setCurrentPage(1);
           }}
-          className="h-9"
+          className="h-9 anim-fadeSlideInUp-1-5s "
         >
           Stablecoins
         </Button>
@@ -173,7 +184,7 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
             setSelectedTab("hot");
             setCurrentPage(1);
           }}
-          className="h-9"
+          className="h-9 anim-fadeSlideInUp-2s "
         >
           Hot Tokens
         </Button>
@@ -197,74 +208,22 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
         </Button>
       </div>
 
-      <div className="relative w-full overflow-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Token</TableHead>
-              <TableHead className="text-right">Price</TableHead>
-              <TableHead className="text-right">TVL</TableHead>
-              <TableHead className="text-right">Counter Assets</TableHead>
-              <TableHead className="text-right">Last Updated</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {displayedTokens.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-10 px-4 text-center text-sm text-muted-foreground">
-                  No tokens found
-                </TableCell>
-              </TableRow>
-            ) : (
-              displayedTokens.map((token) => {
-                const [symbolName] = token.name.split(":");
-                const priceDisplay = token.price && token.price > 0 ? token.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 }) : "0.00";
-                const tvl = getTokenTVL(token);
-                const counterCount = getCounterAssetsCount(token);
+      <div className="serverTokenTableDiv">
+        <table className="serverSideTokenTable anim-fadeSlideInUp" role="table">
+          <caption className="hidden">
+            A table of all the tokens tracked by Hoops Finance available in Stellars Soroban Smart
+            Contract system.
+          </caption>
+          <TokenTableHeader ColLabels={HEADERS} />
 
-                let detailsUrl: string;
-                if (token.symbol.toUpperCase() === "XLM") {
-                  detailsUrl = `/tokens/native`;
-                } else {
-                  detailsUrl = `/tokens/${token.name.replace(/:/g, "-")}`;
-                }
-
-                return (
-                  <TableRow key={token.id} className="hoverable-row group" style={{ cursor: "pointer" }} onClick={() => (window.location.href = detailsUrl)}>
-                    <TableCell className="h-10 px-4 align-middle">
-                      <div className="flex items-center gap-2" title={token.symbol}>
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden relative">{token.symbol.slice(0, 1).toUpperCase()}</div>
-                        <div>
-                          <div className="font-medium">{symbolName}</div>
-                          <div className="text-sm text-muted-foreground">{token.symbol}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">${priceDisplay}</TableCell>
-                    <TableCell className="text-right">${tvl.toLocaleString()}</TableCell>
-                    <TableCell className="text-right">{counterCount}</TableCell>
-                    <TableCell className="text-right text-sm text-muted-foreground">{new Date(token.lastUpdated).toLocaleString()}</TableCell>
-                    <TableCell className="text-right">
-                      <a
-                        href={explorerLink(token)}
-                        className="underline text-primary hover:text-primary/80"
-                        target="_blank"
-                        rel="noreferrer"
-                        title="View on Stellar Expert"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                      >
-                        Explorer
-                      </a>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
+          <TokenTableBody
+            tokens={displayedTokens}
+            pairMap={pairMap}
+            tvlMap={tvlMap}
+            volumeMap={volumeMap}
+            noTokensColSpan={HEADERS.length}
+          />
+        </table>
       </div>
 
       {filteredTokens.length > rowsPerPage && (
@@ -292,7 +251,8 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
               <span className="text-sm text-muted-foreground">entries</span>
             </div>
             <div className="text-sm text-muted-foreground">
-              Showing {startIndex + 1} to {Math.min(startIndex + rowsPerPage, filteredTokens.length)} of {filteredTokens.length} entries
+              Showing {startIndex + 1} to {Math.min(startIndex + rowsPerPage, filteredTokens.length)} of{" "}
+              {filteredTokens.length} entries
             </div>
           </div>
           <div className="flex-center-g-2">
@@ -314,7 +274,9 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
                 .filter((page) => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
                 .map((page, idx, arr) => (
                   <div key={page}>
-                    {idx > 0 && arr[idx - 1] !== page - 1 && <span className="px-2 text-sm text-muted-foreground">...</span>}
+                    {idx > 0 && arr[idx - 1] !== page - 1 && (
+                      <span className="px-2 text-sm text-muted-foreground">...</span>
+                    )}
                     <Button
                       variant={currentPage === page ? "default" : "outline"}
                       size="sm"

@@ -3,7 +3,7 @@ export async function updateProfileService(jsonData: object) {
     const res = await fetch("/api/auth/profile/update", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(jsonData)
+      body: JSON.stringify(jsonData),
     });
     if (!res.ok) {
       console.error("[Profile] POST /api/auth/profile/update failed:", res.status, await res.text());

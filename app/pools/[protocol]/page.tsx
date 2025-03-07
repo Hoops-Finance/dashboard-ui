@@ -11,8 +11,9 @@ import { MessageCircleWarning } from "lucide-react";
 import { PoolsTable } from "@/components/PoolsTable";
 import { TopPools } from "@/components/TopPools";
 import { STABLECOIN_IDS, AllowedPeriods } from "@/utils/utilities";
+import { useParams } from "next/navigation";
 
-const PROTOCOLS = ["soroswap", "aquarius", "blend", "phoenix"] as const;
+const PROTOCOLS = ["soroswap", "aquarius", "blend", "phoenix", "aqua"] as const;
 type Protocol = (typeof PROTOCOLS)[number];
 
 const PROTOCOL_INFO: Record<
@@ -26,21 +27,33 @@ const PROTOCOL_INFO: Record<
 > = {
   soroswap: {
     name: "Soroswap",
-    description: "Soroswap is a decentralized exchange protocol built on the Stellar network, offering automated market making and liquidity provision services.",
+    description:
+      "Soroswap is a decentralized exchange protocol built on the Stellar network, offering automated market making and liquidity provision services.",
     logo: "/images/protocols/soroswap.svg",
     links: [
       { name: "Website", url: "https://soroswap.finance" },
-      { name: "Docs", url: "https://docs.soroswap.finance" }
-    ]
+      { name: "Docs", url: "https://docs.soroswap.finance" },
+    ],
   },
   aquarius: {
     name: "Aquarius",
-    description: "Aqua Network is a decentralized finance platform on the Stellar network, offering tools for liquidity awards, trading, and governance.",
+    description:
+      "Aqua Network is a decentralized finance platform on the Stellar network, offering tools for liquidity awards, trading, and governance.",
     logo: "/images/protocols/aqua.svg",
     links: [
       { name: "Website", url: "https://aquarius.finance" },
-      { name: "Documentation", url: "https://docs.aquarius.finance" }
-    ]
+      { name: "Documentation", url: "https://docs.aquarius.finance" },
+    ],
+  },
+  aqua: {
+    name: "Aquarius",
+    description:
+      "Aqua Network is a decentralized finance platform on the Stellar network, offering tools for liquidity awards, trading, and governance.",
+    logo: "/images/protocols/aqua.svg",
+    links: [
+      { name: "Website", url: "https://aquarius.finance" },
+      { name: "Documentation", url: "https://docs.aquarius.finance" },
+    ],
   },
   blend: {
     name: "Blend",
@@ -48,18 +61,19 @@ const PROTOCOL_INFO: Record<
     logo: "/images/protocols/blend.svg",
     links: [
       { name: "Website", url: "https://blend.finance" },
-      { name: "Docs", url: "https://docs.blend.finance" }
-    ]
+      { name: "Docs", url: "https://docs.blend.finance" },
+    ],
   },
   phoenix: {
     name: "Phoenix",
-    description: "Phoenix is a decentralized automated market maker on the stellar network with liquidity pools and rewards.",
+    description:
+      "Phoenix is a decentralized automated market maker on the stellar network with liquidity pools and rewards.",
     logo: "/images/protocols/phoenix.svg",
     links: [
       { name: "Website", url: "https://phoenix.finance" },
-      { name: "Documentation", url: "https://docs.phoenix.finance" }
-    ]
-  }
+      { name: "Documentation", url: "https://docs.phoenix.finance" },
+    ],
+  },
 };
 
 function getProtocolStats(pools: import("@/utils/types").PoolRiskApiResponseObject[]) {
@@ -68,7 +82,7 @@ function getProtocolStats(pools: import("@/utils/types").PoolRiskApiResponseObje
       tvl: 0,
       volume24h: 0,
       poolCount: 0,
-      averageApy: 0
+      averageApy: 0,
     };
   }
 
@@ -84,9 +98,11 @@ function getProtocolStats(pools: import("@/utils/types").PoolRiskApiResponseObje
   return { tvl, volume24h, poolCount, averageApy };
 }
 
-export default function ProtocolPage({ params }: { params: { protocol: string } }) {
+export default function ProtocolPage() {
   const { poolRiskData, period, loading, pairs, tokens } = useDataContext();
-  const protocol = params.protocol as Protocol;
+  const params = useParams<{ protocol: string }>();
+  const protocol = params.protocol.toLowerCase() as Protocol;
+
   const isValidProtocol = PROTOCOLS.includes(protocol);
   const protocolInfo = isValidProtocol ? PROTOCOL_INFO[protocol] : null;
   if (!protocolInfo) {
@@ -144,7 +160,9 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
               </div>
               <div>
                 <CardTitle>{protocolInfo.name}</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1 max-w-2xl">{protocolInfo.description}</p>
+                <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+                  {protocolInfo.description}
+                </p>
               </div>
             </div>
           </CardHeader>
@@ -184,14 +202,22 @@ export default function ProtocolPage({ params }: { params: { protocol: string } 
               <CardTitle className="text-sm font-medium">Average APY ({period.toUpperCase()})</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{formatPercentage(stats.averageApy)}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {formatPercentage(stats.averageApy)}
+              </div>
               <p className="text-xs text-muted-foreground">Across all pools</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Top Pools for this protocol */}
-        <TopPools data={protocolPools} pairs={pairs} tokens={tokens} stablecoinIds={STABLECOIN_IDS} period={period} />
+        <TopPools
+          data={protocolPools}
+          pairs={pairs}
+          tokens={tokens}
+          stablecoinIds={STABLECOIN_IDS}
+          period={period}
+        />
 
         {/* Pools Table Section */}
         <section aria-label="Pools data" className="space-y-4">

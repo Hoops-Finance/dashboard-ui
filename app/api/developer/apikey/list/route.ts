@@ -14,8 +14,8 @@ export async function GET(req: NextRequest) {
   const res = await fetch(`${process.env.AUTH_API_URL}/auth/apikey/list`, {
     headers: {
       "x-api-key": `${process.env.AUTH_API_KEY}`,
-      Authorization: `Bearer ${session.user.accessToken}`
-    }
+      Authorization: `Bearer ${session.user.accessToken}`,
+    },
   });
   if (!res.ok) {
     console.log("error fetching keys:", res.status);

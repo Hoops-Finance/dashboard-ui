@@ -1,7 +1,7 @@
 import { TOS } from "@/components/TOS";
 
 export const metadata = {
-  title: "Terms of Service - Hoops Finance"
+  title: "Terms of Service - Hoops Finance",
 };
 
 export default function TosPage() {

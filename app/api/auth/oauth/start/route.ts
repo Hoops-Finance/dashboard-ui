@@ -10,7 +10,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Missing provider" }, { status: httpStatus.NOT_ACCEPTABLE });
   }
   if (!state) {
-    return NextResponse.json({ error: "Missing state (csrfToken)" }, { status: httpStatus.PRECONDITION_REQUIRED });
+    return NextResponse.json(
+      { error: "Missing state (csrfToken)" },
+      { status: httpStatus.PRECONDITION_REQUIRED },
+    );
   }
 
   let authUrl = "";

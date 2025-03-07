@@ -68,8 +68,8 @@ export async function GET(req: NextRequest, context: { params: Promise<{ provide
       redirect: false,
       provider,
       code,
-      state: returnedState
-    });
+      state: returnedState,
+    })) as string;
   } catch (err) {
     if (err instanceof AuthError) {
       return NextResponse.redirect(new URL(`/signup?error=${encodeURIComponent(err.message)}`, "https://app.hoops.finance"));

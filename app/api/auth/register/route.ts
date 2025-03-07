@@ -9,9 +9,12 @@ interface RegisterRequestBody {
 async function verifyRecaptcha(token: string): Promise<boolean> {
   const secret = process.env.RECAPTCHA_SECRET;
   if (!secret) return true;
-  const res = await fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${token}`, {
-    method: "POST"
-  });
+  const res = await fetch(
+    `https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${token}`,
+    {
+      method: "POST",
+    },
+  );
   const data = (await res.json()) as { success?: boolean };
   return data.success === true;
 }
@@ -28,9 +31,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": `${process.env.AUTH_API_KEY}`
+        "x-api-key": `${process.env.AUTH_API_KEY}`,
       },
-      body: JSON.stringify({ email: email, password: password })
+      body: JSON.stringify({ email: email, password: password }),
     });
 
     if (!response.ok) {

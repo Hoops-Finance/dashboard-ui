@@ -9,7 +9,7 @@ interface updateUserResponse {
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user?.accessToken) {
+  if (!session?.user.accessToken) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
@@ -25,9 +25,9 @@ export async function POST(req: NextRequest) {
     headers: {
       "Content-Type": "application/json",
       "x-api-key": `${process.env.AUTH_API_KEY}`,
-      Authorization: `Bearer ${session.user.accessToken}`
+      Authorization: `Bearer ${session.user.accessToken}`,
     },
-    body: JSON.stringify({ name, phoneNumber, avatar, settings })
+    body: JSON.stringify({ name, phoneNumber, avatar, settings }),
   });
 
   if (!res.ok) {

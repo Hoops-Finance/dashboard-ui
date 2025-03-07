@@ -43,7 +43,8 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-muted-foreground">
-            Showing page <span className="font-medium">{currentPage}</span> of <span className="font-medium">{totalPages}</span>
+            Showing page <span className="font-medium">{currentPage}</span> of{" "}
+            <span className="font-medium">{totalPages}</span>
           </p>
         </div>
         <div>
@@ -72,7 +73,9 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
                 >
                   1
                 </button>
-                <span className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-muted-foreground">...</span>
+                <span className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-muted-foreground">
+                  ...
+                </span>
               </>
             )}
 
@@ -92,7 +95,9 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
 
             {currentPage < totalPages - 2 && totalPages > 5 && (
               <>
-                <span className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-muted-foreground">...</span>
+                <span className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-muted-foreground">
+                  ...
+                </span>
                 <button
                   onClick={() => {
                     onPageChange(totalPages);

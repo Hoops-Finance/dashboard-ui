@@ -51,3 +51,61 @@
     - Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
   - fixed small issues with auth flow, still probably more need resolved.
   - added recaptcha token verifier utility.
+
+## v0.3.2
+
+Auth Integration, Swap and Portfolio templates, UserProfile, Bugfixes. by @silence48 in #41
+
+## v0.3.3
+
+bump to v0.3.3
+Fix profile view.
+
+## V0.3.4
+
+fix: #12 mobile view does not display profile menu by @iverlandth in #32
+Bugfix/mix desktop changes by @iverlandth in #31
+Merge staging to main by @silence48 in #43
+feature/update-profile-data-and-show-linked-accounts by @iverlandth in #33
+Resolve Merge Conflicts for Profile by @silence48 in #44
+Merge pull request #44 from Hoops-Finance/staging by @silence48 in #45
+Release 0.3.4 by @silence48 in #46
+
+## v0.4.0
+Opengraph Image Generation, Incremental Static Regeneration (ISR), and nextjs Canary:
+
+Implemented ISR for tokens and pools, with both a first and a second pass.
+Updated tokens to use dynamic metadata during regeneration.
+Build & Performance Improvements:
+
+Updated source maps during build for SSR.
+Improved bundle size and fixed bundling issues.
+Introduced local caching for route generation.
+Added candle (price quotes) and token info generation to speed up builds.
+Integrated build logging by updating gitignore and package-lock.
+UI & UX Fixes:
+
+Removed theme context and pre-rendered more components to address flickering during hydration.
+Fixed Navbar flickering and mobile navigation issues.
+Code Quality & Tooling:
+
+Applied prettier for consistent code formatting.
+Resolved ESLint and type checking issues (including for user profiles and linked accounts).
+Updated Tailwind configuration and added an ESLint configuration file for Next.js.
+
+adds partial prerendering (PPR) features from nextjs to allow for faster page loads and a better user experience.
+
+Dependency & Configuration Updates:
+
+Upgraded Next.js to version 15.2.1 canary.
+Upgraded React to version 19.
+Updated Next.js configuration accordingly.
+Opengraph & Social Sharing Features:
+
+Added opengraph image generation.
+Implemented metadata generation and social media sharing features.
+Miscellaneous:
+
+Fixed minor issues such as the misspelling of "lastUpdated".
+Added server functions for fetching user profiles.
+These changes collectively enhance performance, streamline the build process, and improve both the user experience and code quality.

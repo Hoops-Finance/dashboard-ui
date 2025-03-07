@@ -24,7 +24,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const result = (await signIn("credentials", {
       redirect: false,
       username,
-      password
+      password,
     })) as AuthResult | null;
 
     if (!result?.success) {

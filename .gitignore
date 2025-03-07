@@ -80,3 +80,12 @@ schema.json
 ls
 ls.txt
 combine.cjs
+combined_files.txt
+candlesCacheold.json
+build-log.json
+analyze
+page-old.tsx
+typings
+app/api/data/page.tsx
+app/api/data/route.ts
+candlesCache.json

@@ -1,8 +1,14 @@
+"use client";
+import dynamic from "next/dynamic";
+
 import MetricsSummary from "@/components/ProDash/metrics-summary";
-import PerformanceGraph from "@/components/ProDash/performance-graph";
 import FinancialPlaylistList from "@/components/ProDash/financial-playlist-list";
 
 export default function DashboardPage() {
+  const PerformanceGraph = dynamic(() => import("@/components/ProDash/performance-graph"), {
+    ssr: false,
+    loading: () => <p>Loading chart…</p>,
+  });
   return (
     <div className="container mx-auto p-4 space-y-6">
       <h1 className="text-2xl font-bold">Hoops Finance Pro Dashboard</h1>
