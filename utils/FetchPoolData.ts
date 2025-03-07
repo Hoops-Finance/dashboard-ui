@@ -1,5 +1,9 @@
 import { PoolRiskApiResponseObject } from "./types";
-export const fetchPoolData = async (setPoolsData: (data: PoolRiskApiResponseObject[]) => void, setLoading: (value: boolean) => void, period: string): Promise<void> => {
+export const fetchPoolData = async (
+  setPoolsData: (data: PoolRiskApiResponseObject[]) => void,
+  setLoading: (value: boolean) => void,
+  period: string,
+): Promise<void> => {
   try {
     setLoading(true);
     const response = await fetch(`/api/getstatistics?period=${period}`);
@@ -18,7 +22,7 @@ export const fetchPoolData = async (setPoolsData: (data: PoolRiskApiResponseObje
 export async function fetchPoolData1(): Promise<PoolRiskApiResponseObject[] | null> {
   try {
     const res = await fetch("/api/pools", {
-      next: { revalidate: 60 }
+      next: { revalidate: 60 },
     });
 
     if (!res.ok) {

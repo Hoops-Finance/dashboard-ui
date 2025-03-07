@@ -13,12 +13,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const isLoggedIn = !!session?.user.accessToken;
-  const url = isLoggedIn ? `${process.env.AUTH_API_URL}/auth/oauth/link` : `${process.env.AUTH_API_URL}/auth/oauth/login`;
+  const url = isLoggedIn
+    ? `${process.env.AUTH_API_URL}/auth/oauth/link`
+    : `${process.env.AUTH_API_URL}/auth/oauth/login`;
 
   console.log(`Exchange request to ${url} with provider ${provider} and code ${code}`);
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    "x-api-key": `${process.env.AUTH_API_KEY}`
+    "x-api-key": `${process.env.AUTH_API_KEY}`,
   };
   if (isLoggedIn && session.user.accessToken) {
     headers.Authorization = `Bearer ${session.user.accessToken}`;
@@ -27,7 +29,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const res = await fetch(url, {
     method: "POST",
     headers,
-    body: JSON.stringify({ provider, code, state })
+    body: JSON.stringify({ provider, code, state }),
   });
 
   const data = (await res.json()) as AuthResult;
@@ -42,7 +44,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     avatar: null,
     premium_subscription: false,
     accessToken: data.accessToken,
-    refreshToken: data.refreshToken
+    refreshToken: data.refreshToken,
   };
 
   return NextResponse.json(userData, { status: 200 });

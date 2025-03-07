@@ -36,7 +36,7 @@ export default function AIChatPage() {
             "lg:translate-x-0",
             sidebarOpen ? "translate-x-0" : "-translate-x-full",
             "lg:block",
-            sidebarOpen ? "block" : "hidden"
+            sidebarOpen ? "block" : "hidden",
           )}
         >
           <div className="flex flex-col h-full">
@@ -55,7 +55,9 @@ export default function AIChatPage() {
           <header className="border-b border-border px-6 py-4">
             <div className="ml-12 lg:ml-0">
               <h1 className="text-xl font-semibold text-foreground">Chat with Hoops AI</h1>
-              <p className="text-sm text-muted-foreground">Get insights and optimize your DeFi strategies</p>
+              <p className="text-sm text-muted-foreground">
+                Get insights and optimize your DeFi strategies
+              </p>
             </div>
           </header>
           <div className="flex-1 overflow-hidden">

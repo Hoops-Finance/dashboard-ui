@@ -1,6 +1,7 @@
 // types.ts
 
 import { UTCTimestamp } from "lightweight-charts";
+import { SettingUserType } from "@/types/user.ts";
 
 // Represents the price information of a pair related to a token
 export interface TokenPairPrice {
@@ -15,7 +16,7 @@ export interface TokenApiResponseObject {
   decimals: number;
   price: number;
   pairs: TokenPairPrice[];
-  lastupdated: string; //a string representation of a date in long format like "2024-09-19T00:38:47.826+00:00" this should get converted to a epoch timestamp
+  lastUpdated: string; //a string representation of a date in long format like "2024-09-19T00:38:47.826+00:00" this should get converted to a epoch timestamp
 }
 // Represents a token fetched from the API
 export interface Token {
@@ -47,8 +48,8 @@ export interface PairApiResponseObject {
   t1usd: string;
   token0: string; // Token ID
   token1: string; // Token ID
-  token0Details: TokenDetails; // <- Add this
-  token1Details: TokenDetails; // <- Add this
+  token0Details?: TokenDetails; // <- Add this
+  token1Details?: TokenDetails; // <- Add this
   tvl: number;
   lpToken: string;
   pairType?: string;
@@ -66,8 +67,8 @@ export interface Pair {
   t1usd: string;
   token0: string; // Token ID
   token1: string; // Token ID
-  token0Details: TokenDetails; // <- Add this
-  token1Details: TokenDetails; // <- Add this
+  token0Details?: TokenDetails; // <- Add this
+  token1Details?: TokenDetails; // <- Add this
   tvl: number;
   lpToken: string;
   pairType?: string;
@@ -168,34 +169,34 @@ export interface RankingFactors {
 export interface AssetDetails {
   // Define properties based on Stellar Expert's token details response
   asset: string;
-  created: number;
-  supply: number;
-  trustlines: {
+  created?: number;
+  supply?: number;
+  trustlines?: {
     total: number;
     authorized: number;
     funded: number;
   };
-  payments: number;
-  payments_amount: number;
-  trades: number;
-  traded_amount: number;
-  price: number;
-  volume: number;
-  volume7d: number;
-  price7d: { time: number; price: number }[]; // Adjust based on actual data structure
+  payments?: number;
+  payments_amount?: number;
+  trades?: number;
+  traded_amount?: number;
+  price?: number;
+  volume?: number;
+  volume7d?: number;
+  price7d?: number[][]; // Adjust based on actual data structure
   contract: string;
-  toml_info: {
-    code: string;
-    issuer: string;
-    name: string;
-    image: string;
-    anchorAssetType: string;
-    anchorAsset: string;
-    orgName: string;
-    orgLogo: string;
+  toml_info?: {
+    code?: string;
+    issuer?: string;
+    name?: string;
+    image?: string;
+    anchorAssetType?: string;
+    anchorAsset?: string;
+    orgName?: string;
+    orgLogo?: string;
   };
-  home_domain: string;
-  rating: {
+  home_domain?: string;
+  rating?: {
     age: number;
     trades: number;
     payments: number;
@@ -315,12 +316,16 @@ export interface WalletContextType {
   isConnected: boolean;
   address: string | null;
   balance: string | null;
-  otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null;
+  otherBalances:
+    | (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[]
+    | null;
   updateWalletInfo: (
     isConnected: boolean,
     address: string | null,
     balance: string | null,
-    otherBalances: (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[] | null
+    otherBalances:
+      | (BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool)[]
+      | null,
   ) => void;
 }
 
@@ -331,7 +336,10 @@ export interface BalanceLineNative {
   selling_liabilities: string;
 }
 
-export type BalanceLine = BalanceLineNative | BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12"> | BalanceLineLiquidityPool;
+export type BalanceLine =
+  | BalanceLineNative
+  | BalanceLineAsset<"credit_alphanum4" | "credit_alphanum12">
+  | BalanceLineLiquidityPool;
 
 export interface AccountResponse {
   id: string;
@@ -446,10 +454,19 @@ export interface UserProfile {
   phoneNumber?: string;
   avatar?: string;
   emails?: EmailEntry[];
-  linkedAccounts: {
-    provider: OauthProviders;
-    providerId: string | Record<string, unknown>;
-    linkedAt: Date;
-    providerProfile: DiscordUserResponse | GoogleUserResponse | {};
-  }[];
+  linkedAccounts: (
+    | {
+        provider: "google";
+        providerId: string | Record<string, unknown>;
+        linkedAt: Date;
+        providerProfile: GoogleUserResponse;
+      }
+    | {
+        provider: "discord";
+        providerId: string | Record<string, unknown>;
+        linkedAt: Date;
+        providerProfile: DiscordUserResponse;
+      }
+  )[];
+  settings?: SettingUserType;
 }

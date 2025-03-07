@@ -66,7 +66,11 @@ export function calcSMA(data: number[], period: number): number[] {
   return smaVals;
 }
 
-export function calcBollinger(data: number[], period = 20, multiplier = 2): { upper: number[]; middle: number[]; lower: number[] } {
+export function calcBollinger(
+  data: number[],
+  period = 20,
+  multiplier = 2,
+): { upper: number[]; middle: number[]; lower: number[] } {
   if (data.length < period) return { upper: [], middle: [], lower: [] };
   const middle = calcSMA(data, period);
   const upper: number[] = [];

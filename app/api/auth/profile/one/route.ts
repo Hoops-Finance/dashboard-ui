@@ -4,15 +4,15 @@ import { UserProfile } from "@/utils/types";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
-  if (!session?.user?.accessToken) {
+  if (!session?.user.accessToken) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const res = await fetch(`${process.env.AUTH_API_URL}/auth/profile`, {
     headers: {
       "x-api-key": `${process.env.AUTH_API_KEY}`,
-      Authorization: `Bearer ${session.user.accessToken}`
-    }
+      Authorization: `Bearer ${session.user.accessToken}`,
+    },
   });
 
   if (!res.ok) {

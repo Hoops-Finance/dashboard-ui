@@ -1,0 +1,198 @@
+/* pools.css */
+
+/* ========== GLOBAL UTILITIES (used by both server & client) ========== */
+.IconSmallPrimary {
+  @apply h-4 w-4 text-primary;
+}
+.IconMediumPrimary {
+  @apply h-5 w-5 text-primary;
+}
+.IconLargePrimary {
+  @apply h-8 w-8 text-primary;
+}
+.TextMutedSmall {
+  @apply text-sm text-muted-foreground;
+}
+.GridTwo {
+  @apply grid gap-6 sm:grid-cols-2;
+}
+.GridTwoSmall {
+  @apply grid gap-4 sm:grid-cols-2;
+}
+
+/* ========== STAT CARD (shared) ========== */
+.statCard {
+  @apply flex items-start space-x-4 p-4 bg-muted rounded-lg hover:bg-muted/70 transition-colors;
+}
+
+.statCardIcon {
+  @apply p-2 bg-background rounded-md;
+}
+.statCardContent {
+  @apply flex-1 space-y-1;
+}
+.statCardTitle {
+  @apply text-sm font-medium text-muted-foreground;
+}
+.statCardTooltip {
+  @apply ml-2 text-muted-foreground cursor-help;
+}
+.statCardValue {
+  @apply text-2xl font-bold tracking-tight text-foreground;
+}
+
+.riskCardContent{
+    @apply dark:bg-black border-none shadow-md;
+}
+.PoolDetailsCards {
+  @apply flex-1;
+}
+
+.TabsList {
+  @apply w-full justify-start h-9 bg-muted rounded-lg p-1;
+}
+.TabsTrigger {
+  @apply rounded-md px-3 py-1.5;
+}
+.TabsContent {
+  @apply space-y-6;
+}
+.RiskTabContent {
+    @apply mt-0 space-y-4;
+  }
+/* Cards used in server version */
+.Card {
+  @apply border-none shadow-md;
+}
+.CardHeader {
+  @apply pb-2 bg-muted/50 border-b border-border;
+}
+.CardTitle {
+  @apply text-lg flex items-center gap-2;
+}
+.CardContent {
+  @apply p-6;
+}
+.PoolDetailsCards .CenteredFlex {
+  @apply flex items-center justify-center p-8 bg-muted rounded-lg;
+}
+.PoolDetailsCards .CenteredText {
+  @apply text-center space-y-4;
+}
+.PoolDetailsCards .BadgeXL {
+  @apply px-6 py-3 text-xl font-semibold;
+}
+.PoolDetailsCards .contractInfo {
+  @apply flex items-center gap-2 bg-muted p-4 rounded-lg;
+}
+
+/* ========== POOL DETAILS CARDS (CLIENT) ========== */
+.PoolDetailsCardsClient {
+  @apply flex-1;
+}
+
+/* Tabs used in client version */
+.PoolDetailsCardsClient .TabsList {
+  @apply w-full justify-start h-9 bg-muted rounded-lg p-1;
+}
+.PoolDetailsCardsClient .TabsTrigger {
+  @apply rounded-md px-3 py-1.5;
+}
+
+/* Instead of a direct .TabsContent, you can style an inner wrapper or reapply the same .TabsContent if you want. */
+.PoolDetailsCardsClient .TabsContentWrapper {
+  @apply mt-6 space-y-6;
+}
+
+/* If you want to style the actual <TabsContent> with the same rules, do: */
+.TabsContent {
+  @apply mt-6 space-y-6;
+}
+
+/* Cards used in client version */
+.PoolDetailsCardsClient .Card {
+  @apply border-none shadow-md;
+}
+.CardHeader {
+  @apply pb-2 bg-muted/50 border-b border-border;
+}
+.CardTitle {
+  @apply text-lg flex items-center gap-2;
+}
+.CardContent {
+  @apply p-6;
+}
+.PoolDetailsCardsClient .CenteredFlex {
+  @apply flex items-center justify-center p-8 bg-muted rounded-lg;
+}
+.PoolDetailsCardsClient .CenteredText {
+  @apply text-center space-y-4;
+}
+.PoolDetailsCardsClient .BadgeXL {
+  @apply px-6 py-3 text-xl font-semibold;
+}
+.PoolDetailsCardsClient .contractInfo {
+  @apply flex items-center gap-2 bg-muted p-4 rounded-lg;
+}
+
+/* ========== POOL NOT FOUND ========== */
+.PoolNotFound {
+  @apply min-h-[calc(100vh-72px)] bg-background flex items-center justify-center;
+}
+.PoolNotFound .PoolNotFoundInner {
+  @apply text-center p-4;
+}
+
+/* ========== PRICE VOLUME CHART ========== */
+.PriceVolumeChart {
+  @apply h-[400px] lg:h-[500px] rounded-lg border bg-card overflow-hidden my-6;
+}
+.PriceVolumeChart .PriceVolumeHeader {
+  @apply p-4 border-b border-border flex items-center justify-between bg-card;
+}
+.PriceVolumeChart .ChartPeriodSelect {
+  @apply w-[100px];
+}
+.PriceVolumeChart .ChartContentWrapper {
+  @apply flex-1 relative bg-muted/10 h-full;
+}
+
+/* ========== LOADING ========== */
+.Loading {
+  @apply flex flex-col items-center justify-center h-full gap-3;
+}
+.Loading .Spinner {
+  @apply animate-spin h-8 w-8 text-primary;
+}
+.Loading .LoadingText {
+  @apply text-sm text-muted-foreground;
+}
+
+/* ========== HEADERS, BUTTONS & BADGES ========== */
+.HeaderSection {
+  @apply py-4 border-b border-border;
+}
+.FlexRowBetweenSm {
+  @apply flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between;
+}
+.FlexItemsCenterGap3 {
+  @apply flex items-center gap-3;
+}
+.BackToPoolsBtn {
+  @apply gap-2 -ml-2 text-muted-foreground hover:text-foreground w-fit;
+}
+.capitalizeInline {
+  @apply capitalize px-3 py-1 hover:opacity-80 transition-opacity inline-block;
+}
+.ProtocolBadgeSoroswap {
+  @apply bg-purple-500/10 text-purple-500 border-purple-500/20;
+}
+.ProtocolBadgeBlend {
+  @apply bg-green-500/10 text-green-500 border-green-500/20;
+}
+.ProtocolBadgePhoenix {
+  @apply bg-orange-500/10 text-orange-500 border-orange-500/20;
+}
+.ProtocolBadgeAqua {
+  @apply bg-pink-500/10 text-pink-500 border-pink-500/20;
+}

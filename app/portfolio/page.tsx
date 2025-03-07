@@ -1,6 +1,5 @@
 "use client";
-
-import { useState, useMemo } from "react";
+import { useState, useMemo, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
@@ -12,11 +11,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { useDataContext } from "@/contexts/DataContext";
-import type {
-  PoolRiskApiResponseObject,
-  Pair,
-  Token
-} from "@/utils/types";
+import type { PoolRiskApiResponseObject, Pair, Token } from "@/utils/types";
 
 // ---------------------------------------------------------------------------
 // Helpers & Mock Data
@@ -25,14 +20,14 @@ import type {
 function formatUSD(value: number): string {
   return `$${value.toLocaleString(undefined, {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   })}`;
 }
 
 function formatTokenAmount(value: number): string {
   return value.toLocaleString(undefined, {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 4
+    maximumFractionDigits: 4,
   });
 }
 
@@ -65,14 +60,14 @@ const USER_METRICS = [
   { label: "Your Portfolio Value", value: "$6,500.00", change: "+2.1%" },
   { label: "24h PnL", value: "+$140.00", change: "+7.4%" },
   { label: "Your Strategies", value: "3", change: "+1" },
-  { label: "Your Realized PnL", value: "$320.00", change: "+15.8%" }
+  { label: "Your Realized PnL", value: "$320.00", change: "+15.8%" },
 ];
 
 const GLOBAL_METRICS = [
   { label: "Global TVL", value: "$12.7M", change: "+12.5%" },
   { label: "Global 24h Volume", value: "$1.2M", change: "-5.2%" },
   { label: "Active Strategies", value: "81", change: "+1" },
-  { label: "Global Profit", value: "$234.5K", change: "+18.3%" }
+  { label: "Global Profit", value: "$234.5K", change: "+18.3%" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -92,7 +87,7 @@ export interface CreationRule {
 interface UserStrategy {
   id: string;
   name: string;
-  baseToken: string; 
+  baseToken: string;
   tokens: { symbol: string }[];
   description: string;
   riskLevel: "Low" | "Medium" | "High";
@@ -114,9 +109,7 @@ interface BalanceItem {
 // ---------------------------------------------------------------------------
 
 function buildUserStrategies(poolRiskData: PoolRiskApiResponseObject[]): UserStrategy[] {
-  const sorted = [...poolRiskData].sort(
-    (a, b) => parseFloat(b.apr) - parseFloat(a.apr)
-  );
+  const sorted = [...poolRiskData].sort((a, b) => parseFloat(b.apr) - parseFloat(a.apr));
   const top3 = sorted.slice(0, 3);
   const next2 = sorted.slice(3, 5);
   const next4 = sorted.slice(5, 9);
@@ -136,8 +129,8 @@ function buildUserStrategies(poolRiskData: PoolRiskApiResponseObject[]): UserStr
         sortMetric: "apr",
         topN: 3,
         distributionMethod: "static",
-        rebalancingMethod: "manual"
-      }
+        rebalancingMethod: "manual",
+      },
     },
     {
       id: "LOW_RISK",
@@ -154,8 +147,8 @@ function buildUserStrategies(poolRiskData: PoolRiskApiResponseObject[]): UserStr
         topN: 2,
         distributionMethod: "dynamic",
         rebalancingMethod: "timeBased",
-        rebalancingFrequency: 24 // every 24 hours, for example
-      }
+        rebalancingFrequency: 24, // every 24 hours, for example
+      },
     },
     {
       id: "MANUAL_MIX",
@@ -167,38 +160,38 @@ function buildUserStrategies(poolRiskData: PoolRiskApiResponseObject[]): UserStr
       userBalance: 800,
       pools: next4.map((p) => ({
         ...p,
-        distribution: 100 / next4.length
+        distribution: 100 / next4.length,
       })),
       creationRule: {
         type: "manual",
         chosenPairs: next4.map((p) => ({
           pairId: p.pairId,
-          distribution: 100 / next4.length
-        }))
-      }
-    }
+          distribution: 100 / next4.length,
+        })),
+      },
+    },
   ];
 }
 
 function buildHierarchicalBalances(
   strategies: UserStrategy[],
   pairs: Pair[],
-  tokens: Token[]
+  tokens: Token[],
 ): BalanceItem[] {
-  const xlmAddress = tokens.find((t) => t.symbol === "XLM")?.id || "native";
-  const usdcAddress = tokens.find((t) => t.symbol === "USDC")?.id || "???";
+  const xlmAddress = tokens.find((t) => t.symbol === "XLM")?.id ?? "native";
+  const usdcAddress = tokens.find((t) => t.symbol === "USDC")?.id ?? "???";
 
   const xlm: BalanceItem = {
     label: "XLM",
     address: xlmAddress,
     amount: 120,
-    locked: false
+    locked: false,
   };
   const usdc: BalanceItem = {
     label: "USDC",
     address: usdcAddress,
     amount: 500,
-    locked: false
+    locked: false,
   };
 
   const stratNodes: BalanceItem[] = strategies.map((s) => {
@@ -207,17 +200,17 @@ function buildHierarchicalBalances(
       address: `strategy-${s.id}`,
       amount: s.userBalance,
       locked: true,
-      children: []
+      children: [],
     };
 
     stratNode.children = s.pools.map((p) => {
-      const lockedAmount = (s.userBalance * (p.distribution || 0)) / 100;
+      const lockedAmount = (s.userBalance * (p.distribution ?? 0)) / 100;
       const lpNode: BalanceItem = {
         label: `LP(${p.market})`,
         address: p.pairId,
         amount: lockedAmount,
         locked: true,
-        children: []
+        children: [],
       };
       const matchedPair = pairs.find((pp) => pp.id === p.pairId);
       if (matchedPair) {
@@ -225,22 +218,22 @@ function buildHierarchicalBalances(
         const t0Addr = matchedPair.token0;
         const t1Addr = matchedPair.token1;
 
-        const t0Symbol = tokens.find((tt) => tt.id === t0Addr)?.symbol || "T0";
-        const t1Symbol = tokens.find((tt) => tt.id === t1Addr)?.symbol || "T1";
+        const t0Symbol = tokens.find((tt) => tt.id === t0Addr)?.symbol ?? "T0";
+        const t1Symbol = tokens.find((tt) => tt.id === t1Addr)?.symbol ?? "T1";
 
         lpNode.children = [
           {
             label: `underlying ${t0Symbol}`,
             address: t0Addr,
             amount: half,
-            locked: true
+            locked: true,
           },
           {
             label: `underlying ${t1Symbol}`,
             address: t1Addr,
             amount: half,
-            locked: true
-          }
+            locked: true,
+          },
         ];
       }
       return lpNode;
@@ -261,7 +254,7 @@ export default function PortfolioPage() {
   const userStrats = useMemo(() => buildUserStrategies(poolRiskData), [poolRiskData]);
   const userBalances = useMemo(
     () => buildHierarchicalBalances(userStrats, pairs, tokens),
-    [userStrats, pairs, tokens]
+    [userStrats, pairs, tokens],
   );
 
   const [expandedStrategy, setExpandedStrategy] = useState<string | null>(null);
@@ -280,9 +273,7 @@ export default function PortfolioPage() {
       >
         {/* 1) Global + User Metrics */}
         <section>
-          <h2 className="text-lg font-semibold mb-2 text-foreground">
-            Global Metrics
-          </h2>
+          <h2 className="text-lg font-semibold mb-2 text-foreground">Global Metrics</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {GLOBAL_METRICS.map((metric, i) => (
               <motion.div
@@ -293,17 +284,9 @@ export default function PortfolioPage() {
               >
                 <Card className="p-4 bg-card border-border hover:shadow-md transition-all duration-300">
                   <div className="text-sm text-muted-foreground">{metric.label}</div>
-                  <div className="text-2xl font-bold text-foreground mt-1">
-                    {metric.value}
-                  </div>
+                  <div className="text-2xl font-bold text-foreground mt-1">{metric.value}</div>
                   <motion.div
-                    className={`text-sm mt-1 ${
-                      metric.change.startsWith("+")
-                        ? "text-emerald-400"
-                        : metric.change.startsWith("-")
-                        ? "text-red-400"
-                        : "text-muted-foreground"
-                    }`}
+                    className={`text-sm mt-1 ${metric.change.startsWith("+") ? "text-emerald-400" : metric.change.startsWith("-") ? "text-red-400" : "text-muted-foreground"}`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5, delay: 0.5 + i * 0.1 }}
@@ -315,9 +298,7 @@ export default function PortfolioPage() {
             ))}
           </div>
 
-          <h2 className="text-lg font-semibold mb-2 text-foreground">
-            Your Account Metrics
-          </h2>
+          <h2 className="text-lg font-semibold mb-2 text-foreground">Your Account Metrics</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {USER_METRICS.map((metric, i) => (
               <motion.div
@@ -328,17 +309,9 @@ export default function PortfolioPage() {
               >
                 <Card className="p-4 bg-card border-border hover:shadow-md transition-all duration-300">
                   <div className="text-sm text-muted-foreground">{metric.label}</div>
-                  <div className="text-2xl font-bold text-foreground mt-1">
-                    {metric.value}
-                  </div>
+                  <div className="text-2xl font-bold text-foreground mt-1">{metric.value}</div>
                   <motion.div
-                    className={`text-sm mt-1 ${
-                      metric.change.startsWith("+")
-                        ? "text-emerald-400"
-                        : metric.change.startsWith("-")
-                        ? "text-red-400"
-                        : "text-muted-foreground"
-                    }`}
+                    className={`text-sm mt-1 ${metric.change.startsWith("+") ? "text-emerald-400" : metric.change.startsWith("-") ? "text-red-400" : "text-muted-foreground"}`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5, delay: 0.5 + i * 0.1 }}
@@ -361,12 +334,8 @@ export default function PortfolioPage() {
           >
             <Card className="p-4 bg-card border-border hover:shadow-md transition-all duration-300">
               <div className="mb-4">
-                <h2 className="text-lg font-semibold text-foreground">
-                  Performance Chart
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Overall portfolio value over time
-                </p>
+                <h2 className="text-lg font-semibold text-foreground">Performance Chart</h2>
+                <p className="text-sm text-muted-foreground">Overall portfolio value over time</p>
               </div>
               <TradingViewChart />
             </Card>
@@ -380,12 +349,8 @@ export default function PortfolioPage() {
           >
             <Card className="p-4 bg-card border-border hover:shadow-md transition-all duration-300 h-full flex flex-col">
               <div className="mb-4">
-                <h2 className="text-lg font-semibold text-foreground">
-                  Your Strategies
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Manage your active strategies
-                </p>
+                <h2 className="text-lg font-semibold text-foreground">Your Strategies</h2>
+                <p className="text-sm text-muted-foreground">Manage your active strategies</p>
               </div>
               <div className="flex-1 overflow-auto space-y-4">
                 <AnimatePresence>
@@ -395,9 +360,15 @@ export default function PortfolioPage() {
                       strat={strat}
                       expandedId={expandedStrategy}
                       setExpandedId={setExpandedStrategy}
-                      onAnalyze={() => setAnalyzeId(strat.id)}
-                      onDeposit={() => setDepositId(strat.id)}
-                      onWithdraw={() => setWithdrawId(strat.id)}
+                      onAnalyze={() => {
+                        setAnalyzeId(strat.id);
+                      }}
+                      onDeposit={() => {
+                        setDepositId(strat.id);
+                      }}
+                      onWithdraw={() => {
+                        setWithdrawId(strat.id);
+                      }}
                     />
                   ))}
                 </AnimatePresence>
@@ -406,7 +377,9 @@ export default function PortfolioPage() {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowCreate(true)}
+                  onClick={() => {
+                    setShowCreate(true);
+                  }}
                   className="cursor-pointer"
                 >
                   <Card className="p-8 border-dashed border-2 hover:border-primary/50 hover:bg-muted/50 transition-all duration-300 flex flex-col items-center justify-center gap-3 group">
@@ -425,9 +398,7 @@ export default function PortfolioPage() {
 
         {/* 3) Balances Table */}
         <section>
-          <h2 className="text-lg font-semibold mb-2 text-foreground">
-            Your Balances
-          </h2>
+          <h2 className="text-lg font-semibold mb-2 text-foreground">Your Balances</h2>
           <Card className="p-4 bg-card border-border hover:shadow-md transition-all duration-300">
             <BalanceTable data={userBalances} />
           </Card>
@@ -437,23 +408,34 @@ export default function PortfolioPage() {
       {/* Modals */}
       <AnalyzeStrategyModal
         open={!!analyzeId}
-        onClose={() => setAnalyzeId(null)}
+        onClose={() => {
+          setAnalyzeId(null);
+        }}
         strategyId={analyzeId}
         strategies={userStrats}
       />
       <DepositModal
         open={!!depositId}
-        onClose={() => setDepositId(null)}
+        onClose={() => {
+          setDepositId(null);
+        }}
         strategyId={depositId}
         strategies={userStrats}
       />
       <WithdrawModal
         open={!!withdrawId}
-        onClose={() => setWithdrawId(null)}
+        onClose={() => {
+          setWithdrawId(null);
+        }}
         strategyId={withdrawId}
         strategies={userStrats}
       />
-      <CreateStrategyModal open={showCreate} onClose={() => setShowCreate(false)} />
+      <CreateStrategyModal
+        open={showCreate}
+        onClose={() => {
+          setShowCreate(false);
+        }}
+      />
     </PageLayout>
   );
 }
@@ -467,7 +449,7 @@ function StrategyCard({
   setExpandedId,
   onAnalyze,
   onDeposit,
-  onWithdraw
+  onWithdraw,
 }: {
   strat: UserStrategy;
   expandedId: string | null;
@@ -483,9 +465,11 @@ function StrategyCard({
       <Card
         className={cn(
           "transition-all duration-200 hover:bg-muted/50 cursor-pointer",
-          expanded && "bg-muted/50"
+          expanded && "bg-muted/50",
         )}
-        onClick={() => setExpandedId(expanded ? null : strat.id)}
+        onClick={() => {
+          setExpandedId(expanded ? null : strat.id);
+        }}
       >
         <div className="p-4">
           <div className="card-content-base">
@@ -505,9 +489,7 @@ function StrategyCard({
                   <h3 className="font-medium">{strat.name}</h3>
                   <Bot className="h-4 w-4 text-primary" aria-label="Automated" />
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Strategy #{strat.id}
-                </p>
+                <p className="text-sm text-muted-foreground">Strategy #{strat.id}</p>
               </div>
             </div>
             {expanded ? (
@@ -519,17 +501,13 @@ function StrategyCard({
 
           {expanded && (
             <div className="mt-4 pt-4 border-t space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Base token: {strat.baseToken}
-              </p>
+              <p className="text-sm text-muted-foreground">Base token: {strat.baseToken}</p>
               <p className="text-sm text-muted-foreground">{strat.description}</p>
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Risk Level</span>
-                  <span className={getRiskColor(strat.riskLevel)}>
-                    {strat.riskLevel}
-                  </span>
+                  <span className={getRiskColor(strat.riskLevel)}>{strat.riskLevel}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Balance</span>
@@ -540,7 +518,7 @@ function StrategyCard({
               <div className="space-y-2">
                 <h4 className="text-sm font-medium">Pool Distribution</h4>
                 {strat.pools.map((p, idx) => {
-                  const allocated = (strat.userBalance * (p.distribution || 0)) / 100;
+                  const allocated = (strat.userBalance * (p.distribution ?? 0)) / 100;
                   return (
                     <div key={idx} className="bg-background rounded-lg p-2">
                       <div className="flex justify-between text-sm">
@@ -553,19 +531,15 @@ function StrategyCard({
                       <div className="mt-1 h-1.5 bg-muted rounded-full overflow-hidden">
                         <div
                           className="h-full bg-primary"
-                          style={{ width: `${(p.distribution || 0).toFixed(2)}%` }}
+                          style={{ width: `${(p.distribution ?? 0).toFixed(2)}%` }}
                         />
                       </div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        {(p.distribution || 0).toFixed(2)}% allocation
+                        {(p.distribution ?? 0).toFixed(2)}% allocation
                       </div>
                       <div className="mt-1 text-sm flex justify-between border-t pt-1">
-                        <span className="text-foreground font-medium">
-                          Allocated
-                        </span>
-                        <span className="font-medium text-foreground">
-                          {formatUSD(allocated)}
-                        </span>
+                        <span className="text-foreground font-medium">Allocated</span>
+                        <span className="font-medium text-foreground">{formatUSD(allocated)}</span>
                       </div>
                     </div>
                   );
@@ -649,14 +623,10 @@ function BalanceRow({ item, level }: { item: BalanceItem; level: number }) {
         </td>
         <td className="py-2 px-2 text-xs text-muted-foreground">{item.address}</td>
         <td className="py-2 px-2">{formatTokenAmount(item.amount)}</td>
-        <td className="py-2 px-2">
-          {valueUSD > 0 ? formatUSD(valueUSD) : "-"}
-        </td>
+        <td className="py-2 px-2">{valueUSD > 0 ? formatUSD(valueUSD) : "-"}</td>
         <td className="py-2 px-2">{item.locked ? "Yes" : "No"}</td>
       </tr>
-      {item.children?.map((child, idx) => (
-        <BalanceRow key={idx} item={child} level={level + 1} />
-      ))}
+      {item.children?.map((child, idx) => <BalanceRow key={idx} item={child} level={level + 1} />)}
     </>
   );
 }
@@ -676,21 +646,20 @@ interface StrategyModalProps extends ModalProps {
 function ModalBase({
   open,
   onClose,
-  children
+  children,
 }: {
   open: boolean;
   onClose: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   if (!open) return null;
   return (
-    <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={onClose}>
       <div
         className="bg-card p-6 rounded-md shadow-xl max-w-2xl w-full m-4"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
       >
         {children}
       </div>
@@ -699,12 +668,7 @@ function ModalBase({
 }
 
 /** Analyze Strategy */
-function AnalyzeStrategyModal({
-  open,
-  onClose,
-  strategyId,
-  strategies = []
-}: StrategyModalProps) {
+function AnalyzeStrategyModal({ open, onClose, strategyId, strategies = [] }: StrategyModalProps) {
   if (!open || !strategyId) return null;
   const s = strategies.find((st) => st.id === strategyId);
   if (!s) return null;
@@ -724,9 +688,7 @@ function AnalyzeStrategyModal({
             Distribution: <strong>{s.creationRule.distributionMethod}</strong> <br />
             Rebalancing: <strong>{s.creationRule.rebalancingMethod}</strong>
             {s.creationRule.rebalancingMethod === "timeBased" && s.creationRule.rebalancingFrequency && (
-              <>
-                , every {s.creationRule.rebalancingFrequency} hours
-              </>
+              <>, every {s.creationRule.rebalancingFrequency} hours</>
             )}
           </>
         ) : (
@@ -738,9 +700,7 @@ function AnalyzeStrategyModal({
         s.creationRule.chosenPairs?.map((cp, i) => (
           <div key={i} className="flex justify-between text-sm text-muted-foreground">
             <span>pairId: {cp.pairId}</span>
-            <span className="text-emerald-400">
-              {cp.distribution.toFixed(2)}%
-            </span>
+            <span className="text-emerald-400">{cp.distribution.toFixed(2)}%</span>
           </div>
         ))}
 
@@ -749,9 +709,7 @@ function AnalyzeStrategyModal({
         {s.pools.map((p, i) => (
           <div key={i} className="flex justify-between">
             <span className="text-muted-foreground">{p.market}</span>
-            <span className="text-emerald-400">
-              {(p.distribution || 0).toFixed(2)}%
-            </span>
+            <span className="text-emerald-400">{(p.distribution ?? 0).toFixed(2)}%</span>
           </div>
         ))}
       </div>
@@ -763,12 +721,7 @@ function AnalyzeStrategyModal({
 }
 
 /** Deposit */
-function DepositModal({
-  open,
-  onClose,
-  strategyId,
-  strategies = []
-}: StrategyModalProps) {
+function DepositModal({ open, onClose, strategyId, strategies = [] }: StrategyModalProps) {
   if (!open || !strategyId) return null;
   const s = strategies.find((st) => st.id === strategyId);
   if (!s) return null;
@@ -802,12 +755,7 @@ function DepositModal({
 }
 
 /** Withdraw */
-function WithdrawModal({
-  open,
-  onClose,
-  strategyId,
-  strategies = []
-}: StrategyModalProps) {
+function WithdrawModal({ open, onClose, strategyId, strategies = [] }: StrategyModalProps) {
   if (!open || !strategyId) return null;
   const s = strategies.find((st) => st.id === strategyId);
   if (!s) return null;
@@ -840,7 +788,7 @@ function WithdrawModal({
   );
 }
 
-/** 
+/**
  *  Create Strategy with:
  *   - user-defined Strategy Name
  *   - distributionMethod, rebalancingMethod for Automated
@@ -855,7 +803,9 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
   const [sortMetric, setSortMetric] = useState<"apr" | "lowRisk" | "tvl" | "volume">("apr");
   const [topN, setTopN] = useState(5);
   const [distributionMethod, setDistributionMethod] = useState<"static" | "dynamic">("static");
-  const [rebalancingMethod, setRebalancingMethod] = useState<"manual" | "auto" | "timeBased" | "thresholdBased">("manual");
+  const [rebalancingMethod, setRebalancingMethod] = useState<
+    "manual" | "auto" | "timeBased" | "thresholdBased"
+  >("manual");
   const [rebalancingFrequency, setRebalancingFrequency] = useState<number>(24);
 
   const [baseToken, setBaseToken] = useState("USDC");
@@ -883,7 +833,7 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
    * Update distribution by auto-redistributing the difference among other pairs.
    */
   const handleDistChange = (pid: string, newDist: number) => {
-    const oldDist = manualPairs.find((m) => m.pairId === pid)?.dist || 0;
+    const oldDist = manualPairs.find((m) => m.pairId === pid)?.dist ?? 0;
     const diff = newDist - oldDist;
     // if lowering or only 1 pool, set directly (with clamp 0..100)
     if (diff < 0 || manualPairs.length < 2) {
@@ -894,9 +844,7 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
       });
       if (testSum < 0) return;
       if (testSum > 100) return;
-      setManualPairs((prev) =>
-        prev.map((mp) => (mp.pairId === pid ? { ...mp, dist: newDist } : mp))
-      );
+      setManualPairs((prev) => prev.map((mp) => (mp.pairId === pid ? { ...mp, dist: newDist } : mp)));
       return;
     }
 
@@ -953,7 +901,7 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
         topN,
         distributionMethod,
         rebalancingMethod,
-        rebalancingFrequency
+        rebalancingFrequency,
       });
     }
     onClose();
@@ -967,13 +915,13 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
       </p>
 
       {/* 1) Strategy Name */}
-      <label className="block text-sm font-medium text-foreground mb-1">
-        Strategy Name
-      </label>
+      <label className="block text-sm font-medium text-foreground mb-1">Strategy Name</label>
       <input
         type="text"
         value={strategyName}
-        onChange={(e) => setStrategyName(e.target.value)}
+        onChange={(e) => {
+          setStrategyName(e.target.value);
+        }}
         placeholder="e.g. My New Strat"
         className="w-full p-2 border border-border rounded bg-background text-foreground mb-4"
       />
@@ -982,7 +930,9 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
       <label className="block text-sm font-medium text-foreground mb-1">Strategy Type</label>
       <select
         value={strategyType}
-        onChange={(e) => setStrategyType(e.target.value as any)}
+        onChange={(e) => {
+          setStrategyType(e.target.value as "automated" | "manual");
+        }}
         className="w-full p-2 border border-border rounded bg-background text-foreground mb-4"
       >
         <option value="automated">Automated</option>
@@ -993,7 +943,9 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
       <label className="block text-sm font-medium text-foreground mb-1">Base Token</label>
       <select
         value={baseToken}
-        onChange={(e) => setBaseToken(e.target.value)}
+        onChange={(e) => {
+          setBaseToken(e.target.value);
+        }}
         className="w-full p-2 border border-border rounded bg-background text-foreground mb-4"
       >
         <option value="USDC">USDC</option>
@@ -1004,12 +956,12 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
       {strategyType === "automated" ? (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
-              Sort Metric
-            </label>
+            <label className="block text-sm font-medium text-foreground mb-1">Sort Metric</label>
             <select
               value={sortMetric}
-              onChange={(e) => setSortMetric(e.target.value as any)}
+              onChange={(e) => {
+                setSortMetric(e.target.value as "apr" | "lowRisk" | "tvl" | "volume");
+              }}
               className="w-full p-2 border border-border rounded bg-background text-foreground"
             >
               <option value="apr">Highest APR</option>
@@ -1020,26 +972,26 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
-              How many pools?
-            </label>
+            <label className="block text-sm font-medium text-foreground mb-1">How many pools?</label>
             <input
               type="number"
               className="w-full p-2 border border-border rounded bg-background text-foreground"
               min={1}
               max={20}
               value={topN}
-              onChange={(e) => setTopN(parseInt(e.target.value))}
+              onChange={(e) => {
+                setTopN(parseInt(e.target.value));
+              }}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
-              Distribution Method
-            </label>
+            <label className="block text-sm font-medium text-foreground mb-1">Distribution Method</label>
             <select
               value={distributionMethod}
-              onChange={(e) => setDistributionMethod(e.target.value as any)}
+              onChange={(e) => {
+                setDistributionMethod(e.target.value as "static" | "dynamic");
+              }}
               className="w-full p-2 border border-border rounded bg-background text-foreground"
             >
               <option value="static">Static</option>
@@ -1048,12 +1000,14 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
-              Rebalancing Method
-            </label>
+            <label className="block text-sm font-medium text-foreground mb-1">Rebalancing Method</label>
             <select
               value={rebalancingMethod}
-              onChange={(e) => setRebalancingMethod(e.target.value as any)}
+              onChange={(e) => {
+                setRebalancingMethod(
+                  e.target.value as "manual" | "auto" | "timeBased" | "thresholdBased",
+                );
+              }}
               className="w-full p-2 border border-border rounded bg-background text-foreground"
             >
               <option value="manual">Manual</option>
@@ -1073,7 +1027,9 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
                 className="w-full p-2 border border-border rounded bg-background text-foreground"
                 min={1}
                 value={rebalancingFrequency}
-                onChange={(e) => setRebalancingFrequency(parseInt(e.target.value))}
+                onChange={(e) => {
+                  setRebalancingFrequency(parseInt(e.target.value));
+                }}
               />
             </div>
           )}
@@ -1088,13 +1044,16 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
           <div className="flex items-center gap-2">
             <select
               value={selectedPair}
-              onChange={(e) => setSelectedPair(e.target.value)}
+              onChange={(e) => {
+                setSelectedPair(e.target.value);
+              }}
               className="flex-1 p-2 border border-border rounded bg-background text-foreground"
             >
               <option value="">Select a pair</option>
               {limitedPairs.map((pr) => (
                 <option key={pr.id} value={pr.id}>
-                  {pr.token0Details?.symbol}/{pr.token1Details?.symbol} ({pr.protocol})
+                  {pr.token0Details ? pr.token0Details.symbol : pr.token0}/
+                  {pr.token1Details ? pr.token1Details.symbol : pr.token1} ({pr.protocol})
                 </option>
               ))}
             </select>
@@ -1120,8 +1079,8 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
                   >
                     <div className="flex-1">
                       <p className="text-sm text-foreground">
-                        {pr.token0Details?.symbol}/{pr.token1Details?.symbol} ({pr.protocol})
-                        &nbsp;
+                        {pr.token0Details ? pr.token0Details.symbol : pr.token0}/
+                        {pr.token1Details ? pr.token1Details.symbol : pr.token1} ({pr.protocol}) &nbsp;
                         <span className="text-xs text-muted-foreground">{pr.id}</span>
                       </p>
                       <input
@@ -1142,7 +1101,9 @@ function CreateStrategyModal({ open, onClose }: ModalProps) {
                       </div>
                     </div>
                     <button
-                      onClick={() => handleRemovePair(mp.pairId)}
+                      onClick={() => {
+                        handleRemovePair(mp.pairId);
+                      }}
                       className="text-muted-foreground hover:text-foreground"
                     >
                       <X className="h-4 w-4" />

@@ -1,6 +1,13 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
 import AuthForm from "./AuthForm";
 
 interface AuthModalProps {
@@ -16,7 +23,17 @@ interface AuthModalProps {
 }
 
 export function AuthModal(props: AuthModalProps) {
-  const { open, onClose, isLogin, defaultEmail, errorParam, oauthEmail, oauthProvider, oauthCode, recaptchaSiteKey } = props;
+  const {
+    open,
+    onClose,
+    isLogin,
+    defaultEmail,
+    errorParam,
+    oauthEmail,
+    oauthProvider,
+    oauthCode,
+    recaptchaSiteKey,
+  } = props;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

@@ -2,12 +2,9 @@
 "use client";
 
 import { useState } from "react";
-import {
-  ArrowsUpDownIcon,
-  ChevronDownIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowsUpDownIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import { Address } from "@stellar/stellar-sdk";
+import { type Address } from "@stellar/stellar-sdk/minimal";
 
 export interface TokenSwapInfo {
   tokenAddress: Address;
@@ -89,7 +86,9 @@ export default function SwapComponent() {
               <div className="flex items-center flex-1">
                 <div className="relative">
                   <button
-                    onClick={() => setPayDropdownOpen(!payDropdownOpen)}
+                    onClick={() => {
+                      setPayDropdownOpen(!payDropdownOpen);
+                    }}
                     className="flex items-center bg-background border border-input rounded-full py-1 px-2 mr-2"
                   >
                     <Image
@@ -156,9 +155,9 @@ export default function SwapComponent() {
               <div className="flex items-center flex-1">
                 <div className="relative">
                   <button
-                    onClick={() =>
-                      setReceiveDropdownOpen(!receiveDropdownOpen)
-                    }
+                    onClick={() => {
+                      setReceiveDropdownOpen(!receiveDropdownOpen);
+                    }}
                     className="flex items-center bg-background border border-input rounded-full py-1 px-2 mr-2"
                   >
                     <Image
@@ -213,16 +212,16 @@ export default function SwapComponent() {
 
           {/* Slippage Tolerance */}
           <div>
-            <label className="block text-sm font-medium mb-1">
-              Slippage Tolerance
-            </label>
+            <label className="block text-sm font-medium mb-1">Slippage Tolerance</label>
             <input
               type="range"
               min="0"
               max="5"
               step="0.1"
               value={slippageTolerance}
-              onChange={(e) => setSlippageTolerance(parseFloat(e.target.value))}
+              onChange={(e) => {
+                setSlippageTolerance(parseFloat(e.target.value));
+              }}
               className="w-full"
             />
             <div className="flex justify-between text-sm">

@@ -17,7 +17,10 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
       {items.map((item, index) => (
         <div key={item.href} className="flex items-center">
           <ChevronRight className="h-4 w-4" />
-          <Link href={item.href} className={`ml-1 hover:text-foreground transition-colors ${index === items.length - 1 ? "text-foreground font-medium" : ""}`}>
+          <Link
+            href={item.href}
+            className={`ml-1 hover:text-foreground transition-colors ${index === items.length - 1 ? "text-foreground font-medium" : ""}`}
+          >
             {item.label}
           </Link>
         </div>

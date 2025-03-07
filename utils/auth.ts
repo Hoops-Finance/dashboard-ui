@@ -58,7 +58,7 @@ export const authOptions: NextAuthConfig = {
       name: "Credentials",
       credentials: {
         username: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
         try {
@@ -67,7 +67,11 @@ export const authOptions: NextAuthConfig = {
 
           if (!email || !password) return null;
 
-          const userResponse = await fetchCredentialsUser(`${process.env.AUTH_API_URL}/auth/signin`, email, password);
+          const userResponse = await fetchCredentialsUser(
+            `${process.env.AUTH_API_URL}/auth/signin`,
+            email,
+            password,
+          );
           return userResponse ? createUser(userResponse) : null;
         } catch (error: unknown) {
           if (error instanceof Error) {
@@ -77,7 +81,7 @@ export const authOptions: NextAuthConfig = {
           }
           return null;
         }
-      }
+      },
     }),
     CredentialsProvider({
       id: "social",
@@ -85,7 +89,7 @@ export const authOptions: NextAuthConfig = {
       credentials: {
         provider: { label: "Provider", type: "text" },
         code: { label: "Code", type: "text" },
-        state: { label: "State", type: "text" }
+        state: { label: "State", type: "text" },
         // baseurl: { label: "Base URL", type: "text" },
       },
       authorize: async (credentials) => {
@@ -117,21 +121,19 @@ export const authOptions: NextAuthConfig = {
           }
           return null; // Return null or handle error appropriately
         }
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user !== undefined) {
-        token.id = user.id ?? "";
-        token.avatar = user.avatar;
-        token.name = user.name ?? "";
-        token.email = user.email ?? "";
-        token.premiumSubscription = user.premiumSubscription;
-        token.accessToken = user.accessToken;
-        token.refreshToken = user.refreshToken;
-        token.subId = user.subId;
-      }
+      token.id = user.id ?? "";
+      token.avatar = user.avatar;
+      token.name = user.name ?? "";
+      token.email = user.email ?? "";
+      token.premiumSubscription = user.premiumSubscription;
+      token.accessToken = user.accessToken;
+      token.refreshToken = user.refreshToken;
+      token.subId = user.subId;
       return validateAuthorization(token);
     },
 
@@ -146,21 +148,21 @@ export const authOptions: NextAuthConfig = {
         accessToken: validAccess.accessToken,
         refreshToken: validAccess.refreshToken,
         subId: validAccess.subId,
-        emailVerified: null
+        emailVerified: null,
       };
 
       return session;
     },
     async redirect({ url, baseUrl }) {
       return url.startsWith(baseUrl) ? url : baseUrl;
-    }
+    },
   },
   pages: {
-    signIn: "/signup"
+    signIn: "/signup",
   },
   session: {
-    strategy: "jwt"
-  }
+    strategy: "jwt",
+  },
 };
 
 export async function validateAuthorization(token: JWT): Promise<JWT> {
@@ -175,7 +177,7 @@ export async function validateAuthorization(token: JWT): Promise<JWT> {
       // ADDED: Log more detail about the refresh error
       console.error(
         "[validateAuthorization] Failed to refresh access token. Server responded with error:",
-        refreshedToken.error
+        refreshedToken.error,
       );
     }
   }
@@ -192,7 +194,7 @@ export async function verifyAccessToken(token: JWT): Promise<boolean> {
       return await authJsDecode({
         token: jwe,
         secret: process.env.JWT_SECRET,
-        salt: process.env.SALT_SECRET
+        salt: process.env.SALT_SECRET,
       });
     } catch (error) {
       // ADDED: Additional context for decode errors
@@ -203,7 +205,7 @@ export async function verifyAccessToken(token: JWT): Promise<boolean> {
   const at = await decodeToken(token.accessToken);
   const rt = await decodeToken(token.refreshToken);
   const currentTime = Math.floor(Date.now() / 1000);
- /*
+  /*
   jwt claims {
     sub: '677ef99b3ad02e8c8731779b',
     iat: 1736388976, // issued at
@@ -231,9 +233,9 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": `${process.env.AUTH_API_KEY}`
+        "x-api-key": `${process.env.AUTH_API_KEY}`,
       },
-      body: JSON.stringify({ refreshToken: token.refreshToken })
+      body: JSON.stringify({ refreshToken: token.refreshToken }),
     });
   } catch (err) {
     // ADDED: More logging if the fetch itself fails (e.g. ECONNREFUSED)
@@ -259,18 +261,22 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
   return {
     ...token,
     accessToken: data.accessToken ?? token.accessToken,
-    refreshToken: data.refreshToken
+    refreshToken: data.refreshToken,
   };
 }
 
-async function fetchCredentialsUser(url: string, email: string, password: string): Promise<UserResponseType | null> {
+async function fetchCredentialsUser(
+  url: string,
+  email: string,
+  password: string,
+): Promise<UserResponseType | null> {
   const res = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": `${process.env.AUTH_API_KEY}`
+      "x-api-key": `${process.env.AUTH_API_KEY}`,
     },
-    body: JSON.stringify({ email: email, password: password })
+    body: JSON.stringify({ email: email, password: password }),
   });
 
   if (!res.ok) {
@@ -291,7 +297,7 @@ async function fetchCredentialsUser(url: string, email: string, password: string
     premium_subscription: false,
     accessToken: data.accessToken,
     refreshToken: data.refreshToken,
-    sub_id: ""
+    sub_id: "",
   };
 }
 
@@ -301,7 +307,11 @@ interface SocialUserResponse {
   error?: string;
 }
 
-async function fetchSocialUser(provider: string, code: string, state: string): Promise<SocialUserResponse> {
+async function fetchSocialUser(
+  provider: string,
+  code: string,
+  state: string,
+): Promise<SocialUserResponse> {
   console.log("[fetchSocialUser] Starting exchange logic...");
 
   // 1) Check if the user is logged in
@@ -310,14 +320,21 @@ async function fetchSocialUser(provider: string, code: string, state: string): P
   console.log("[fetchSocialUser] isLoggedIn?", isLoggedIn);
 
   // 2) Determine the URL based on login or linking
-  const url = isLoggedIn ? `${process.env.AUTH_API_URL}/auth/oauth/link` : `${process.env.AUTH_API_URL}/auth/oauth/login`;
+  const url = isLoggedIn
+    ? `${process.env.AUTH_API_URL}/auth/oauth/link`
+    : `${process.env.AUTH_API_URL}/auth/oauth/login`;
 
-  console.log(`[fetchSocialUser] Calling express backend at ${url} with provider/code/state:`, provider, code, state);
+  console.log(
+    `[fetchSocialUser] Calling express backend at ${url} with provider/code/state:`,
+    provider,
+    code,
+    state,
+  );
 
   // 3) Prepare headers
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    "x-api-key": `${process.env.AUTH_API_KEY}`
+    "x-api-key": `${process.env.AUTH_API_KEY}`,
   };
 
   if (isLoggedIn && session.user.accessToken) {
@@ -329,7 +346,7 @@ async function fetchSocialUser(provider: string, code: string, state: string): P
     const res = await fetch(url, {
       method: "POST",
       headers,
-      body: JSON.stringify({ provider, code, state })
+      body: JSON.stringify({ provider, code, state }),
     });
 
     const data = (await res.json()) as AuthResult;
@@ -339,7 +356,7 @@ async function fetchSocialUser(provider: string, code: string, state: string): P
       console.error("[fetchSocialUser] Backend responded with error:", data);
       return {
         success: false,
-        error: data.error ?? "Error communicating with backend."
+        error: data.error ?? "Error communicating with backend.",
       };
     }
 
@@ -348,7 +365,7 @@ async function fetchSocialUser(provider: string, code: string, state: string): P
       console.error("[fetchSocialUser] Missing user data in backend response:", data);
       return {
         success: false,
-        error: data.error ?? "Backend response missing required user data"
+        error: data.error ?? "Backend response missing required user data",
       };
     }
 
@@ -356,7 +373,7 @@ async function fetchSocialUser(provider: string, code: string, state: string): P
       console.error("[fetchSocialUser] Missing tokens in backend response:", data);
       return {
         success: false,
-        error: data.error ?? "Backend response missing required tokens"
+        error: data.error ?? "Backend response missing required tokens",
       };
     }
 
@@ -369,13 +386,13 @@ async function fetchSocialUser(provider: string, code: string, state: string): P
       premium_subscription: false,
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
-      sub_id: ""
+      sub_id: "",
     };
 
     console.log("[fetchSocialUser] Completed user data:", userData);
     return {
       success: true,
-      user: userData
+      user: userData,
     };
   } catch (error: unknown) {
     let message;
@@ -386,7 +403,7 @@ async function fetchSocialUser(provider: string, code: string, state: string): P
     console.error("[fetchSocialUser] Error during fetch:", message);
     return {
       success: false,
-      error: message
+      error: message,
     };
   }
 }
@@ -401,7 +418,7 @@ function createUser(user: UserResponseType): UserType {
     accessToken: user.accessToken,
     refreshToken: user.refreshToken,
     subId: user.sub_id || "",
-    emailVerified: null
+    emailVerified: null,
   };
 }
 

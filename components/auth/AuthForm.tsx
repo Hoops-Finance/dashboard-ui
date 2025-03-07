@@ -49,7 +49,7 @@ export default function AuthForm({
   isLogin,
   defaultEmail = "",
   defaultError = "",
-  recaptchaSiteKey
+  recaptchaSiteKey,
 }: AuthFormProps) {
   const router = useRouter();
   const plausible = usePlausible();
@@ -80,7 +80,9 @@ export default function AuthForm({
   function triggerShakeAnimation(): void {
     setButtonShake(true);
     // Remove the class after ~500ms so it can be reapplied on subsequent clicks
-    setTimeout(() => setButtonShake(false), 500);
+    setTimeout(() => {
+      setButtonShake(false);
+    }, 500);
   }
 
   const handleSubmit = async (e: FormEvent): Promise<void> => {
@@ -110,7 +112,7 @@ export default function AuthForm({
       let recaptchaToken = "";
       if (recaptchaSiteKey && typeof window !== "undefined" && window.grecaptcha) {
         recaptchaToken = await window.grecaptcha.execute(recaptchaSiteKey, {
-          action: "submit"
+          action: "submit",
         });
       }
 
@@ -118,7 +120,7 @@ export default function AuthForm({
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, recaptchaToken })
+        body: JSON.stringify({ email, password, recaptchaToken }),
       });
 
       const jsonData = (await res.json().catch(() => ({}))) as RegisterResponse;
@@ -137,21 +139,10 @@ export default function AuthForm({
     }
 
     // ================== LOGIN ==================
-    console.log('running signin on the server')
-    const result = (await signInServer({ email, password })) as SignInResult;
-    console.log(result);
-    console.log("[AuthForm] signInServer returned:", result);
-    if (typeof result === "string") {
-      plausible("Login", { props: { method: "password" } });
-       // For Auth.js + Next.js 15, a successful signIn("credentials", { redirect: false }) 
-    // often returns the redirect URL as a string (e.g. "/api/auth/callback/credentials?something").
-    // Instead of doing anything with that URL, just go to "/profile".
-      router.push("/profile");
-    } else {
-      console.warn("[AuthForm] Possibly an error object:", result);
-      setError(`Login failed: ${result.error ?? result ?? "Invalid credentials"}`);
-      triggerShakeAnimation();
-    }
+    console.log("running signin on the server");
+    await signInServer({ email, password });
+    plausible("Login", { props: { method: "password" } });
+    router.push("/profile");
   };
 
   // This function decides if we allow a click for sign-up
@@ -241,10 +232,7 @@ export default function AuthForm({
         </div>
 
         {error && (
-          <p
-            style={{ color: "red", fontWeight: "bold" }}
-            className="mt-2 transition-all duration-300"
-          >
+          <p style={{ color: "red", fontWeight: "bold" }} className="mt-2 transition-all duration-300">
             {error}
           </p>
         )}
@@ -260,12 +248,7 @@ export default function AuthForm({
           hasn't agreed. We also add an optional red glow 
           if `buttonShake` is true.
         */}
-        <button
-          type="submit"
-          className={`auth-submit-button ${
-            buttonShake ? "red-glow shake" : ""
-          }`}
-        >
+        <button type="submit" className={`auth-submit-button ${buttonShake ? "red-glow shake" : ""}`}>
           {isLogin ? "Log In" : "Sign Up"}
         </button>
 
@@ -310,7 +293,9 @@ export default function AuthForm({
           <button
             type="button"
             className={`auth-button ${buttonShake ? "red-glow shake" : ""}`}
-            onClick={() => handleOrBlockClick(loginWithGoogle)}
+            onClick={() => {
+              handleOrBlockClick(loginWithGoogle);
+            }}
           >
             <Image src="/icons/google.svg" alt="Google" width={24} height={24} />
             Google
@@ -318,7 +303,9 @@ export default function AuthForm({
           <button
             type="button"
             className={`auth-button ${buttonShake ? "red-glow shake" : ""}`}
-            onClick={() => handleOrBlockClick(loginWithDiscord)}
+            onClick={() => {
+              handleOrBlockClick(loginWithDiscord);
+            }}
           >
             <Image src="/icons/discord.svg" alt="Discord" width={24} height={24} />
             Discord

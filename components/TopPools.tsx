@@ -8,7 +8,13 @@ import { useDataContext } from "@/contexts/DataContext";
 
 function FlameIcon() {
   return (
-    <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <svg
+      className="h-5 w-5 text-primary"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
       <path d="M13 4l-1 2H6l5 8h3l5-8h-6l1-2z" />
       <path d="M13 12l-2 4h6" />
     </svg>
@@ -17,7 +23,13 @@ function FlameIcon() {
 
 function DiamondIcon() {
   return (
-    <svg className="h-5 w-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      className="h-5 w-5 text-primary"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M12 20v-8m-6 8v-4m12 4V8" />
     </svg>
   );
@@ -25,7 +37,13 @@ function DiamondIcon() {
 
 function CoinsIcon() {
   return (
-    <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+    <svg
+      className="h-5 w-5 text-primary"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      strokeWidth="2"
+    >
       <path d="M12 1v22m-7-7h14" />
     </svg>
   );
@@ -98,7 +116,13 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
 
   return (
     <div className="grid gap-6 md:grid-cols-3">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }} whileHover={{ scale: 1.02 }} className="transform-gpu">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        whileHover={{ scale: 1.02 }}
+        className="transform-gpu"
+      >
         <Card>
           <CardHeader>
             <CardTitle className="flex-center-g-2">
@@ -122,9 +146,13 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
                 >
                   <div className="flex-center-g-2">
                     <span className="text-muted-foreground">#{rank}</span>
-                    <span className="text-foreground font-medium group-hover:text-primary transition-colors duration-200">{pairLabel}</span>
+                    <span className="text-foreground font-medium group-hover:text-primary transition-colors duration-200">
+                      {pairLabel}
+                    </span>
                   </div>
-                  <span className={aprVal >= 0 ? "text-green-500" : "text-red-500"}>{aprVal.toFixed(2)}%</span>
+                  <span className={aprVal >= 0 ? "text-green-500" : "text-red-500"}>
+                    {aprVal.toFixed(2)}%
+                  </span>
                 </motion.div>
               );
             })}
@@ -132,7 +160,13 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
         </Card>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.2 }} whileHover={{ scale: 1.02 }} className="transform-gpu">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        whileHover={{ scale: 1.02 }}
+        className="transform-gpu"
+      >
         <Card>
           <CardHeader>
             <CardTitle className="flex-center-g-2">
@@ -156,7 +190,9 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
                 >
                   <div className="flex-center-g-2">
                     <span className="text-muted-foreground">#{rank}</span>
-                    <span className="text-foreground font-medium group-hover:text-primary transition-colors duration-200">{pairLabel}</span>
+                    <span className="text-foreground font-medium group-hover:text-primary transition-colors duration-200">
+                      {pairLabel}
+                    </span>
                   </div>
                   <span className="text-foreground">${volVal.toLocaleString()}</span>
                 </motion.div>
@@ -166,7 +202,13 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
         </Card>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.3 }} whileHover={{ scale: 1.02 }} className="transform-gpu">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+        whileHover={{ scale: 1.02 }}
+        className="transform-gpu"
+      >
         <Card>
           <CardHeader>
             <CardTitle className="flex-center-g-2">
@@ -190,9 +232,13 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
                 >
                   <div className="flex-center-g-2">
                     <span className="text-muted-foreground">#{rank}</span>
-                    <span className="text-foreground font-medium group-hover:text-primary transition-colors duration-200">{pairLabel}</span>
+                    <span className="text-foreground font-medium group-hover:text-primary transition-colors duration-200">
+                      {pairLabel}
+                    </span>
                   </div>
-                  <span className={aprVal >= 0 ? "text-green-500" : "text-red-500"}>{aprVal.toFixed(2)}%</span>
+                  <span className={aprVal >= 0 ? "text-green-500" : "text-red-500"}>
+                    {aprVal.toFixed(2)}%
+                  </span>
                 </motion.div>
               );
             })}

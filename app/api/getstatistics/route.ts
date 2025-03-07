@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   try {
     const response = await fetch(apiUrl, {
       headers: { Authorization: process.env.API_KEY ?? "" },
-      cache: "no-store"
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -22,6 +22,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error fetching data from API:", error);
-    return NextResponse.json({ error: "Failed to fetch data from API" }, { status: httpStatus.SERVICE_UNAVAILABLE });
+    return NextResponse.json(
+      { error: "Failed to fetch data from API" },
+      { status: httpStatus.SERVICE_UNAVAILABLE },
+    );
   }
 }

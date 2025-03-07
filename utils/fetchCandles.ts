@@ -15,7 +15,12 @@ interface ErrorResponse {
   error?: string;
 }
 
-export async function fetchMarketCandles(token0: string, token1: string, from: number, to: number): Promise<CandleData[]> {
+export async function fetchMarketCandles(
+  token0: string,
+  token1: string,
+  from: number,
+  to: number,
+): Promise<CandleData[]> {
   try {
     const response = await fetch(`/api/candles/${token0}/${token1}?from=${from}&to=${to}`);
 
@@ -29,7 +34,7 @@ export async function fetchMarketCandles(token0: string, token1: string, from: n
       open: record.open,
       high: record.high,
       low: record.low,
-      close: record.close
+      close: record.close,
     }));
   } catch (error) {
     console.error("Error in fetchMarketCandles:", error);
@@ -37,7 +42,11 @@ export async function fetchMarketCandles(token0: string, token1: string, from: n
   }
 }
 
-export async function fetchTokenCandles(token0: string, from: number, to: number): Promise<CandleData[]> {
+export async function fetchTokenCandles(
+  token0: string,
+  from: number,
+  to: number,
+): Promise<CandleData[]> {
   try {
     const response = await fetch(`/api/candles/${token0}?from=${from}&to=${to}`);
 
@@ -51,7 +60,7 @@ export async function fetchTokenCandles(token0: string, from: number, to: number
       open: record.open,
       high: record.high,
       low: record.low,
-      close: record.close
+      close: record.close,
     }));
   } catch (error) {
     console.error("Error in fetchTokenCandles:", error);
