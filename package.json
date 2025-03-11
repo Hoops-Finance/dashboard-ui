@@ -27,7 +27,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-switch": "^1.1.1",
     "@radix-ui/react-tabs": "^1.1.1",
-    "@stellar/stellar-sdk": "^13.0.0",
+    "@stellar/stellar-sdk": "^13.1.0",
     "async-mutex": "^0.5.0",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
@@ -70,6 +70,7 @@
     "next": "^15.2.2-canary.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "usb": "file:./usboverride"
+    "usb": "file:./usboverride",
+    "axios": ">=1.8.2"
   }
 }
