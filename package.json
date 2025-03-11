@@ -7,7 +7,7 @@
     "build": "next build",
     "build:map": "cross-env NODE_OPTIONS=--enable-source-maps NEXT_PRIVATE_LOADABLE_ANALYSIS=1 next build",
     "build:map:withlog": "node build-log.js",
-    "start": "next start -p 3043",
+    "start": "next start",
     "nextlint": "next lint",
     "lint": "npx eslint --flag unstable_ts_config",
     "lint:fix": "npx eslint --flag unstable_ts_config --fix",
