@@ -60,8 +60,7 @@ export async function generatePairRoutes() {
   let index = 0;
   const maxRoutes = process.env.MAX_ROUTES
     ? parseInt(process.env.MAX_ROUTES)
-    : // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      Max_Routes
+      : Max_Routes
       ? Max_Routes
       : undefined;
   for (const pool of poolRiskData) {

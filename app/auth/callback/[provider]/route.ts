@@ -29,25 +29,18 @@ export async function GET(req: NextRequest, context: { params: Promise<{ provide
   console.log(`[OAUTH-CALLBACK] Provider: ${provider}, Code: ${code}, State: ${returnedState}`);
 
   if (!provider || !code || !returnedState) {
-    return NextResponse.redirect(new URL("/signup?error=MissingCodeOrState", "https://app.hoops.finance"));
+    return NextResponse.redirect(new URL("/signup?error=MissingCodeOrState", req.url));
   }
 
   const cookieStore = await cookies();
-  console.log(cookieStore);
-  const testcook = cookieStore.getAll();
-  console.log("Testcook");
-  console.log(testcook);
-  const rawCookie = cookieStore.get("__Host-authjs.csrf-token");
-  console.log("THE RAW COOKIE");
-  console.log(rawCookie);
-  rawCookie?.value && console.log(`[OAUTH-CALLBACK] Raw CSRF Cookie: ${rawCookie.value}`);
+  const rawCookie = cookieStore.get("authjs.csrf-token")?.value ?? "";
   console.log(`[OAUTH-CALLBACK] CSRF Cookie: ${rawCookie}`);
 
   if (!rawCookie) {
-    return NextResponse.redirect(new URL("/signup?error=MissingCsrfCookie", "https://app.hoops.finance"));
+    return NextResponse.redirect(new URL("/signup?error=MissingCsrfCookie", req.url));
   }
 
-  const decodedCookie = decodeURIComponent(rawCookie.value);
+  const decodedCookie = decodeURIComponent(rawCookie);
   console.log(`[OAUTH-CALLBACK] Decoded CSRF Cookie: ${decodedCookie}`);
 
   const [csrfCookieValue] = decodedCookie.split("|");
@@ -57,37 +50,36 @@ export async function GET(req: NextRequest, context: { params: Promise<{ provide
   console.log(`[OAUTH-CALLBACK] Cookie Token: ${cookieToken}`);
   console.log(`[OAUTH-CALLBACK] Returned State: ${returnedState}`);
   if (!cookieToken || cookieToken !== returnedState) {
-    return NextResponse.redirect(new URL("/signup?error=InvalidState", "https://app.hoops.finance"));
+    return NextResponse.redirect(new URL("/signup?error=InvalidState", req.url));
   }
 
   console.log(`[OAUTH-CALLBACK] TRYING TO LOGIN`);
 
-  let redirectUrl;
+  let redirectUrl: string;
   try {
-    redirectUrl = await signIn("social", {
+    redirectUrl = (await signIn("social", {
       redirect: false,
       provider,
       code,
       state: returnedState,
     })) as string;
+    console.log("[OAUTH-CALLBACK] signIn('social') returned URL:", redirectUrl);
+    if (!redirectUrl) {
+      throw new Error("Failed to retrieve redirect URL from signIn");
+    }
   } catch (err) {
     if (err instanceof AuthError) {
-      return NextResponse.redirect(new URL(`/signup?error=${encodeURIComponent(err.message)}`, "https://app.hoops.finance"));
+      return NextResponse.redirect(new URL(`/signup?error=${encodeURIComponent(err.message)}`, req.url));
     }
   }
 
-  console.log("[OAUTH-CALLBACK] signIn('social') returned URL:", redirectUrl);
-  if (!redirectUrl) {
-    throw new Error("Failed to retrieve redirect URL from signIn");
+  console.log("calling session in the authcallback");
+  const session = await auth();
+  console.log("called session in the auth callback");
+  const isLoggedIn = !!session?.user.accessToken;
+  console.log(`[OAUTH-CALLBACK] User is logged in: ${isLoggedIn}`);
+  if (!isLoggedIn) {
+    return NextResponse.redirect(new URL(`/signup?error=UnknownFailure`, req.url));
   }
-//  console.log("calling session in the authcallback");
-//  const session = await auth();
-//  console.log("called session in the auth callback");
-//  console.log(session);
-//  const isLoggedIn = !!session?.user.accessToken;
-//  console.log(`[OAUTH-CALLBACK] User is logged in: ${isLoggedIn}`);
-//  if (!isLoggedIn) {
-//    return NextResponse.redirect(new URL(`/signup?error=UnknownFailure`, "https://app.hoops.finance"));
-//  }
-  return NextResponse.redirect(new URL("/profile", "https://app.hoops.finance"));
+  return NextResponse.redirect(new URL("/profile", req.url));
 }
