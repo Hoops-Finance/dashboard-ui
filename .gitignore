@@ -75,7 +75,6 @@ unstaged_changes.txt
 auth-errors.txt
 dev-log.md
 lintoutput.txt
-schema.json
 **/*combined.ts.txt
 ls
 ls.txt
@@ -86,6 +85,3 @@ build-log.json
 analyze
 page-old.tsx
 typings
-app/api/data/page.tsx
-app/api/data/route.ts
-candlesCache.json
