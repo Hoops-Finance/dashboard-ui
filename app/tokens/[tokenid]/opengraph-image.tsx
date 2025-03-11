@@ -23,11 +23,11 @@ export const revalidate = 86400;
 export const config = {
   runtime: "experimental-edge",
 };
-
+/*
 export async function generateStaticParams() {
   const { tokenRoutes } = await getCachedRoutes(generateTokenRoutes, generatePairRoutes);
   return tokenRoutes;
-}
+}*/
 
 export default async function ogImage({ params }: { params: Promise<{ tokenid: string }> }) {
   const { tokenid } = await params;

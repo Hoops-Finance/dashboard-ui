@@ -89,9 +89,7 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
         return 0;
       };
       d.sort((a, b) => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const aVal = getVal(a[sortConfig.key!]);
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const bVal = getVal(b[sortConfig.key!]);
         if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
         if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;

@@ -110,11 +110,11 @@ export default async function ProtocolPage({ params }: { params: Promise<{ proto
   if (!protocolInfo) {
     throw new Error("Invalid protocol specified.");
   }
-  const protocolPools = useMemo(() => {
-    if (!isValidProtocol) return [];
-    const mappedProtocol = protocol === "aquarius" ? "aqua" : protocol;
-    return poolRiskData.filter((pool) => pool.protocol.toLowerCase() === mappedProtocol.toLowerCase());
-  }, [poolRiskData, protocol, isValidProtocol]);
+  // Filter pools by protocol - server side compatible implementation
+  const mappedProtocol = protocol === "aquarius" ? "aqua" : protocol;
+  const protocolPools = poolRiskData.filter(
+    (pool) => pool.protocol.toLowerCase() === mappedProtocol.toLowerCase()
+  );
 
   const stats = getProtocolStats(protocolPools);
 

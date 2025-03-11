@@ -55,25 +55,24 @@ export async function GET(req: NextRequest, context: { params: Promise<{ provide
 
   console.log(`[OAUTH-CALLBACK] TRYING TO LOGIN`);
 
-  let redirectUrl;
+  let redirectUrl: string;
   try {
-    //  @typescript-eslint/no-unsafe-assignment - This is safe, as signIn will return a string
     redirectUrl = (await signIn("social", {
       redirect: false,
       provider,
       code,
       state: returnedState,
     })) as string;
+    console.log("[OAUTH-CALLBACK] signIn('social') returned URL:", redirectUrl);
+    if (!redirectUrl) {
+      throw new Error("Failed to retrieve redirect URL from signIn");
+    }
   } catch (err) {
     if (err instanceof AuthError) {
       return NextResponse.redirect(new URL(`/signup?error=${encodeURIComponent(err.message)}`, req.url));
     }
   }
 
-  console.log("[OAUTH-CALLBACK] signIn('social') returned URL:", redirectUrl);
-  if (!redirectUrl) {
-    throw new Error("Failed to retrieve redirect URL from signIn");
-  }
   console.log("calling session in the authcallback");
   const session = await auth();
   console.log("called session in the auth callback");

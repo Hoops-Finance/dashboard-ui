@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo } from "react";
 import { useDataContext } from "@/contexts/DataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +9,17 @@ import { MessageCircleWarning } from "lucide-react";
 import { PoolsTable } from "@/components/PoolsTable";
 import { TopPools } from "@/components/TopPools";
 import { STABLECOIN_IDS, AllowedPeriods } from "@/utils/utilities";
-import { useParams } from "next/navigation";
+import { fetchCoreData, fetchPeriodDataFromServer } from "@/services/serverData.service";
+import { GlobalMetrics } from "../../../utils/types";
+export async function generateStaticParams() {
+  // Return an array of objects with protocol param for each protocol
+  return PROTOCOLS.map((protocol) => ({
+    protocol: protocol.toLowerCase(),
+  }));
+}
+
+// Set revalidation to once per day (in seconds)
+export const revalidate = 86400; // 24 hours
 
 const PROTOCOLS = ["soroswap", "aquarius", "blend", "phoenix", "aqua"] as const;
 type Protocol = (typeof PROTOCOLS)[number];
@@ -98,21 +106,24 @@ function getProtocolStats(pools: import("@/utils/types").PoolRiskApiResponseObje
   return { tvl, volume24h, poolCount, averageApy };
 }
 
-export default function ProtocolPage() {
-  const { poolRiskData, period, loading, pairs, tokens } = useDataContext();
-  const params = useParams<{ protocol: string }>();
-  const protocol = params.protocol.toLowerCase() as Protocol;
-
-  const isValidProtocol = PROTOCOLS.includes(protocol);
-  const protocolInfo = isValidProtocol ? PROTOCOL_INFO[protocol] : null;
+export default async function ProtocolPage({ params }: { params: Promise<{ protocol: string }> }) {
+  //const { poolRiskData, period, loading, pairs, tokens } = useDataContext();
+  const { pairs, tokens } = await fetchCoreData();
+  // need to get periods from the user, need dynamic periods.
+  const period = "14d";
+  const { poolRiskData, globalMetrics } = await fetchPeriodDataFromServer(period);
+  const { protocol } = await params;
+  console.log(protocol);
+  const isValidProtocol = PROTOCOLS.includes(protocol.toLowerCase() as Protocol);
+  const protocolInfo = isValidProtocol ? PROTOCOL_INFO[protocol as Protocol] : null;
   if (!protocolInfo) {
     throw new Error("Invalid protocol specified.");
   }
-  const protocolPools = useMemo(() => {
-    if (!isValidProtocol) return [];
-    const mappedProtocol = protocol === "aquarius" ? "aqua" : protocol;
-    return poolRiskData.filter((pool) => pool.protocol.toLowerCase() === mappedProtocol.toLowerCase());
-  }, [poolRiskData, protocol, isValidProtocol]);
+  // Filter pools by protocol - server side compatible implementation
+  const mappedProtocol = protocol === "aquarius" ? "aqua" : protocol;
+  const protocolPools = poolRiskData.filter(
+    (pool) => pool.protocol.toLowerCase() === mappedProtocol.toLowerCase()
+  );
 
   const stats = getProtocolStats(protocolPools);
 
@@ -126,11 +137,11 @@ export default function ProtocolPage() {
       </main>
     );
   }
-
+  /*
   if (loading) {
     return <main className="container mx-auto p-4 space-y-8">Loading pools data...</main>;
   }
-
+*/
   return (
     <main className="container mx-auto p-4 space-y-8">
       {/* Breadcrumbs */}
