@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
   return (
     <html lang="en" className={cn(inter.variable, initialTheme)}>
-      <body className="min-h-screen bg-background antialiased">
+      <body className="min-h-screen bg-background antialiased" cz-shortcut-listen="true">
         <SessionProvider>
           <ClientWalletProvider>
             <DataProvider>

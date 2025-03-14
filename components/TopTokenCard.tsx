@@ -34,7 +34,7 @@ export function TokenCard({ icon, title, data, delay, isServer = false }: TokenC
               : `${item.token.name.substring(0, 8)}...${item.token.name.substring(item.token.name.length - 3)}`;
           return (
             <div key={item.token.id} className="CardContentRow">
-              <div className="flex-center-g-2">
+              <div className="flex items-center gap-2">
                 <span className="text-muted-foreground">#{rank}</span>
                 <span className="CardRowLabel">{symbolName}</span>
               </div>

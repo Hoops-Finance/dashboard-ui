@@ -228,8 +228,8 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
 
       {filteredTokens.length > rowsPerPage && (
         <div className="table-footer">
-          <div className="flex-center-g-4">
-            <div className="flex-center-g-2">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Show</span>
               <Select
                 value={rowsPerPage.toString()}
@@ -255,7 +255,7 @@ export function TokenTable({ tokens, pairs, poolRiskData }: TokenTableProps) {
               {filteredTokens.length} entries
             </div>
           </div>
-          <div className="flex-center-g-2">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
