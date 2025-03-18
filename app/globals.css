@@ -1,7 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 @import "tailwindcss";
+
+@tailwind utilities;
 @config "../tailwind.config.ts";
 
 :root {
@@ -124,7 +123,7 @@
     }
 
     .TokenTableCell {
-        @apply text-right transition-transform duration-300 group-hover:scale-[1.15] group-hover:font-bold;
+        @apply text-right;
     }
 
     .serverTokenTableDiv {
