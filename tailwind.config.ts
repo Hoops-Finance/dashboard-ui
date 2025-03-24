@@ -1,8 +1,7 @@
 import type { Config } from "tailwindcss";
-import tailwindAnimate from "tailwindcss-animate";
 
 const config: Config = {
-  darkMode: ["class"], // Enable class-based dark mode
+  darkMode: "class", // Enable class-based dark mode
   content: [
     "**/*.{js,ts,jsx,tsx,mdx}", // Include all relevant files
     "!node_modules/**/*", // Exclude node_modules
@@ -74,7 +73,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [tailwindAnimate],
+  plugins: [],
 };
 
 export default config;

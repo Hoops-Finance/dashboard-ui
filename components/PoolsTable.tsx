@@ -300,8 +300,8 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
 
       {sortedData.length > entriesPerPage && (
         <div className="table-footer">
-          <div className="flex-center-g-4">
-            <div className="flex-center-g-2">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Show</span>
               <Select
                 value={entriesPerPage.toString()}
@@ -329,7 +329,7 @@ export function PoolsTable({ data, pairs, tokens }: PoolsTableProps) {
               {sortedData.length} entries
             </div>
           </div>
-          <div className="flex-center-g-2">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
