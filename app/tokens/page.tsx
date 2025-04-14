@@ -342,7 +342,7 @@ function ServerSideTokenTable({ tokens, pairs, volumeMap, tvlMap }: ServerSideTo
       <div className="serverTokenHeader">
         <h2 role="heading">All Tokens</h2>
       </div>
-      <table className="serverSideTokenTable anim-fadeSlideInUp" role="table">
+      <table className="serverSideTokenTable" role="table">
         <caption className="hidden">
           A table of all the tokens tracked by Hoops Finance available in Stellars Soroban Smart Contract
           system.
