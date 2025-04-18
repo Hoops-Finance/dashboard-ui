@@ -49,19 +49,6 @@ export function generateMetadata({
       creator: "@hoopsfinance",
       creatorId: "1234567890", // Replace with actual X (Twitter) ID
       siteId: "1234567890", // Replace with actual X (Twitter) ID
-      app: {
-        name: "twitter_app",
-        id: {
-          iphone: "twitter_app://iphone",
-          ipad: "twitter_app://ipad",
-          googlePlay: "twitter_app://googleplay"
-        },
-        url: {
-          iphone: "https://hoops.finance/ios",
-          ipad: "https://hoops.finance/ios",
-          googlePlay: "https://hoops.finance/android"
-        }
-      }
     },
     other: {
       // Facebook
@@ -96,9 +83,9 @@ export function generateMetadata({
       "msapplication-TileColor": "#000000",
       "msapplication-TileImage": ogImage,
       "theme-color": "#000000",
-      "apple-mobile-web-app-capable": "yes",
-      "apple-mobile-web-app-status-bar-style": "black",
-      "apple-mobile-web-app-title": fullTitle,
+      "mobile-web-app-capable": "yes",
+      "mobile-web-app-status-bar-style": "black",
+      "mobile-web-app-title": fullTitle,
       "og:email": "contact@hoops.finance",
       "og:phone_number": "+1234567890",
       "schema:email": "contact@hoops.finance",

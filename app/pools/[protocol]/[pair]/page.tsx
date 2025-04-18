@@ -1,5 +1,5 @@
 import { generateMetadata as generateBaseMetadata } from "@/lib/metadata";
-import PoolPage from "./PoolPage";
+import PoolPage, { generatePairRoutes } from "./PoolPage";
 import { Metadata } from "next";
 
 interface PageProps {
@@ -10,18 +10,14 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const protocol = decodeURIComponent(params.protocol);
-  const pair = decodeURIComponent(params.pair);
-
   return generateBaseMetadata({
-    title: `${protocol} - ${pair} Pool`,
-    description: `View and analyze the ${protocol} ${pair} pool on Hoops Finance`
+    title: `${params.protocol} - ${params.pair} Pool`,
+    description: `View and analyze the ${params.protocol} ${params.pair} pool on Hoops Finance`
   });
 }
 
-export default function Page({ params }: PageProps) {
-  const protocol = decodeURIComponent(params.protocol);
-  const pair = decodeURIComponent(params.pair);
+export { generatePairRoutes };
 
-  return <PoolPage protocol={protocol} pair={pair} />;
+export default function Page({ params }: PageProps) {
+  return <PoolPage params={Promise.resolve(params)} />;
 }

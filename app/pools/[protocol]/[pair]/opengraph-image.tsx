@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import "source-map-support/register"; // No real effect on the sourcemap warnings, but included.
 import { ImageResponse } from "next/og";
 import * as fs from "node:fs";
@@ -7,12 +6,8 @@ import {
   fetchCoreData,
   fetchPeriodDataFromServer,
   fetchTokenDetailsWithCache,
-  getPairsForToken,
 } from "@/services/serverData.service";
 import type { AssetDetails, Pair } from "@/utils/types";
-import { generatePairRoutes } from "@/app/pools/[protocol]/[pair]/page";
-import { getCachedRoutes } from "@/lib/routeCache";
-import { generateTokenRoutes } from "@/app/tokens/[tokenid]/page";
 import { JSX } from "react";
 
 export const alt = "Pair Stats";
