@@ -133,13 +133,18 @@ export async function generateMetadata({
  */
 export default async function PoolPage({
                                          params,
+                                         searchParams,
                                        }: {
   params: Promise<{ protocol: string; pair: string }>;
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const defaultPeriod: AllowedPeriods = "14d";
   const { poolRiskData } = await fetchPeriodDataFromServer(defaultPeriod);
-  const { pairs, tokens } = await fetchCoreData();
+  const { pairs } = await fetchCoreData();
   const { protocol, pair } = await params;
+  
+  const pairId = searchParams?.pairId as string | undefined;
+
   // Parse the "pair" parameter into token names (same logic as your client code)
   let token0Name: string, token1Name: string;
   const parts = pair.split("-");
@@ -181,7 +186,8 @@ export default async function PoolPage({
     value: c.baseVolume,
     color: c.close >= c.open ? "#26a69a" : "#ef5350",
   }));
-  const poolData = await getPoolFromPoolsByTokenNames(pairs, poolRiskData, token0Name, token1Name);
+
+  const poolData = await getPoolFromPoolsByTokenNames(pairs, poolRiskData, token0Name, token1Name, pairId);
 
   if (!poolData) {
     return <PoolNotFound />;
@@ -208,7 +214,14 @@ export async function getPoolFromPoolsByTokenNames(
   poolRiskData: PoolRiskApiResponseObject[],
   token0Name: string,
   token1Name: string,
+  pairId?: string,
 ): Promise<PoolRiskApiResponseObject | undefined> {
+
+  if (pairId) {
+    const directMatch = poolRiskData.find((pool) => pool.pairId === pairId);
+    if (directMatch) return directMatch;
+  }
+  
   const foundPair = pairs.find((pair) => {
     if (!pair.token0Details || !pair.token1Details) {
       return false;
@@ -384,22 +397,22 @@ interface StatCardProps {
   icon?: ReactNode;
 }
 
-const StatCard = ({ title, value, tooltip, icon }: StatCardProps) => (
-  <div className="flex items-start space-x-4 p-4 bg-muted rounded-lg hover:bg-muted/70 transition-colors">
-    {icon && <div className="p-2 bg-background rounded-md">{icon}</div>}
-    <div className="flex-1 space-y-1">
-      <div className="flex items-center">
-        <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        {tooltip && (
-          <span className="ml-2 text-muted-foreground cursor-help" title={tooltip}>
-            ⓘ
-          </span>
-        )}
-      </div>
-      <p className="text-2xl font-bold tracking-tight text-foreground">{value}</p>
-    </div>
-  </div>
-);
+// const StatCard = ({ title, value, tooltip, icon }: StatCardProps) => (
+//   <div className="flex items-start space-x-4 p-4 bg-muted rounded-lg hover:bg-muted/70 transition-colors">
+//     {icon && <div className="p-2 bg-background rounded-md">{icon}</div>}
+//     <div className="flex-1 space-y-1">
+//       <div className="flex items-center">
+//         <p className="text-sm font-medium text-muted-foreground">{title}</p>
+//         {tooltip && (
+//           <span className="ml-2 text-muted-foreground cursor-help" title={tooltip}>
+//             ⓘ
+//           </span>
+//         )}
+//       </div>
+//       <p className="text-2xl font-bold tracking-tight text-foreground">{value}</p>
+//     </div>
+//   </div>
+// );
 
 export function PoolStatCard({ title, value, tooltip, icon }: StatCardProps) {
   return (
