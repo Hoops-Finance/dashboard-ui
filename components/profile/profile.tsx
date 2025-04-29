@@ -269,7 +269,10 @@ export default function Profile() {
                 <Image
                   src={avatarUrl}
                   alt={`${acct.provider} avatar`}
+                  width={24}
+                  height={24}
                   className="h-6 w-6 rounded-full"
+                  style={{ width: '24px', height: '24px' }}
                 />
               ) : null}
               <p className="text-sm font-medium capitalize">{acct.provider}</p>
