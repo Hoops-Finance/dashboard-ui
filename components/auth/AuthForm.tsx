@@ -307,7 +307,13 @@ export default function AuthForm({
               handleOrBlockClick(loginWithDiscord);
             }}
           >
-            <Image src="/icons/discord.svg" alt="Discord" width={24} height={24} />
+            <Image 
+              src="/icons/discord.svg" 
+              alt="Discord" 
+              width={24} 
+              height={24}
+              style={{ width: '24px', height: '24px' }}
+            />
             Discord
           </button>
         </div>

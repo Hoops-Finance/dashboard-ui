@@ -207,18 +207,30 @@ export function buildPoolRoute(
   tokens: Token[],
   period: AllowedPeriods,
 ): string {
+  // Prepare the common part of the URL
+  const protocol = pool.protocol.toLowerCase();
+  
+  // Helper function to create URL with market name
+  const createMarketUrl = () => {
+    const urlSafePair = pool.market.replace(/\//g, "-");
+    return `/pools/${protocol}/${urlSafePair}?period=${period}&pairId=${pool.pairId}`;
+  };
+
+  // Find the pair
   const p = pairs.find((pr) => pr.id === pool.pairId);
   if (!p) {
-    const urlSafePair = pool.market.replace(/\//g, "-");
-    return `/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`;
+    return createMarketUrl();
   }
+
+  // Find the tokens
   const t0 = tokens.find((t) => t.id === p.token0);
   const t1 = tokens.find((t) => t.id === p.token1);
   if (!t0 || !t1) {
-    const urlSafePair = pool.market.replace(/\//g, "-");
-    return `/pools/${pool.protocol.toLowerCase()}/${urlSafePair}?period=${period}`;
+    return createMarketUrl();
   }
+
+  // Create URL with token names
   const t0Name = t0.name.replace(/:/g, "-");
   const t1Name = t1.name.replace(/:/g, "-");
-  return `/pools/${pool.protocol.toLowerCase()}/${t0Name}-${t1Name}?period=${period}`;
+  return `/pools/${protocol}/${t0Name}-${t1Name}?period=${period}&pairId=${pool.pairId}`;
 }

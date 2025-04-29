@@ -126,14 +126,17 @@ export const authOptions: NextAuthConfig = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      token.id = user.id ?? "";
-      token.avatar = user.avatar;
-      token.name = user.name ?? "";
-      token.email = user.email ?? "";
-      token.premiumSubscription = user.premiumSubscription;
-      token.accessToken = user.accessToken;
-      token.refreshToken = user.refreshToken;
-      token.subId = user.subId;
+      // Only try to set token properties if user exists (during sign in)
+      if (user) {
+        token.id = user.id ?? "";
+        token.avatar = user.avatar;
+        token.name = user.name ?? "";
+        token.email = user.email ?? "";
+        token.premiumSubscription = user.premiumSubscription;
+        token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
+        token.subId = user.subId;
+      }
       return validateAuthorization(token);
     },
 
@@ -270,35 +273,49 @@ async function fetchCredentialsUser(
   email: string,
   password: string,
 ): Promise<UserResponseType | null> {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": `${process.env.AUTH_API_KEY}`,
-    },
-    body: JSON.stringify({ email: email, password: password }),
-  });
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": `${process.env.AUTH_API_KEY}`,
+      },
+      body: JSON.stringify({ email: email, password: password }),
+    });
 
-  if (!res.ok) {
-    return null;
+    // Get the response data
+    const data = await res.json() as AuthResult;
+    
+    if (!res.ok) {
+      // Extract error message from response if available
+      const errorMessage = data.error || `Authentication failed with status: ${res.status}`;
+      console.error("Authentication error:", errorMessage);
+      // Throw error with message to be handled by NextAuth
+      throw new Error(errorMessage);
+    }
+    
+    console.log("fetchCredentialsUser");
+    console.log("fetchCredentialsUser", data);
+    
+    if (!data.success || !data.accessToken || !data.refreshToken || !data.email || !data.id) {
+      throw new Error("Invalid response format from authentication server");
+    }
+    
+    // todo: unifiy the types better.
+    return {
+      id: data.id,
+      name: data.email.split("@")[0],
+      email: data.email,
+      avatar: "",
+      premium_subscription: false,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      sub_id: "",
+    };
+  } catch (error) {
+    console.error("Error in fetchCredentialsUser:", error);
+    throw error; // Re-throw to be handled by NextAuth
   }
-  console.log("fetchCredentialsUser");
-  const data = (await res.json()) as AuthResult;
-  console.log("fetchCredentialsUser", data);
-  if (!data.success || !data.accessToken || !data.refreshToken || !data.email || !data.id) {
-    return null;
-  }
-  // todo: unifiy the types better.
-  return {
-    id: data.id,
-    name: data.email.split("@")[0],
-    email: data.email,
-    avatar: "",
-    premium_subscription: false,
-    accessToken: data.accessToken,
-    refreshToken: data.refreshToken,
-    sub_id: "",
-  };
 }
 
 interface SocialUserResponse {
@@ -314,15 +331,9 @@ async function fetchSocialUser(
 ): Promise<SocialUserResponse> {
   console.log("[fetchSocialUser] Starting exchange logic...");
 
-  // 1) Check if the user is logged in
-  const session = await auth();
-  const isLoggedIn = !!session?.user.accessToken;
-  console.log("[fetchSocialUser] isLoggedIn?", isLoggedIn);
-
-  // 2) Determine the URL based on login or linking
-  const url = isLoggedIn
-    ? `${process.env.AUTH_API_URL}/auth/oauth/link`
-    : `${process.env.AUTH_API_URL}/auth/oauth/login`;
+  // For OAuth login flow, we should always use the login endpoint
+  // We don't need to check for an existing session as this is a fresh login attempt
+  const url = `${process.env.AUTH_API_URL}/auth/oauth/login`;
 
   console.log(
     `[fetchSocialUser] Calling express backend at ${url} with provider/code/state:`,
@@ -331,17 +342,13 @@ async function fetchSocialUser(
     state,
   );
 
-  // 3) Prepare headers
+  // Prepare headers
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "x-api-key": `${process.env.AUTH_API_KEY}`,
   };
 
-  if (isLoggedIn && session.user.accessToken) {
-    headers.Authorization = `Bearer ${session.user.accessToken}`;
-  }
-
-  // 4) Make the request
+  // Make the request
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -356,11 +363,11 @@ async function fetchSocialUser(
       console.error("[fetchSocialUser] Backend responded with error:", data);
       return {
         success: false,
-        error: data.error ?? "Error communicating with backend.",
+        error: data.error ?? `Error communicating with backend. Status: ${res.status}`,
       };
     }
 
-    // 5) Validate the response structure
+    // Validate the response structure
     if (!data.id || !data.email) {
       console.error("[fetchSocialUser] Missing user data in backend response:", data);
       return {
@@ -377,7 +384,7 @@ async function fetchSocialUser(
       };
     }
 
-    // 6) Construct the user object
+    // Construct the user object
     const userData: UserResponseType = {
       id: data.id,
       email: data.email,
@@ -398,8 +405,9 @@ async function fetchSocialUser(
     let message;
     if (error instanceof Error) {
       message = error.message;
+    } else {
+      message = String(error);
     }
-    message = error as string;
     console.error("[fetchSocialUser] Error during fetch:", message);
     return {
       success: false,
