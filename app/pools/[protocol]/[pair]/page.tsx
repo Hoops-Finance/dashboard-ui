@@ -7,6 +7,7 @@ interface PageProps {
     protocol: string;
     pair: string;
   };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -18,6 +19,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export { generatePairRoutes };
 
-export default function Page({ params }: PageProps) {
-  return <PoolPage params={Promise.resolve(params)} />;
+export default function Page({ params, searchParams }: PageProps) {
+  return <PoolPage params={Promise.resolve(params)} searchParams={searchParams} />;
 }

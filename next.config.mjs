@@ -24,6 +24,17 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
   },
+  images: {
+    domains: ['lh3.googleusercontent.com', 'localhost'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3031',
+        pathname: '/**',
+      },
+    ],
+  },
   productionBrowserSourceMaps: true,
   staticPageGenerationTimeout: 600,
   experimental: {

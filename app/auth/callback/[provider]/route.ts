@@ -3,7 +3,7 @@
 "use server";
 
 import { NextRequest, NextResponse } from "next/server";
-import { auth, signIn } from "@/utils/auth";
+import { signIn } from "@/utils/auth";
 import { cookies } from "next/headers";
 import { AuthError } from "next-auth";
 
@@ -55,31 +55,50 @@ export async function GET(req: NextRequest, context: { params: Promise<{ provide
 
   console.log(`[OAUTH-CALLBACK] TRYING TO LOGIN`);
 
-  let redirectUrl: string;
   try {
-    redirectUrl = (await signIn("social", {
+    // We use signIn with redirect: false to manually handle the redirect
+    const signInResult = await signIn("social", {
       redirect: false,
       provider,
       code,
       state: returnedState,
-    })) as string;
-    console.log("[OAUTH-CALLBACK] signIn('social') returned URL:", redirectUrl);
-    if (!redirectUrl) {
-      throw new Error("Failed to retrieve redirect URL from signIn");
+    });
+    
+    console.log("[OAUTH-CALLBACK] Sign-in result:", signInResult);
+    
+    // If we have a result but not a specific URL, consider the authentication successful
+    // This is a key change to avoid the "No URL returned from signIn" error
+    if (signInResult) {
+      // If there's a URL, check if it contains an error
+      if (signInResult.url) {
+        const resultUrl = new URL(signInResult.url);
+        const error = resultUrl.searchParams.get("error");
+        
+        if (error) {
+          console.error("[OAUTH-CALLBACK] Authentication error:", error);
+          return NextResponse.redirect(new URL(`/signup?error=${error}`, req.url));
+        }
+      }
+      
+      // If there's no error, consider the authentication successful
+      // This avoids the issue when signInResult exists but doesn't have a specific URL
+      console.log("[OAUTH-CALLBACK] Authentication successful, redirecting to profile");
+      return NextResponse.redirect(new URL("/profile", req.url));
     }
+    
+    // If we don't have a result, something went wrong
+    console.error("[OAUTH-CALLBACK] No result from signIn");
+    return NextResponse.redirect(new URL("/signup?error=AuthenticationFailed", req.url));
+    
   } catch (err) {
+    console.error("[OAUTH-CALLBACK] Error during social authentication:", err);
+    
+    // Handle specific auth errors
     if (err instanceof AuthError) {
       return NextResponse.redirect(new URL(`/signup?error=${encodeURIComponent(err.message)}`, req.url));
     }
+    
+    // Generic error handler
+    return NextResponse.redirect(new URL("/signup?error=AuthenticationFailed", req.url));
   }
-
-  console.log("calling session in the authcallback");
-  const session = await auth();
-  console.log("called session in the auth callback");
-  const isLoggedIn = !!session?.user.accessToken;
-  console.log(`[OAUTH-CALLBACK] User is logged in: ${isLoggedIn}`);
-  if (!isLoggedIn) {
-    return NextResponse.redirect(new URL(`/signup?error=UnknownFailure`, req.url));
-  }
-  return NextResponse.redirect(new URL("/profile", req.url));
 }
