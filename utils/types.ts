@@ -469,4 +469,5 @@ export interface UserProfile {
       }
   )[];
   settings?: SettingUserType;
+  emailVerified?: Boolean;
 }
