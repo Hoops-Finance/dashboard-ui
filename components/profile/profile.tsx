@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { PencilIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { getCsrfToken } from "next-auth/react";
 import { UserProfile } from "@/utils/types";
 import { updateProfileService } from "@/services/profile.service.ts";
+import { verifyEmailService } from "@/services/verification.service.ts";
 import { SettingUserType } from "@/types/user.ts";
 import { convertToBase64 } from "@/utils/files.ts";
 import Image from "next/image";
@@ -36,6 +37,10 @@ export default function Profile() {
   const [csrfToken, setCsrfToken] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [verificationCode, setVerificationCode] = useState<string>("");
+  const [verifying, setVerifying] = useState(false);
+  const [verificationSuccess, setVerificationSuccess] = useState(false);
+  const [verificationError, setVerificationError] = useState<string>("");
 
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
@@ -136,6 +141,43 @@ export default function Profile() {
       setUpdatedProfile(true);
     } catch (err) {
       console.error("[Profile] Error updating user setting profile:", err);
+    }
+  }
+
+  async function verifyEmail() {
+    if (!verificationCode.trim()) {
+      setVerificationError("Please enter the verification code");
+      return;
+    }
+
+    setVerifying(true);
+    setVerificationError("");
+    setVerificationSuccess(false);
+
+    try {
+      const email = profileData?.email || session?.user.email;
+      if (!email) {
+        setVerificationError("Email address not found");
+        return;
+      }
+
+      const result = await verifyEmailService({
+        email,
+        code: verificationCode.trim()
+      });
+
+      if (result.success) {
+        setVerificationSuccess(true);
+        // Refresh profile data to update verification status
+        await fetchUserProfile(false);
+      } else {
+        setVerificationError(result.message || result.error || "Verification failed");
+      }
+    } catch (err) {
+      console.error("[Profile] Error verifying email:", err);
+      setVerificationError("An error occurred during verification");
+    } finally {
+      setVerifying(false);
     }
   }
 
@@ -310,6 +352,58 @@ export default function Profile() {
     );
   }
 
+  function renderEmailVerification() {
+    const isVerified = profileData?.emailVerified;
+    console.log(profileData);
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2">
+          {isVerified ? (
+            <>
+              <CheckCircleIcon className="h-5 w-5 text-green-500" />
+              <span className="text-sm font-medium">Your email has been verified</span>
+            </>
+          ) : (
+            <>
+              <XCircleIcon className="h-5 w-5 text-amber-500" />
+              <span className="text-sm font-medium">Your email is not verified</span>
+            </>
+          )}
+        </div>
+        
+        {!isVerified && (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              A verification code has been sent to your email. Please enter it below to verify your account.
+            </p>
+            <div className="flex space-x-2">
+              <Input
+                placeholder="Enter verification code"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                className="max-w-xs"
+              />
+              <Button 
+                onClick={() => verifyEmail()} 
+                disabled={verifying}
+                size="sm"
+              >
+                {verifying ? "Verifying..." : "Verify"}
+              </Button>
+            </div>
+            {verificationError && (
+              <p className="text-sm text-red-500">{verificationError}</p>
+            )}
+            {verificationSuccess && (
+              <p className="text-sm text-green-500">Email verified successfully!</p>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div>
       {loadingProfile ? (
@@ -376,6 +470,17 @@ export default function Profile() {
                       </div>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+
+              {/* Email Verification Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Email Verification</CardTitle>
+                  <CardDescription>Verify your email address to access all features.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {renderEmailVerification()}
                 </CardContent>
               </Card>
 
