@@ -1,0 +1,202 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Portfolio",
+    "type": "object",
+    "properties": {
+      "accounts": {
+        "type": "array",
+        "description": "List of user-deployed account contracts.",
+        "items": {
+          "$ref": "#/definitions/Account"
+        }
+      },
+      "strategies": {
+        "type": "array",
+        "description": "List of all installed strategy contracts.",
+        "items": {
+          "$ref": "#/definitions/Strategy"
+        }
+      },
+      "signals": {
+        "type": "array",
+        "description": "List of signal contracts and their current or historical signals.",
+        "items": {
+          "$ref": "#/definitions/Signal"
+        }
+      },
+      "pools": {
+        "type": "array",
+        "description": "List of available liquidity pools (AMMs) the strategies can interact with.",
+        "items": {
+          "$ref": "#/definitions/Pool"
+        }
+      }
+    },
+    "required": ["accounts", "strategies", "signals", "pools"],
+  
+    "definitions": {
+      "Account": {
+        "type": "object",
+        "description": "A user-deployed contract that serves as an automated savings account.",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "description": "Unique identifier for the account, e.g. contract address."
+          },
+          "owner": {
+            "type": "string",
+            "description": "Address of the user who owns this account."
+          },
+          "balance": {
+            "type": "string",
+            "description": "Current balance of the account in base currency or token units."
+          },
+          "installedStrategies": {
+            "type": "array",
+            "description": "List of strategy IDs that the user has chosen to install on this account.",
+            "items": {
+              "type": "string",
+              "description": "References the 'strategyId' from the Strategy object."
+            }
+          }
+        },
+        "required": ["accountId", "owner", "balance", "installedStrategies"]
+      },
+  
+      "Strategy": {
+        "type": "object",
+        "description": "A strategy contract that interacts with the user's account, AMM pools, and a signal contract.",
+        "properties": {
+          "strategyId": {
+            "type": "string",
+            "description": "Unique identifier for the strategy, e.g. strategy contract address."
+          },
+          "accountId": {
+            "type": "string",
+            "description": "The ID of the Account this strategy is installed on."
+          },
+          "signalContractId": {
+            "type": "string",
+            "description": "Reference to the associated signal contract."
+          },
+          "allocatedPools": {
+            "type": "array",
+            "description": "Tracks how the strategy has allocated liquidity among various pools. The sum of all 'score' values across allocatedPools must equal 100 in total.",
+            "items": {
+              "$ref": "#/definitions/AllocatedPool"
+            }
+          },
+          "lastAllocationTimestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the last reallocation event triggered by the strategy."
+          }
+        },
+        "required": ["strategyId", "accountId", "signalContractId", "allocatedPools"]
+      },
+  
+      "Signal": {
+        "type": "object",
+        "description": "A contract that provides signals about asset movements or recommended pool distributions.",
+        "properties": {
+          "signalContractId": {
+            "type": "string",
+            "description": "Unique identifier for the signal contract."
+          },
+          "signalType": {
+            "type": "string",
+            "enum": ["BUY_SELL", "POOL_RECOMMENDATIONS", "CUSTOM"],
+            "description": "Type of signal the contract provides (e.g. buy/sell triggers or recommended pools)."
+          },
+          "currentSignalData": {
+            "type": "object",
+            "description": "Data reflecting the latest signal. For pool recommendations, this might be top pools and their scores.",
+            "properties": {
+              "recommendedPools": {
+                "type": "array",
+                "description": "If the signal is about pools, an ordered list of recommended pools and their scores.",
+                "items": {
+                  "$ref": "#/definitions/PoolScore"
+                }
+              },
+              "buySellIndicator": {
+                "type": "string",
+                "enum": ["BUY", "SELL", "HOLD", "NONE"],
+                "description": "Basic buy/sell signal. Applicable only if signalType == BUY_SELL."
+              }
+            }
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the signal was last updated."
+          }
+        },
+        "required": ["signalContractId", "signalType", "currentSignalData", "updatedAt"]
+      },
+  
+      "Pool": {
+        "type": "object",
+        "description": "Represents a liquidity pool from an AMM contract.",
+        "properties": {
+          "poolId": {
+            "type": "string",
+            "description": "Unique identifier for the AMM pool, e.g. pool contract address."
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name for the pool (e.g. 'USDC/ETH Pool')."
+          },
+          "tokens": {
+            "type": "array",
+            "description": "List of tokens (or assets) in the pool.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "totalLiquidity": {
+            "type": "string",
+            "description": "Amount of total liquidity in the pool, typically denoted in token units."
+          }
+        },
+        "required": ["poolId", "name", "tokens", "totalLiquidity"]
+      },
+  
+      "AllocatedPool": {
+        "type": "object",
+        "description": "Represents a single pool allocation by a strategy.",
+        "properties": {
+          "poolId": {
+            "type": "string",
+            "description": "References the pool ID from the Pool object."
+          },
+          "score": {
+            "type": "number",
+            "description": "The score that determines what percentage of the liquidity goes to this pool (0-100)."
+          },
+          "allocatedAmount": {
+            "type": "string",
+            "description": "The amount of liquidity or tokens allocated to this pool."
+          }
+        },
+        "required": ["poolId", "score", "allocatedAmount"]
+      },
+  
+      "PoolScore": {
+        "type": "object",
+        "description": "Score assigned to a pool from the signal contract for recommended allocations.",
+        "properties": {
+          "poolId": {
+            "type": "string",
+            "description": "References the pool ID."
+          },
+          "score": {
+            "type": "number",
+            "description": "Score indicating the fraction of liquidity the strategy should allocate (0-100)."
+          }
+        },
+        "required": ["poolId", "score"]
+      }
+    }
+  }
+  

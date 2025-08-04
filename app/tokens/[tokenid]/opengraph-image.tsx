@@ -10,9 +10,6 @@ import {
   getPairsForToken,
 } from "@/services/serverData.service";
 import type { AssetDetails, Pair } from "@/utils/types";
-import { generatePairRoutes } from "@/app/pools/[protocol]/[pair]/page";
-import { getCachedRoutes } from "@/lib/routeCache";
-import { generateTokenRoutes } from "./page";
 
 export const alt = "Token Stats";
 export const size = { width: 1200, height: 630 };
@@ -23,11 +20,11 @@ export const revalidate = 86400;
 export const config = {
   runtime: "experimental-edge",
 };
-
+/*
 export async function generateStaticParams() {
   const { tokenRoutes } = await getCachedRoutes(generateTokenRoutes, generatePairRoutes);
   return tokenRoutes;
-}
+}*/
 
 export default async function ogImage({ params }: { params: Promise<{ tokenid: string }> }) {
   const { tokenid } = await params;
@@ -151,16 +148,13 @@ export default async function ogImage({ params }: { params: Promise<{ tokenid: s
               alignItems: "center",
             }}
           >
-            {
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src="https://app.hoops.finance/images/logo2.svg"
-                alt="Logo"
-                style={{
-                  filter: "invert(1)",
-                }}
-              />
-            }
+            <img
+              src="https://app.hoops.finance/images/logo2.svg"
+              alt="Logo"
+              style={{
+                filter: "invert(1)",
+              }}
+            />
           </div>
         </div>
 
@@ -190,22 +184,19 @@ export default async function ogImage({ params }: { params: Promise<{ tokenid: s
               alignItems: "center",
             }}
           >
-            {
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={
-                  tokenDetails?.toml_info?.image
-                    ? tokenDetails.toml_info.image
-                    : tokenDetails?.toml_info?.orgLogo
-                }
-                alt="Token Logo"
-                style={{
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  objectFit: "contain",
-                }}
-              />
-            }
+            <img
+              src={
+                tokenDetails?.toml_info?.image
+                  ? tokenDetails.toml_info.image
+                  : tokenDetails?.toml_info?.orgLogo
+              }
+              alt="Token Logo"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "100%",
+                objectFit: "contain",
+              }}
+            />
           </div>
 
           {/* Token Name and Domain/Contract */}

@@ -125,7 +125,7 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
       >
         <Card>
           <CardHeader>
-            <CardTitle className="flex-center-g-2">
+            <CardTitle className="flex items-center gap-2">
               <FlameIcon />
               Best APR Pairs
             </CardTitle>
@@ -144,7 +144,7 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
                     handleViewDetails(item);
                   }}
                 >
-                  <div className="flex-center-g-2">
+                  <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">#{rank}</span>
                     <span className="text-foreground font-medium group-hover:text-primary transition-colors duration-200">
                       {pairLabel}
@@ -169,7 +169,7 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
       >
         <Card>
           <CardHeader>
-            <CardTitle className="flex-center-g-2">
+            <CardTitle className="flex items-center gap-2">
               <DiamondIcon />
               Highest Volume Pairs
             </CardTitle>
@@ -188,7 +188,7 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
                     handleViewDetails(item);
                   }}
                 >
-                  <div className="flex-center-g-2">
+                  <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">#{rank}</span>
                     <span className="text-foreground font-medium group-hover:text-primary transition-colors duration-200">
                       {pairLabel}
@@ -211,7 +211,7 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
       >
         <Card>
           <CardHeader>
-            <CardTitle className="flex-center-g-2">
+            <CardTitle className="flex items-center gap-2">
               <CoinsIcon />
               Best Stable Coin Pools
             </CardTitle>
@@ -230,7 +230,7 @@ export function TopPools({ data, pairs, tokens, stablecoinIds, period }: TopPool
                     handleViewDetails(item);
                   }}
                 >
-                  <div className="flex-center-g-2">
+                  <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">#{rank}</span>
                     <span className="text-foreground font-medium group-hover:text-primary transition-colors duration-200">
                       {pairLabel}

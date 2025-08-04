@@ -1,4 +1,6 @@
 /* pools.css */
+@import "tailwindcss";
+@config "../../../../tailwind.config.ts";
 
 /* ========== GLOBAL UTILITIES (used by both server & client) ========== */
 .IconSmallPrimary {

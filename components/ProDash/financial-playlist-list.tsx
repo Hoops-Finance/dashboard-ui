@@ -158,7 +158,7 @@ export default function FinancialPlaylistList() {
                         {playlist.pools.map((pool, index) => (
                           <div key={index} className="flex items-center justify-between text-sm">
                             <span>{pool.name}</span>
-                            <div className="flex-center-g-4">
+                            <div className="flex items-center gap-4">
                               <span className="text-muted-foreground">{pool.allocation}%</span>
                               <span className="text-green-500">{pool.apr}% APR</span>
                             </div>

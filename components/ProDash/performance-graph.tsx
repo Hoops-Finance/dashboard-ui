@@ -235,7 +235,6 @@ ${colorConfig
     HTMLDivElement,
     ComponentProps<"div"> & {
       config: ChartConfig;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       children: ComponentProps<any>["children"]; // this library doesn't play nice it'll be replaced later (recharts)
     }
   >(({ id, className, children, config, ...props }, ref) => {
