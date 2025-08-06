@@ -44,8 +44,29 @@ export default function Profile() {
 
   useEffect(() => {
     void (async () => {
-      const token = await getCsrfToken();
-      if (token) setCsrfToken(token);
+      try {
+        // Try to fetch directly from the API endpoint instead of using getCsrfToken()
+        const response = await fetch("/api/auth/csrf");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.csrfToken) {
+            setCsrfToken(data.csrfToken);
+            console.log("[Profile] CSRF token fetched from API:", data.csrfToken);
+          }
+        } else {
+          // Fallback to getCsrfToken if API call fails
+          const token = await getCsrfToken();
+          if (token) {
+            setCsrfToken(token);
+            console.log("[Profile] CSRF token from getCsrfToken:", token);
+          }
+        }
+      } catch (error) {
+        console.error("[Profile] Error fetching CSRF token:", error);
+        // Fallback to getCsrfToken
+        const token = await getCsrfToken();
+        if (token) setCsrfToken(token);
+      }
     })();
 
     if (status === "loading") return;

@@ -25,33 +25,45 @@ export async function GET(req: NextRequest, context: { params: Promise<{ provide
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const returnedState = searchParams.get("state");
+  
+  // Use NEXTAUTH_URL if available, otherwise construct from headers
+  const baseUrl = process.env.NEXTAUTH_URL || 
+    (() => {
+      const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || process.env.NEXT_PUBLIC_BASE_URL;
+      const protocol = req.headers.get("x-forwarded-proto") || "https";
+      return `${protocol}://${host}`;
+    })();
 
-  console.log(`[OAUTH-CALLBACK] Provider: ${provider}, Code: ${code}, State: ${returnedState}`);
+  console.log(`[OAUTH-CALLBACK] Provider: ${provider}, Code: ${code}, State: ${returnedState}, BaseURL: ${baseUrl}`);
 
   if (!provider || !code || !returnedState) {
-    return NextResponse.redirect(new URL("/signup?error=MissingCodeOrState", req.url));
+
+    return NextResponse.redirect(new URL("/signup?error=MissingCodeOrState", baseUrl));
   }
 
   const cookieStore = await cookies();
   const rawCookie = cookieStore.get("__Host-authjs.csrf-token")?.value ??   // production cookie
   cookieStore.get("authjs.csrf-token")?.value ?? "";      // fallback for dev
-  console.log(`[OAUTH-CALLBACK] CSRF Cookie: ${rawCookie}`);
+  console.log(`[OAUTH-CALLBACK] RAW COOKIESTORE: ${JSON.stringify(cookieStore.getAll())}`);
 
+  console.log(`[OAUTH-CALLBACK] CSRF Cookie: ${rawCookie}`);
+// decode the csrf token
   if (!rawCookie) {
-    return NextResponse.redirect(new URL("/signup?error=MissingCsrfCookie", req.url));
+    return NextResponse.redirect(new URL("/signup?error=MissingCsrfCookie", baseUrl));
   }
 
   const decodedCookie = decodeURIComponent(rawCookie);
   console.log(`[OAUTH-CALLBACK] Decoded CSRF Cookie: ${decodedCookie}`);
 
-  const [csrfCookieValue] = decodedCookie.split("|");
-  console.log(`[OAUTH-CALLBACK] CSRF Cookie Value: ${csrfCookieValue}`);
-  const cookieToken = decodeURIComponent(csrfCookieValue);
-
+  const [cookieToken] = decodedCookie.split("|");
   console.log(`[OAUTH-CALLBACK] Cookie Token: ${cookieToken}`);
   console.log(`[OAUTH-CALLBACK] Returned State: ${returnedState}`);
+  console.log(`[OAUTH-CALLBACK] Token lengths - Cookie: ${cookieToken?.length}, State: ${returnedState?.length}`);
+  console.log(`[OAUTH-CALLBACK] Tokens match: ${cookieToken === returnedState}`);
+  
   if (!cookieToken || cookieToken !== returnedState) {
-    return NextResponse.redirect(new URL("/signup?error=InvalidState", req.url));
+    console.log(`[OAUTH-CALLBACK] CSRF token mismatch - Cookie: '${cookieToken}', State: '${returnedState}'`);
+    return NextResponse.redirect(new URL("/signup?error=InvalidState", baseUrl));
   }
 
   console.log(`[OAUTH-CALLBACK] TRYING TO LOGIN`);
@@ -77,29 +89,29 @@ export async function GET(req: NextRequest, context: { params: Promise<{ provide
         
         if (error) {
           console.error("[OAUTH-CALLBACK] Authentication error:", error);
-          return NextResponse.redirect(new URL(`/signup?error=${error}`, req.url));
+          return NextResponse.redirect(new URL(`/signup?error=${error}`, baseUrl));
         }
       }
       
       // If there's no error, consider the authentication successful
       // This avoids the issue when signInResult exists but doesn't have a specific URL
       console.log("[OAUTH-CALLBACK] Authentication successful, redirecting to profile");
-      return NextResponse.redirect(new URL("/profile", req.url));
+      return NextResponse.redirect(new URL("/profile", baseUrl));
     }
     
     // If we don't have a result, something went wrong
     console.error("[OAUTH-CALLBACK] No result from signIn");
-    return NextResponse.redirect(new URL("/signup?error=AuthenticationFailed", req.url));
+    return NextResponse.redirect(new URL("/signup?error=AuthenticationFailed", baseUrl));
     
   } catch (err) {
     console.error("[OAUTH-CALLBACK] Error during social authentication:", err);
     
     // Handle specific auth errors
     if (err instanceof AuthError) {
-      return NextResponse.redirect(new URL(`/signup?error=${encodeURIComponent(err.message)}`, req.url));
+      return NextResponse.redirect(new URL(`/signup?error=${encodeURIComponent(err.message)}`, baseUrl));
     }
     
     // Generic error handler
-    return NextResponse.redirect(new URL("/signup?error=AuthenticationFailed", req.url));
+    return NextResponse.redirect(new URL("/signup?error=AuthenticationFailed", baseUrl));
   }
 }

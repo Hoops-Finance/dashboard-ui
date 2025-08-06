@@ -52,7 +52,7 @@ declare module "next-auth/jwt" {
 }
 
 export const authOptions: NextAuthConfig = {
-    trustHost: true,
+  trustHost: true,
   providers: [
     CredentialsProvider({
       id: "credentials",
