@@ -33,7 +33,8 @@ export async function GET(req: NextRequest, context: { params: Promise<{ provide
   }
 
   const cookieStore = await cookies();
-  const rawCookie = cookieStore.get("authjs.csrf-token")?.value ?? "";
+  const rawCookie = cookieStore.get("__Host-authjs.csrf-token")?.value ??   // production cookie
+  cookieStore.get("authjs.csrf-token")?.value ?? "";      // fallback for dev
   console.log(`[OAUTH-CALLBACK] CSRF Cookie: ${rawCookie}`);
 
   if (!rawCookie) {
